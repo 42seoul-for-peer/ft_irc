@@ -1,6 +1,7 @@
 #include <iostream>
 #include <poll.h>
 
+#include <ctime>
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
@@ -40,26 +41,44 @@ int main(int argc, char* argv[])
     }
     std::string wBuf;
     char rBuf[512];
+    struct pollfd pollfds[1];
+    pollfds[0].fd = sockClnt;
+    pollfds[0].events = POLLIN;
     while (true)
     {
         std::memset(rBuf, 0, 512);
-        std::getline(std::cin, wBuf);
-        if (wBuf.length() > 511)
-            break ;
-        int wBytes = send(sockClnt, wBuf.c_str(), wBuf.length(), 0);
-        if (wBytes == -1)
+        if (poll(pollfds, 1, 1000) < 0)
         {
-            std::cout << "write error" << std::endl;
-            break ;
-        }
-        int rBytes = recv(sockClnt, rBuf, sizeof(rBuf), 0);
-        if (rBytes == -1)
-        {
-            std::cout << "read error" << std::endl;
-            break ;
+            std::cout << "poll error" << std::endl;
+            return (1);
         }
         else
-            std::cout << rBuf << std::endl;
+        {
+            if (pollfds[0].revents & POLLOUT)
+            {
+                std::cout << "type here: ";
+                std::getline(std::cin, wBuf);
+                if (wBuf.length() > 511)
+                break ;
+                int wBytes = send(sockClnt, wBuf.c_str(), wBuf.length(), 0);
+                if (wBytes == -1)
+                {
+                    std::cout << "write error" << std::endl;
+                    break ;
+                }
+            }
+            else if (pollfds[0].revents & POLLIN)
+            {
+                int rBytes = recv(sockClnt, rBuf, sizeof(rBuf), 0);
+                if (rBytes == -1)
+                {
+                    std::cout << "read error" << std::endl;
+                    break ;
+                }
+                else
+                    std::cout << rBuf << std::endl;
+            }
+        }
     }
     close(sockClnt);
     return (0);
