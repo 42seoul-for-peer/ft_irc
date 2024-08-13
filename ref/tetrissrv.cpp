@@ -110,9 +110,10 @@ int main(int argc, char* argv[]) {
 
         SOCKET i;
         for(i = 1; i <= max_socket; ++i) {
-            if (FD_ISSET(i, &reads)) { //change detection
-
-                if (i == socket_listen) { //new connect
+            if (FD_ISSET(i, &reads))
+            { //change detection
+                if (i == socket_listen)
+                { //new connect
                     
                     struct sockaddr_storage client_address;
                     socklen_t client_len = sizeof(client_address);
@@ -125,56 +126,48 @@ int main(int argc, char* argv[]) {
                     SOCKET socket_client = accept(socket_listen,
                             (struct sockaddr*) &client_address,
                             &client_len);
-                    if (!ISVALIDSOCKET(socket_client)) {
+                    if (!ISVALIDSOCKET(socket_client))
+                    {
                         fprintf(stderr, "accept() failed. (%d)\n",
                                 GETSOCKETERRNO());
                         return 1;
                     }
-                    else{
+                    else
+                    {
                         printf("%d, %d;;\n",socket_listen, socket_client);
-                        if (socket_client==5){ //connected with two clients
-			    
-			    //create random block to synchronize
+                        if (socket_client==5)
+                        { //connected with two clients
+			                //create random block to synchronize
                             char temp[1001];
                             for (int k = 0; k < 1000; k++)
                                 temp[k] = (rand() % 7) + '0';
                             temp[1000] = '\0';
-
-			    //send myTurn value and block to clients
+			                //send myTurn value and block to clients
                             char message4[1010];
                             char message5[1010];
                             sprintf(message4, "1%s", temp);
                             sprintf(message5, "0%s", temp);
                             int s4 = send(4, message4, strlen(message4), 0);
                             int s5 = send(5, message5, strlen(message5), 0);
-                            
                         }                        
                     }
-
-		    //update fdset
+		            //update fdset
                     FD_SET(socket_client, &master);
                     if (socket_client > max_socket)
                         max_socket = socket_client;
-
                     char address_buffer[100];
                     getnameinfo((struct sockaddr*)&client_address,
                             client_len,
                             address_buffer, sizeof(address_buffer), 0, 0,
                             NI_NUMERICHOST);
-                    
                     //printf("New connection from %s\n", address_buffer);
-
                 }
-		else { //receive message from connected clients
-
+		        else { //receive message from connected clients
 		    //receive command
                     char read[1024];
                     int bytes_received = recv(i, read, 1024, 0);
                     read[bytes_received] = '\0';
-                   
-                    printf("recved : %.*s\n",
-                    bytes_received, read);
-                   
+                    printf("recved : %.*s\n", bytes_received, read);
                     if (bytes_received < 1) {
                         FD_CLR(i, &master);
                         CLOSESOCKET(i);

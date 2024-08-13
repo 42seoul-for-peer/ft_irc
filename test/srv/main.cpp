@@ -97,7 +97,6 @@ int main(int argc, char* argv[])
         }
 
         // operate client's request
-        std::cout << "max_i: " << max_i << std::endl;
         for (i = 1; i <= max_i; i++)
         {
             if (clients[i].fd < 0)
@@ -111,9 +110,8 @@ int main(int argc, char* argv[])
                 memset(buf, 0, BUF_SIZE);
 
                 // read socket where the event occured in
-                std::cout << "before byteReceived" << std::endl;
                 byteReceived = recv(clients[i].fd, buf, BUF_SIZE, 0);
-                std::cout << "byteReceived: " << byteReceived << std::endl;
+                std::cout << clients[i].fd << ": " << buf << std::endl << std::endl;
                 if (byteReceived <= 0)
                 {
                     close(clients[i].fd);
@@ -123,13 +121,10 @@ int main(int argc, char* argv[])
                         for (; clients[max_i].fd < 0; --max_i)
                             ;
                 }
-                else // echo
+                else
                 {
-                    for (int j = 1; j <= max_i; j++)
-                    {
-                        if (j != i)
-                            send(clients[j].fd, buf, byteReceived, 0);
-                    }
+                    for (int j = 0; j <= max_i; j++)
+                        send(clients[j].fd, buf, byteReceived, 0);
                 }
             }
         }

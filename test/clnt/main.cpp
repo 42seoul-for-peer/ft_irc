@@ -1,4 +1,5 @@
 #include <iostream>
+#include <poll.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -37,24 +38,21 @@ int main(int argc, char* argv[])
         std::cout << "connect error" << std::endl;
         return (1);
     }
-    char wBuf[512];
+    std::string wBuf;
     char rBuf[512];
-
     while (true)
     {
         std::memset(rBuf, 0, 512);
-        std::cin >> wBuf;
-        if (std::strlen(wBuf) > 511)
+        std::getline(std::cin, wBuf);
+        if (wBuf.length() > 511)
             break ;
-        int wBytes = send(sockClnt, wBuf, std::strlen(wBuf), 0);
-        std::cout << "wBytes: " << wBytes << std::endl;
+        int wBytes = send(sockClnt, wBuf.c_str(), wBuf.length(), 0);
         if (wBytes == -1)
         {
             std::cout << "write error" << std::endl;
             break ;
         }
-        int rBytes = recv(sockClnt, rBuf, sizeof(rBuf) - 1, 0);
-        std::cout << "rBytes: " << rBytes << std::endl;
+        int rBytes = recv(sockClnt, rBuf, sizeof(rBuf), 0);
         if (rBytes == -1)
         {
             std::cout << "read error" << std::endl;
