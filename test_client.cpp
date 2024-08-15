@@ -17,14 +17,18 @@ int main(int argc, char** argv) {
 	unsigned int len;
 	int n;
 
-	char rcvBuffer[BUFSIZ];
 	c_sock = socket(PF_INET, SOCK_STREAM, 0);
 	memset(&c_addr, 0, sizeof(c_addr));
 	c_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	c_addr.sin_family = AF_INET;
 	c_addr.sin_port = htons(port_num);
 
-	connect(c_sock, (struct sockaddr *) &c_addr, sizeof(c_addr));
+	if (connect(c_sock, (struct sockaddr *) &c_addr, sizeof(c_addr)) < 0) {
+		std::cout << "connect error!" << std::endl;
+		return 1;
+	}
+	
+	char rcvBuffer[BUFSIZ];
 
 	write(c_sock, argv[2], sizeof(argv[2]));
 	n = read(c_sock, rcvBuffer, sizeof(rcvBuffer));
@@ -32,4 +36,5 @@ int main(int argc, char** argv) {
 	rcvBuffer[n] = '\0';
 	std::cout << "Server echo...: " << rcvBuffer << std::endl;
 
+	close(c_sock);
 }

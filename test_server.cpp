@@ -23,9 +23,15 @@ int main(int argc, char** argv) {
 	s_addr.sin_family = AF_INET;
 	s_addr.sin_port = htons(port_num);
 
-	bind(s_sock, (struct sockaddr *)&s_addr, sizeof(s_addr));
+	if (bind(s_sock, (struct sockaddr *)&s_addr, sizeof(s_addr)) < 0) {
+		std::cout << "bind error!" << std::endl;
+		return 1;
+	}
 
-	listen(s_sock, 5);
+	if (listen(s_sock, 5) < 0) {
+		std::cout << "listen error!" << std::endl;
+		return 1;
+	}
 
 	while (1) {
 		len = sizeof(c_addr);
