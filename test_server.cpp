@@ -5,45 +5,46 @@
 
 int main(int argc, char** argv) {
 
-	if (argc != 2)
+	if (argc != 3)
 		return 0;
 	
-	int port_num = atoi(argv[1]);
+	int port = atoi(argv[1]);
+	std::string password = argv[2];
 
-	int s_sock, c_sock;
-	struct sockaddr_in s_addr, c_addr;
+	int serv_sock, clnt_sock;
+	struct sockaddr_in serv_addr, clnt_addr;
 	unsigned int len;
-	int n;
+	int buf_len;
 
 	char rcvBuffer[BUFSIZ];
 
-	s_sock = socket(PF_INET, SOCK_STREAM, 0);
-	memset(&s_addr, 0, sizeof(s_addr));
-	s_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	s_addr.sin_family = AF_INET;
-	s_addr.sin_port = htons(port_num);
+	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+	memset(&serv_addr, 0, sizeof(serv_addr));
+	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(port);
 
-	if (bind(s_sock, (struct sockaddr *)&s_addr, sizeof(s_addr)) < 0) {
+	if (bind(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
 		std::cout << "bind error!" << std::endl;
 		return 1;
 	}
 
-	if (listen(s_sock, 5) < 0) {
+	if (listen(serv_sock, 5) < 0) {
 		std::cout << "listen error!" << std::endl;
 		return 1;
 	}
 
 	while (1) {
-		len = sizeof(c_addr);
-		c_sock = accept(s_sock, (struct sockaddr *) &c_addr, &len);
+		len = sizeof(clnt_addr);
+		clnt_sock = accept(serv_sock, (struct sockaddr *) &clnt_addr, &len);
 
-		n = read(c_sock, rcvBuffer, sizeof(rcvBuffer));
-		rcvBuffer[n] = '\0';
-		write(c_sock, rcvBuffer, n);
+		buf_len = read(clnt_sock, rcvBuffer, sizeof(rcvBuffer));
+		rcvBuffer[buf_len] = '\0';
+		write(clnt_sock, rcvBuffer, buf_len);
 
-		close (c_sock);
+		close (clnt_sock);
 	}
 
-	close (s_sock);
+	close (serv_sock);
 
 }
