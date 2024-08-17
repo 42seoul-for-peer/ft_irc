@@ -4,6 +4,11 @@
 #include <sys/socket.h>
 #include <string>
 
+void error_msg(std::string msg) {
+	std::cerr << msg << std::endl;
+	exit(1);
+}
+
 int main(int argc, char** argv) {
 
 	if (argc != 3)
@@ -15,7 +20,7 @@ int main(int argc, char** argv) {
 	int clnt_sock;
 	struct sockaddr_in c_addr;
 	unsigned int len;
-	int buf_len;
+	int buf_len, rcv_len;
 
 	clnt_sock = socket(PF_INET, SOCK_STREAM, 0);
 	memset(&c_addr, 0, sizeof(c_addr));
@@ -26,15 +31,31 @@ int main(int argc, char** argv) {
 	if (connect(clnt_sock, (struct sockaddr *) &c_addr, sizeof(c_addr)) < 0) {
 		std::cout << "connect error!" << std::endl;
 		return 1;
-	}
+	} else
+		std::cout << "connected..." << std::endl;
 	
-	char rcvBuffer[BUFSIZ];
+	while (1) {
+		char sndBuffer[BUFSIZ], rcvBuffer[BUFSIZ];
 
-	write(clnt_sock, argv[2], sizeof(argv[2]));
-	buf_len = read(clnt_sock, rcvBuffer, sizeof(rcvBuffer));
+		fputs("input: ", stdout);
+		fgets(sndBuffer, BUFSIZ, stdin);
+		if (!strcmp(sndBuffer, "q\n") || !strcmp(sndBuffer, "Q\n"))
+			break;
 
-	rcvBuffer[buf_len] = '\0';
-	std::cout << "Server echo...: " << rcvBuffer << std::endl;
+		buf_len = write(clnt_sock, sndBuffer, strlen(sndBuffer));
+		rcv_len = 0;
+
+	while (rcv_len < buf_len) {
+		int rcv_cnt = read(clnt_sock, rcvBuffer, sizeof(rcvBuffer));
+		if (rcv_cnt < 0)
+			error_msg("read error!");
+		rcv_len += rcv_cnt;
+	}
+
+		rcvBuffer[buf_len] = '\0';
+		std::cout << "Server echo...: " << rcvBuffer << std::endl;
+
+	}
 
 	close(clnt_sock);
 }
