@@ -2,10 +2,10 @@
 #include <unistd.h>
 #include <iostream>
 #include <sys/socket.h>
-#include <sys/epoll.h>
+#include <sys/event.h>
 #include <netinet/in.h>
 
-#define EPOLL_SIZE 100
+#define KQ_SIZE 100
 
 void error_msg(std::string msg) {
 	std::cerr << msg << std::endl;
@@ -28,9 +28,10 @@ int main(int argc, char** argv) {
 
 	char rcvBuffer[BUFSIZ];
 
-	struct epoll_event* ep_events;
-	struct epoll_event event;
-	int epfd, event_cnt;
+	struct kevent* kq_events;
+	struct kevent event;
+
+	int kq, result, event_cnt;
 
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_addr, 0, sizeof(serv_addr));
@@ -43,47 +44,54 @@ int main(int argc, char** argv) {
 	if (listen(serv_sock, 5) < 0)
 		error_msg("listen error!");
 
-	epfd = epoll_create(EPOLL_SIZE);
-	ep_events = malloc(sizeof(struct epoll_event) * EPOLL_SIZE);
+	kq = kqueue();
+	if (kq < 0)
+		error_msg("kqueue error!");
+	kq_events = (struct kevent *)malloc(sizeof(struct kevent) * KQ_SIZE);
 
-	event.events = EPOLLIN;
-	event.data.fd = serv_sock;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event);
+	EV_SET(&event, serv_sock, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	result = kevent(kq, &event, 1, NULL, 0, NULL);
+	if (result < 0)
+		error_msg("kevent error!");
 
 	while (1) {
 		
-		event_cnt = epoll_wait(epfd, ep_events, EPOLL_SIZE, -1);
-		
+		event_cnt = kevent(kq, NULL, 0, kq_events, 1, NULL);
 		if (event_cnt < 0) {
-			std::cout << "epoll_wait error!" << std::endl;
+			std::cout << "kevent error!" << std::endl;
 			break;
 		}
 
 		for (int i = 0; i < event_cnt; i++) {
-			if (ep_events[i].data.fd == serv_sock) {
+			if (kq_events[i].ident == serv_sock) {
 				adr_sz = sizeof(clnt_addr);
 				clnt_sock = accept(serv_sock, (struct sockaddr *) &clnt_addr, &adr_sz);
 				
-				event.events = EPOLLIN;
-				event.data.fd = clnt_sock;
-				epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
+				EV_SET(&event, clnt_sock, EVFILT_READ, EV_ADD, 0, 0, NULL);
+				result = kevent(kq, &event, 1, NULL, 0, NULL);
+				if (result < 0)
+					break ;
 
 				std::cout << "connected client: " << clnt_sock << std::endl;
 			} else {
-				buf_len = read(clnt_sock, rcvBuffer, sizeof(rcvBuffer));
+				buf_len = read(kq_events[i].ident, rcvBuffer, sizeof(rcvBuffer));
 				if (buf_len == 0) {
-					epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL);
-					close(i);
-					std::cout << "closed client: " << i << std::endl;
+					EV_SET(&event, kq_events[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+					result = kevent(kq, &event, 1, NULL, 0, NULL);
+					close(kq_events[i].ident);
+					if (result < 0)
+						break ;
+				
+					std::cout << "closed client: " << kq_events[i].ident << std::endl;
 				} else {
-					write(i, rcvBuffer, buf_len);
+					write(kq_events[i].ident, rcvBuffer, buf_len);
 				}
 			}
 		}
 	}
-
+	free(kq_events);
 	close (serv_sock);
-	close (epfd);
+	close (kq);
 	return 0;
 
 }
