@@ -1,3 +1,7 @@
+# executable
+ircserve
+client/client
+
 # Prerequisites
 *.d
 
