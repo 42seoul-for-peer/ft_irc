@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
         return (1);
     }
     std::string wBuf;
-    std::string rBuf;
+    std::string rBuf(512, 0);
     struct pollfd pollfds[1];
     pollfds[0].fd = sockClnt;
     pollfds[0].events = POLLIN;
