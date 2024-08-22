@@ -1,6 +1,8 @@
 #include <iostream>
 #include <unistd.h>      // to use close
+#include <fcntl.h>
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/event.h>  // to use kqueue
 #include <arpa/inet.h>
@@ -12,9 +14,11 @@
 #define BUF_SIZE 512
 #define RED     "\033[1;31m"
 #define GREEN   "\033[1;32m"
+#define YELLOW  "\033[1;33m"
+#define BOLD    "\033[1m"
 #define RESET   "\033[0m"
 
-std::ostream& operator <<(std::ostream& out, const std::vector<char>& buf)
+std::ostream& operator << (std::ostream& out, const std::vector<char>& buf)
 {
     int bufLength = buf.size();
 
@@ -25,15 +29,29 @@ std::ostream& operator <<(std::ostream& out, const std::vector<char>& buf)
 }
 
 void error_msg(std::string msg) {
-	std::cerr << "\033[1;31m" <<msg << "\033[0m" <<std::endl;
+	std::cerr << BOLD <<msg << RESET <<std::endl;
 	exit(1);
 }
 
-void addEvents(std::vector<struct kevent>& kqEvents, uintptr_t servSock, int16_t filter)
-{
+// void addEvents(std::vector<struct kevent>& kqEvents, uintptr_t servSock, int16_t filter)
+// {
+//     struct kevent tmpEvent;
+//     EV_SET(&tmpEvent, servSock, filter, EV_ADD | EV_ENABLE, 0, 0, NULL);
+//     kqEvents.push_back(tmpEvent);
+// }
+
+void    changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
+            uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
     struct kevent tmpEvent;
-    EV_SET(&tmpEvent, servSock, filter, EV_ADD | EV_ENABLE, 0, 0, NULL);
+
+    EV_SET(&tmpEvent, ident, filter, flags, fflags, data, udata);
     kqEvents.push_back(tmpEvent);
+}
+
+void	disconnectClient(int client_fd, std::map<int, std::string >& clients) {
+	std::cout << "client disconnected: " << client_fd << std::endl;
+	close(client_fd);
+	clients.erase(client_fd);
 }
 
 int main(int argc, char *argv[])
@@ -45,17 +63,17 @@ int main(int argc, char *argv[])
     }
     std::vector<struct kevent> kqEvents;
     std::vector<char>   rBuf(BUF_SIZE);
-    std::map< int, std::vector<char> > clients;
-    struct kevent       event;
-    struct kevent       currentEvent;
+    std::map< int, std::string > clients;
+    struct kevent       event[8];
+    struct kevent       *currEvent;
     struct sockaddr_in  srvAddr;
-    int                 byteReceived;
+    // int                 byteReceived;
     int                 newEvent;
     int                 servSock;
     int                 clntSock;
     int                 kq;
 
-    if ((servSock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((servSock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
         error_msg("socket error");
         
     memset(&srvAddr, 0, sizeof(srvAddr));
@@ -73,86 +91,104 @@ int main(int argc, char *argv[])
     
     if (listen(servSock, 10) == -1)
 		error_msg("listen error");
+    // fcntl(servSock, F_SETFL, O_NONBLOCK);
 
     // kqueue turn
-    if ((kq = kqueue()) < 0)
+    if ((kq = kqueue()) == -1)
         error_msg("kqueue error");
-    addEvents(kqEvents, servSock, EVFILT_READ);
+
+    // addEvents(kqEvents, servSock, EVFILT_READ);
+	changeEvents(kqEvents, servSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	std::cout << GREEN << "echo server started" << RESET << std::endl;
 
     while (1)
     {
-        std::cout << "listening..." << std::endl;
-        newEvent = kevent(kq, &kqEvents[0], kqEvents.size(), &event, 1, NULL);
+        std::cout << GREEN << "\nlistening..."  << RESET << std::endl;
+        newEvent = kevent(kq, &kqEvents[0], kqEvents.size(), event, 8, NULL);
         if (newEvent == -1)
             error_msg("kevent error");
+        kqEvents.clear();
+        
         std::cout << "newEvent: " << newEvent << std::endl;
         for (int i = 0; i < newEvent; i++)
         {
-            currentEvent = kqEvents[i];
-            if (currentEvent.flags & EV_ERROR)
+			std::cout << "current idx: " << i << std::endl;
+            currEvent = &event[i];
+
+			// check error event return
+            if (currEvent->flags & EV_ERROR)
             {
-                std::cout << "error sequence" << std::endl;
-                if (currentEvent.ident == static_cast<uintptr_t>(servSock))
+                std::cout << RED << "error sequence" << RESET << std::endl;
+                if (currEvent->ident == static_cast<uintptr_t>(servSock))
                     error_msg("server socket error");
                 else
                 {
-                    std::cout << "client socket error" << std::endl;
-                    close(currentEvent.ident);
-                    clients.erase(clntSock);
+                    std::cerr << "client socket error" << std::endl;
+                    disconnectClient(currEvent->ident, clients);
                 }
             }
-            else if (currentEvent.filter == EVFILT_READ)
+            else if (currEvent->filter == EVFILT_READ)
             {
-                std::cout << GREEN "\nread sequence" RESET << std::endl;
+                std::cout << YELLOW << "read sequence" << RESET << std::endl;
                 // new client connection
-                if (currentEvent.ident == static_cast<uintptr_t>(servSock))
+                if (currEvent->ident == static_cast<uintptr_t>(servSock))
                 {
+                    std::cout << "client accepting "<< currEvent << std::endl;
                     if ((clntSock = accept(servSock, NULL, NULL)) == -1)
                         error_msg("accept error");
                     std::cout << "accept new client: " << clntSock << std::endl;
-                    addEvents(kqEvents, clntSock, EVFILT_READ);
-                    addEvents(kqEvents, clntSock, EVFILT_WRITE);
-                    clients[clntSock] = std::vector<char>(0);
+                    fcntl(clntSock, F_SETFL, O_NONBLOCK);
+					changeEvents(kqEvents, clntSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+					changeEvents(kqEvents, clntSock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+                    clients[clntSock] = "";
                 }
                 //
-                else if (clients.find(currentEvent.ident) != clients.end())
+                else if (clients.find(currEvent->ident) != clients.end())
                 {
-                    std::cout << "clients finding" << std::endl;
-                    byteReceived = recv(currentEvent.ident, &rBuf[0], rBuf.capacity(), 0);
-                    if (byteReceived <= 0)
+					// read from client
+					char	buf[1024];
+					int n = read(currEvent->ident, buf, sizeof(buf));
+                    std::cout << "read from client " << clntSock << std::endl;
+                    // int byteReceived = recv(currEvent->ident, &rBuf[0], rBuf.capacity(), 0);
+                    if (n <= 0)
                     {
-                        if (byteReceived < 0)
+                        if (n < 0)
                             std::cout << "client read error" << std::endl;
-                        close(currentEvent.ident);
-                        clients.erase(clntSock);
+                        disconnectClient(currEvent->ident, clients);
                     }
                     else
                     {
-                        clients[currentEvent.ident] = rBuf;
-                        std::cout << "received data from" << currentEvent.ident << ": " << clients[currentEvent.ident] << std::endl;
+						buf[n] = '\0';
+                        clients[currEvent->ident] += buf;
+                        std::cout << "received data from " << currEvent->ident << ": " << clients[currEvent->ident] << std::endl;
                     }
                 }
             }
-            else if (currentEvent.filter == EVFILT_WRITE)
+            else if (currEvent->filter == EVFILT_WRITE)
             {
-                std::cout << GREEN "\nwrite sequence" RESET << std::endl;
-                if (clients.find(currentEvent.ident) != clients.find(currentEvent.ident))
+				// send data to client
+                std::cout << YELLOW << "write sequence" << RESET << std::endl;
+				std::map<int, std::string >::iterator it = clients.find(currEvent->ident);
+                if (it != clients.end())
                 {
-                    if (clients[currentEvent.ident][0] != 0)
+                    if (clients[currEvent->ident] != "")
                     {
-                        
-                        std::string wBuf_string(clients[currentEvent.ident].begin(), clients[currentEvent.ident].end());
-                        if (send(currentEvent.ident, wBuf_string.c_str(), wBuf_string.size(), 0) == -1)
+						int n;
+						n = write(currEvent->ident, clients[currEvent->ident].c_str(),
+									clients[currEvent->ident].size());
+                        // std::string wBuf_string(clients[currEvent->ident].begin(), clients[currEvent->ident].end());
+                        // if (send(currEvent->ident, wBuf_string.c_str(), wBuf_string.size(), 0)
+                        if (n == -1)
                         {
-                            std::cout << "client write error" << std::endl;
-                            close(currentEvent.ident);
-                            clients.erase(clntSock);
+                            std::cerr << "client write error" << std::endl;
+                            disconnectClient(currEvent->ident, clients);
                         }
                         else
-                            clients[currentEvent.ident].clear();
+                            clients[currEvent->ident].clear();
                     }
                 }
             }
+			// currEvent = nullptr;
         }
     }
 }

@@ -1,6 +1,7 @@
 # executable
-ircserve
+./ircserv
 client/client
+.vscode
 
 # Prerequisites
 *.d
