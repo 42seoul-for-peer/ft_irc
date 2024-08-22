@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
         return (1);
     }
     std::vector<struct kevent> kqEvents;
-    std::vector<char>   rBuf(BUF_SIZE);
     std::map< int, std::vector<char> > clients;
     // std::map<int, std::string > clients;
     struct kevent       event[8];
@@ -150,14 +149,14 @@ int main(int argc, char *argv[])
                     clients[clntSock] = std::vector<char>(1,'\0');
                     // clients[clntSock] = "";
                 }
-                //
                 else if (clients.find(currEvent->ident) != clients.end())
                 {
 					// read from client
+                    std::vector<char>   rBuf(BUF_SIZE);
 					// char	buf[1024];
 					// int n = read(currEvent->ident, buf, sizeof(buf));
                     int n = recv(currEvent->ident, &rBuf[0], rBuf.capacity(), 0);
-                    std::cout << "read from client " << clntSock << std::endl;
+                    std::cout << "read from client " << currEvent->ident << std::endl;
                     if (n <= 0)
                     {
                         if (n < 0)
@@ -169,7 +168,7 @@ int main(int argc, char *argv[])
 						rBuf[n] = '\0';
                         clients[currEvent->ident] = rBuf;
                         std::cout << "received data from " << currEvent->ident << ": " << clients[currEvent->ident] << std::endl;
-                        changeEvents(kqEvents, clntSock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+                        changeEvents(kqEvents, currEvent->ident, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
                         // clients[currEvent->ident].clear();
                     }
                 }
@@ -206,7 +205,7 @@ int main(int argc, char *argv[])
                             std::cout << "send " << wBuf_string.size() << "bytes" << std::endl;
                             clients[currEvent->ident].clear();
                         }
-                        changeEvents(kqEvents, clntSock, EVFILT_WRITE, EV_CLEAR | EV_DISABLE, 0, 0, NULL);
+                        changeEvents(kqEvents, currEvent->ident, EVFILT_WRITE, EV_CLEAR | EV_DISABLE, 0, 0, NULL);
                     }
                 }
             }
