@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#include <algorithm>
+
 
 int main(int argc, char* argv[])
 {
@@ -40,31 +42,34 @@ int main(int argc, char* argv[])
         return (1);
     }
     std::string wBuf;
-    char rBuf[512];
+    std::string rBuf;
     struct pollfd pollfds[1];
     pollfds[0].fd = sockClnt;
     pollfds[0].events = POLLIN;
     while (true)
     {
-        std::memset(rBuf, 0, 512);
-        std::cout << "type here: ";
+        std::cout << "\ntype here: ";
         std::getline(std::cin, wBuf);
         if (wBuf.length() > 511)
-        break ;
+            break ;
         int wBytes = send(sockClnt, wBuf.c_str(), wBuf.length(), 0);
+        std::cout << "send: " << wBytes << "bytes" << std::endl;
         if (wBytes == -1)
         {
             std::cout << "write error" << std::endl;
             break ;
         }
-        int rBytes = recv(sockClnt, rBuf, sizeof(rBuf), 0);
+        std::fill(wBuf.begin(), wBuf.end(), 0);
+        std::fill(rBuf.begin(), rBuf.end(), 0);
+        // rBuf.clear();
+        int rBytes = recv(sockClnt, &rBuf[0], 512, 0);
         if (rBytes == -1)
         {
             std::cout << "read error" << std::endl;
             break ;
         }
         else
-            std::cout << rBuf << std::endl;
+            std::cout << "rBuf: " << rBuf << "(" << rBuf.length() << "bytes)" << std::endl;
     }
     close(sockClnt);
     return (0);
