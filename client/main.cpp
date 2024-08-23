@@ -50,7 +50,8 @@ int main(int argc, char* argv[])
         if (std::strlen(wBuf) > 511)
             break ;
         int wBytes = send(sockClnt, wBuf, std::strlen(wBuf), 0);
-        std::cout << "send: " << wBuf << " (" << wBytes << "bytes), " << std::strlen(wBuf) << std::endl;
+        std::cout << "send " << wBytes << " bytes" << std::endl;
+        // std::cout << "send: " << wBuf << " (" << wBytes << "bytes), " << std::strlen(wBuf) << std::endl;
         if (wBytes == -1)
         {
             std::cout << "write error" << std::endl;
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
             break ;
         }
         else
-            std::cout << "rBuf: " << rBuf << "(" << std::strlen(wBuf) << "bytes)" << std::endl;
+            std::cout << wBuf << std::endl;
     }
     close(sockClnt);
     return (0);

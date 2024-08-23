@@ -41,9 +41,9 @@ void readSequence(int& clntSock, int servSock, struct kevent *currEvent, \
         }
         else
         {
-            rBuf[n] = '\0';
+            rBuf.erase(rBuf.begin() + n, rBuf.end());
             clients[currEvent->ident] = rBuf;
-            std::cout << "received data from " << currEvent->ident << ": " << clients[currEvent->ident] << std::endl;
+            std::cout << "(" << currEvent->ident << "): '" << clients[currEvent->ident] << "'(" << n << "bytes)" << std::endl;
             changeEvents(kqEvents, currEvent->ident, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
         }
     }
@@ -60,8 +60,6 @@ void writeSequence(struct kevent *currEvent, \
         if (clients[currEvent->ident][0] != '\0')
         {
             std::string wBuf_string(clients[currEvent->ident].begin(), clients[currEvent->ident].end());
-            std::cout << "copy result : " << wBuf_string << std::endl;
-            std::cout << wBuf_string.size() << std::endl;
             if (send(currEvent->ident, wBuf_string.c_str(), wBuf_string.size(), 0) == -1)
             {
                 std::cerr << "client write error" << std::endl;
