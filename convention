@@ -10,9 +10,9 @@ returnType functionName(varOne, varTwo) {
 Class ClassName {
 // VARIABLE
  public:
-	varType varName;
+	varType var_name;
  private:
-	varType	_varName; // private 멤버 변수나 함수는 앞에 _를 사용한다
+	varType	_var_name; // private 멤버 변수나 함수는 앞에 _를 사용한다
 
 // FUNCTION
  public:
