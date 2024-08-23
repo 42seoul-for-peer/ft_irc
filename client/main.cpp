@@ -41,27 +41,21 @@ int main(int argc, char* argv[])
         std::cout << "connect error" << std::endl;
         return (1);
     }
-    std::string wBuf;
-    std::string rBuf(512, 0);
-    struct pollfd pollfds[1];
-    pollfds[0].fd = sockClnt;
-    pollfds[0].events = POLLIN;
     while (true)
     {
+        char rBuf[512];
+        char wBuf[512];
         std::cout << "\ntype here: ";
-        std::getline(std::cin, wBuf);
-        if (wBuf.length() > 511)
+        std::cin >> wBuf;
+        if (std::strlen(wBuf) > 511)
             break ;
-        int wBytes = send(sockClnt, wBuf.c_str(), wBuf.length(), 0);
-        std::cout << "send: " << wBytes << "bytes" << std::endl;
+        int wBytes = send(sockClnt, wBuf, std::strlen(wBuf), 0);
+        std::cout << "send: " << wBuf << " (" << wBytes << "bytes), " << std::strlen(wBuf) << std::endl;
         if (wBytes == -1)
         {
             std::cout << "write error" << std::endl;
             break ;
         }
-        std::fill(wBuf.begin(), wBuf.end(), 0);
-        std::fill(rBuf.begin(), rBuf.end(), 0);
-        // rBuf.clear();
         int rBytes = recv(sockClnt, &rBuf[0], 512, 0);
         if (rBytes == -1)
         {
@@ -69,7 +63,7 @@ int main(int argc, char* argv[])
             break ;
         }
         else
-            std::cout << "rBuf: " << rBuf << "(" << rBuf.length() << "bytes)" << std::endl;
+            std::cout << "rBuf: " << rBuf << "(" << std::strlen(wBuf) << "bytes)" << std::endl;
     }
     close(sockClnt);
     return (0);
