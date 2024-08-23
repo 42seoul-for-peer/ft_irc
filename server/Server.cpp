@@ -37,12 +37,12 @@ void Server::serverInit()
 	if (_sock_fd == -1)
 		throw ServInitFuncException("socket");
 
-	memset(&_serv_addr, 0, sizeof(_serv_addr));
-	_serv_addr.sin_family = AF_INET;
-	_serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	_serv_addr.sin_addr.s_addr = htons(_port);
+	memset(&_addr, 0, sizeof(_addr));
+	_addr.sin_family = AF_INET;
+	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	_addr.sin_addr.s_addr = htons(_port);
 
-	if (bind(_sock_fd, (struct sockaddr*) &_serv_addr, sizeof(_serv_addr)) == -1)
+	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
 		throw ServInitFuncException("bind");
 	
 	if (listen(_sock_fd, 50) == -1)
@@ -74,7 +74,7 @@ void Server::serverProcess()
 			{
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					acceptClnt();
-				else if (clients.find(_event[i].ident) != clients.end())
+				else if (_clients.find(_event[i].ident) != _clients.end())
 					recvMsgFromClnt(/* 해당 클라이언트 인수로 넣기 */);
 			}
 			else if (_event[i].filter == EVFILT_WRITE)
@@ -90,11 +90,13 @@ const char*	Server::PortOutOfRangeException::what() const throw() {
 	return (reason);
 }
 
-const char*	Server::ServInitFuncException::what(const std::string& func_name) const throw() {
+Server::ServInitFuncException::ServInitFuncException(const std::string& func_name) : _func_name(func_name) {}
+
+const char*	Server::ServInitFuncException::what() const throw() {
 	std::stringstream stream;
 	char	*reason;
 
-	stream << func_name << " error " << std::strerror(errno) << '.';
+	stream << _func_name << " error " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }

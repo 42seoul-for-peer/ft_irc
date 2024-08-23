@@ -9,8 +9,6 @@
 # include <vector>
 # include <map>
 
-# include "Client.hpp"
-
 class Client;
 
 class Server {
@@ -85,7 +83,11 @@ class Server {
 	// socket() 오류
 	class ServInitFuncException : public std::exception {
 	 public:
-	 	virtual const char* what(const std::string& func_name) const throw();
+		ServInitFuncException(const std::string& func_name);
+		virtual const char* what() const throw();
+
+	 private:
+		std::string _func_name;
 	};
 
 	class ServSockCloseException : public std::exception {
