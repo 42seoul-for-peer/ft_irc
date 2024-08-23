@@ -21,6 +21,8 @@ class Client {
 	std::string	_nickname;
 	Channel*	_curr_channel;
 // MEMBER FUNCITON
+ public:
+	
 // EXCEPTION
 };
 

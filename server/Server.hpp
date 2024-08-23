@@ -27,9 +27,8 @@ class Server {
 	int			_port;
 	std::string	_password;
 
-	struct sockaddr_in	_serv_addr;
+	struct sockaddr_in	_addr;
 	int					_sock_fd;
-    int                 _clntSock;
 	int					_kq;
 
     std::map< int, std::vector<char> >	_clients;
@@ -51,13 +50,29 @@ class Server {
 	// cmd parser
 	// protocol sender
 
-	// void	readSequence();
-	// void	writeSequence();
+	// cmd process
+	// void processCMD(client, cmd);
+	// client.cmd();
+	// client 멤버 변수로 channel에 있는지 ㅇㄹ아야 하지 않을까요?
+
 	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
             	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
-	
+	// CLNT
+	// setNickname
+	// setUsername
+	// joinChannel
 
+	// CLNT, CHANNEL
+	// kickClnt
+	// inviteClnt
+	// setTopic
+	// showTopic
+	// setInviteOnlyMode
+	// setTopicRestriction
+	// setPassword
+	// setOperator
+	// setUserLimit
 
 // EXCEPTION
  public:
