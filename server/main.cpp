@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
             else if (currEvent->filter == EVFILT_READ)
                 readSequence(clntSock, servSock, currEvent, kqEvents, clients);
             else if (currEvent->filter == EVFILT_WRITE)
-                writeSequence(clntSock, currEvent, clients, kqEvents);
+                writeSequence(currEvent, clients, kqEvents);
         }
     }
     return (0);

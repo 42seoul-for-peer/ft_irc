@@ -22,11 +22,11 @@
 # define BOLD    "\033[1m"
 # define RESET   "\033[0m"
 
-void errorSequence(int servSock, struct kevent *currEvent, std::map< int, std::vector<char> > clients);
+void errorSequence(int servSock, struct kevent *currEvent, std::map< int, std::vector<char> >& clients);
 void readSequence(int& clntSock, int servSock, struct kevent *currEvent, \
                     std::vector<struct kevent>& kqEvents, std::map< int, std::vector<char> >& clients);
-void writeSequence(int clntSock, struct kevent *currEvent, \
-                    std::map< int, std::vector<char> > clients, std::vector<struct kevent> kqEvents);
+void writeSequence(struct kevent *currEvent, \
+                    std::map< int, std::vector<char> >& clients, std::vector<struct kevent>& kqEvents);
 
 std::ostream&   operator << (std::ostream& out, const std::vector<char>& buf);
 void            changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 

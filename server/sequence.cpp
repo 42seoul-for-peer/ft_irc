@@ -1,7 +1,7 @@
 #include "irc.hpp"
 
 void errorSequence(int servSock, struct kevent *currEvent, \
-                    std::map< int, std::vector<char> > clients)
+                    std::map< int, std::vector<char> >& clients)
 {
     std::cout << RED << "error sequence" << RESET << std::endl;
     if (currEvent->ident == static_cast<uintptr_t>(servSock))
@@ -44,13 +44,13 @@ void readSequence(int& clntSock, int servSock, struct kevent *currEvent, \
             rBuf[n] = '\0';
             clients[currEvent->ident] = rBuf;
             std::cout << "received data from " << currEvent->ident << ": " << clients[currEvent->ident] << std::endl;
-            changeEvents(kqEvents, clntSock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+            changeEvents(kqEvents, currEvent->ident, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
         }
     }
 }
 
-void writeSequence(int clntSock, struct kevent *currEvent, \
-                    std::map< int, std::vector<char> > clients, std::vector<struct kevent> kqEvents)
+void writeSequence(struct kevent *currEvent, \
+                    std::map< int, std::vector<char> >& clients, std::vector<struct kevent>& kqEvents)
 {
     std::cout << YELLOW << "write sequence" << RESET << std::endl;
 
@@ -72,7 +72,7 @@ void writeSequence(int clntSock, struct kevent *currEvent, \
                 std::cout << "send " << wBuf_string.size() << "bytes" << std::endl;
                 clients[currEvent->ident].clear();
             }
-            changeEvents(kqEvents, clntSock, EVFILT_WRITE, EV_CLEAR | EV_DISABLE, 0, 0, NULL);
+            changeEvents(kqEvents, currEvent->ident, EVFILT_WRITE, EV_CLEAR | EV_DISABLE, 0, 0, NULL);
         }
     }
 }
