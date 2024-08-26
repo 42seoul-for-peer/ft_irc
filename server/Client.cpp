@@ -22,3 +22,17 @@ Client& Client::operator = (const Client& copy) {
 }
 
 // MEMBER FUNCTION
+
+Client::Client(int clientSock)
+	: _sock_fd(clientSock)
+{
+	
+}
+
+void Client::recvBuff() {
+	
+}
+
+Protocol&	Client::parse() {
+	return new Protocol();
+}

@@ -18,7 +18,7 @@ GRAY = \033[90m
 
 Q = @
 # **************************************************************************** #
-SRCS = main.cpp sequence.cpp utils.cpp\
+SRCS = $(wildcard *.cpp) $(wildcard command/*.cpp)\
 
 OBJS = $(SRCS:.cpp=.o)
 -include $(DEPS_M) $(DEPS_B)

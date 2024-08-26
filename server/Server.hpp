@@ -5,11 +5,21 @@
 # include <string>
 # include <sys/event.h>	// kqueue
 # include <arpa/inet.h>
+# include <fcntl.h> //fcntl
 
 # include <vector>
 # include <map>
+# include <queue>
+
+# include "Channel.hpp"
+# include "Protocol.hpp"
+# include "Command.hpp"
+# include "command/JOIN.hpp"
+# include "command/PRIVMSG.hpp"
+// # include "command/CommandList.hpp" 이 헤더파일 안에 전부 include 되어 있음 (plan B)
 
 class Client;
+class Protocol;
 
 class Server {
 // OCCF
@@ -29,9 +39,15 @@ class Server {
 	int					_sock_fd;
 	int					_kq;
 
-    std::map< int, std::vector<char> >	_clients;
-	std::vector<struct kevent> 			_kq_events;
-    struct kevent       				_event[8];
+    std::map< int, Client* >	_clients; // <fd : buffer>
+	std::vector<struct kevent>	_kq_events;
+    struct kevent       		_event[8];
+
+	std::map< std::string, Channel* >	_channels;
+
+	std::queue< Protocol& > 			_protocols;
+
+	std::vector< Command* >				_commandList;
 
 // MEMBER FUNCITON
  public:
@@ -42,7 +58,7 @@ class Server {
 	// under serverProcess();
 	int		checkNewEvents();
 	void	acceptClnt();
-	void	recvMsgFromClnt();	// parse message
+	void	recvMsgFromClnt(Client* client);	// parse message
 	void	sendMsgToClnt();	// protocol 호출
 
 	// cmd parser
@@ -53,24 +69,11 @@ class Server {
 	// client.cmd();
 	// client 멤버 변수로 channel에 있는지 ㅇㄹ아야 하지 않을까요?
 
+	// EVFILT_WRITE 조작 안해서 빠질 예정인 함수
 	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
             	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
-	// CLNT
-	// setNickname
-	// setUsername
-	// joinChannel
 
-	// CLNT, CHANNEL
-	// kickClnt
-	// inviteClnt
-	// setTopic
-	// showTopic
-	// setInviteOnlyMode
-	// setTopicRestriction
-	// setPassword
-	// setOperator
-	// setUserLimit
 
 // EXCEPTION
  public:

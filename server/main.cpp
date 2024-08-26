@@ -3,19 +3,19 @@
 
 int main(int argc, char *argv[])
 {
-    try {
-        int newEvent = 0;
-        if (argc != 3)
-            throw (std::runtime_error("usage: ./irsserv [port] [password]"));
-        Server serv(argv[1], argv[2]);
-        serv.serverInit();
-        serv.serverProcess();
-        serv.serverClose();
-    }
-    catch (const std::exception& e) {
+	try {
+		int newEvent = 0;
+		if (argc != 3)
+			throw (std::runtime_error("usage: ./irsserv [port] [password]"));
+		Server serv(argv[1], argv[2]);
+		serv.serverInit();
+		serv.serverProcess();
+		serv.serverClose();
+	}
+	catch (const std::exception& e) {
 		// if (Server::PortOutOfRangeException || Server)
-        std::cout << e.what() << std::endl;
-        return (1);
-    }
+		std::cout << e.what() << std::endl;
+		return (1);
+	}
 	return (0);
 }

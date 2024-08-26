@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 #include "Server.hpp"
 
 // OCCF
@@ -28,13 +29,18 @@ Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password) {
 	if (_port <= 0 || _port > 65535)
 		throw PortOutOfRangeException();
+	_commandList.push_back(new PRIVMSG);
+	_commandList.push_back(new JOIN);
 }
 
 // MEMBER FUNCTION
 void Server::serverInit()
 {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
-	if (_sock_fd == -1)
+	if (_sock_fd == -1) {
+		std::cerr << "server initiation failed (socket() error)" << std::endl;
+		exit(1);
+	}
 		throw ServInitFuncException("socket");
 
 	memset(&_addr, 0, sizeof(_addr));
@@ -44,14 +50,14 @@ void Server::serverInit()
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
 		throw ServInitFuncException("bind");
-	
+
 	if (listen(_sock_fd, 50) == -1)
 		throw ServInitFuncException("listen");
-	
+
 	_kq = kqueue();
 	if (_kq == -1)
 		throw ServInitFuncException("kqueue");
-	
+
 	changeEvents(_kq_events, _sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
 
@@ -66,22 +72,63 @@ void Server::serverProcess()
 			if (_event[i].flags & EV_ERROR)
 			{
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
-					; //throw(server error)
-				else // (_event[i].ident == static_cast<uintptr_t>(_client_fd))
-					; // discconect client
+					throw ServSockCloseException();
+				else {// (_event[i].ident == static_cast<uintptr_t>(_client_fd))
+					std::cout << "client disconnected: " << _event[i].ident << std::endl;
+					close(_event[i].ident);
+					delete _clients.find(_event[i].ident)->second;
+					_clients.erase(_clients.find(_event[i].ident));
+				}
 			}
 			else if (_event[i].filter == EVFILT_READ)
 			{
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					acceptClnt();
 				else if (_clients.find(_event[i].ident) != _clients.end())
-					recvMsgFromClnt(/* 해당 클라이언트 인수로 넣기 */);
+					recvMsgFromClnt(_clients.find(_event[i].ident)->second);
 			}
-			else if (_event[i].filter == EVFILT_WRITE)
-				sendMsgToClnt();
 		}
-		// catch client socket error
+		if (!_protocols.empty())
+			sendMsgToClnt();
     }
+}
+
+void Server::acceptClnt()
+{
+	int clientSock;
+
+	clientSock = accept(_sock_fd, NULL, NULL);
+	if (clientSock == -1)
+		; // server error exception
+	fcntl(clientSock, F_SETFL, O_NONBLOCK);
+	changeEvents(_kq_events, clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	_clients[clientSock] = new Client(clientSock);
+}
+
+void Server::recvMsgFromClnt(Client* client)
+{
+	client->recvBuff();
+	_protocols.push(client->parse());
+	//clnt의 recv함수를 호출하냐 -> 그 함수가 버퍼에다 채우고, 파싱하고, 필요한 요청을 처리를 하겠죠
+	//recv -> clnt의 buffer를 수정하느냐
+}
+
+void Server::sendMsgToClnt()
+{
+	int idx;
+	const int commandSize = _commandList.size();
+	while (_protocols.size())
+	{
+		for (idx = 0; idx < commandSize; idx++) {
+			if (_commandList[idx]->getCmd() == _protocols.front().getCmd())
+				break ;
+		}
+		if (idx == commandSize)
+			; // 명령어를 찾지 못함
+		else
+			_commandList[idx]->execute(_protocols.front());
+		_protocols.pop();
+	}
 }
 
 // EXCEPTION
