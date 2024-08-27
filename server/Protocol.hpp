@@ -3,22 +3,27 @@
 
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "command/Command.hpp"
+
+class Client;
+class Channel;
+// class Command;
 
 class Protocol {
 // OCCF
  public:
-	Protocol(const std::string& cmd);
+	Protocol(const Command* cmd);
 	~Protocol();
  private:
-	Protocol(const Protocol& copy);
-	Protocol& operator = (const Protocol& copy);
+	Protocol(const Protocol* copy);
+	Protocol* operator = (const Protocol* copy);
 	Protocol();
 // MEMBER VARIABLE
  private:
-	std::string	_cmd;
-	std::pair< int, Client& > _sender;
-	std::vector< std::pair< int, Client& > > _receivers;
-	std::vector< Channel& > _channel;
+	Command* _cmd;
+	std::pair<int, Client*> _sender;
+	std::vector<Channel*> _channel;
+	std::vector< std::pair< int, Client*> > _receivers;
 
 // MEMBER FUNCITON
  public:

@@ -73,7 +73,7 @@ void Server::serverProcess()
 			{
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					throw ServSockCloseException();
-				else {// (_event[i].ident == static_cast<uintptr_t>(_client_fd))
+				else {
 					std::cout << "client disconnected: " << _event[i].ident << std::endl;
 					close(_event[i].ident);
 					delete _clients.find(_event[i].ident)->second;
@@ -82,13 +82,19 @@ void Server::serverProcess()
 			}
 			else if (_event[i].filter == EVFILT_READ)
 			{
-				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
-					acceptClnt();
+				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd)) {
+					try {
+						acceptClnt();
+					}
+					catch (ClntAcceptionFailException& e) {
+						std::cerr << e.what() << std::endl;
+					}
+				}
 				else if (_clients.find(_event[i].ident) != _clients.end())
-					recvMsgFromClnt(_clients.find(_event[i].ident)->second);
+					recvMsgFromClnt(_event[i].ident);
 			}
 		}
-		if (!_protocols.empty())
+		if (!_commandQueue.empty())
 			sendMsgToClnt();
     }
 }
@@ -99,35 +105,63 @@ void Server::acceptClnt()
 
 	clientSock = accept(_sock_fd, NULL, NULL);
 	if (clientSock == -1)
-		; // server error exception
+		throw ClntAcceptionFailException(); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
 	changeEvents(_kq_events, clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
 }
 
-void Server::recvMsgFromClnt(Client* client)
+void Server::recvMsgFromClnt(int clnt_fd)
 {
-	client->recvBuff();
-	_protocols.push(client->parse());
-	//clnt의 recv함수를 호출하냐 -> 그 함수가 버퍼에다 채우고, 파싱하고, 필요한 요청을 처리를 하겠죠
-	//recv -> clnt의 buffer를 수정하느냐
-}
+	const int commandSize = _commandList.size();
+	std::vector<char> rBuf(1024);
+	std::string readString;
+	std::string cmdToken;
+	Protocol	*tmp;
+	int			idx;
 
+	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
+	if (n > 0) {
+		rBuf.erase(rBuf.begin() + n, rBuf.end());
+	}
+	else {
+		if (n < 0)
+			; // exception
+		// disconect
+	}
+	readString = std::string(rBuf.begin(), rBuf.end());
+	std::stringstream stream(readString);
+	std::getline(stream, cmdToken, ' ');
+	for (idx = 0; idx < commandSize; idx++) {
+		if (_commandList[idx]->getCmd() == cmdToken)
+			break ;
+	}
+	if (idx == commandSize)
+		std::cout << "Unknown command" << std::endl; // 명령어를 찾지 못함
+	else
+		_commandQueue.push(_commandList[idx]->clone(stream));
+}
+/*
+	_clients[clnt_fd]->recvToBuff();
+	tmp = _clients[clnt_fd]->parse();
+	if (tmp)
+		_commandQueue.push(tmp);
+
+
+	Command* tmp;
+	_clients[clnt_fd]->recvToBuff();
+	tmp = _clients[clnt_fd]->parse(); new JOIN / new PRIVMSG
+	std::stringstream	stream(_buffer);
+	std::string		cmd;
+*/
 void Server::sendMsgToClnt()
 {
 	int idx;
 	const int commandSize = _commandList.size();
-	while (_protocols.size())
+	while (_commandQueue.size())
 	{
-		for (idx = 0; idx < commandSize; idx++) {
-			if (_commandList[idx]->getCmd() == _protocols.front().getCmd())
-				break ;
-		}
-		if (idx == commandSize)
-			; // 명령어를 찾지 못함
-		else
-			_commandList[idx]->execute(_protocols.front());
-		_protocols.pop();
+		_commandQueue.front()->execute();
+		_commandQueue.pop();
 	}
 }
 
@@ -140,10 +174,19 @@ const char*	Server::PortOutOfRangeException::what() const throw() {
 Server::ServInitFuncException::ServInitFuncException(const std::string& func_name) : _func_name(func_name) {}
 
 const char*	Server::ServInitFuncException::what() const throw() {
-	std::stringstream stream;
-	char	*reason;
+	std::stringstream	stream;
+	char				*reason;
 
 	stream << _func_name << " error " << std::strerror(errno) << '.';
+	stream >> reason;
+	return (reason);
+}
+
+const char*	Server::ClntAcceptionFailException::what() const throw() {
+	std::stringstream	stream;
+	char				*reason;
+
+	stream << "accept() error " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }

@@ -2,6 +2,7 @@
 
 NAME = ircserv
 # **************************************************************************** #
+CXX = c++
 CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -MMD -MP
 # **************************************************************************** #
 ifdef DEBUG
@@ -18,9 +19,22 @@ GRAY = \033[90m
 
 Q = @
 # **************************************************************************** #
-SRCS = $(wildcard *.cpp) $(wildcard command/*.cpp)\
+serv_srcs = main.cpp\
+			Channel.cpp\
+			Client.cpp\
+			Protocol.cpp\
+			Server.cpp\
 
-OBJS = $(SRCS:.cpp=.o)
+cmd_srcs = JOIN.cpp\
+			PRIVMSG.cpp\
+
+serv_objs = $(serv_srcs:.cpp=.o)
+cmd_objs = $(addprefix ./command/,$(cmd_srcs:.cpp=.o))
+
+SRCS = $(serv_srcs) $(addprefix ./command/,$(cmd_srcs))
+OBJS = $(serv_objs) $(cmd_objs)
+DEPS_M = $(SRCS:.cpp=.d)
+DEPS_B = $(SRCS:.cpp=.d)
 -include $(DEPS_M) $(DEPS_B)
 # **************************************************************************** #
 .PHONY : all clean fclean re
@@ -28,7 +42,7 @@ OBJS = $(SRCS:.cpp=.o)
 all : $(NAME)
 
 %.o : %.c
-	$(Q) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(Q) $(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME) : $(OBJS)
 	$(Q) echo "$(GRAY)---------------- start compiling ----------------$(RESET)"

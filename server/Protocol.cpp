@@ -22,7 +22,6 @@ Protocol::~Protocol() {
 // }
 
 Protocol::Protocol(const std::string& cmd) {
-
 };
 
 // MEMBER FUNCTION

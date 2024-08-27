@@ -1,20 +1,25 @@
 #ifndef JOIN_HPP
 # define JOIN_HPP
 
+# include <sstream>
+
 # include "Command.hpp"
-# include "Protocol.hpp"
+# include "../Protocol.hpp"
 
 class JOIN : public Command {
 // OCCF
  public:
 	JOIN();
+	~JOIN();
+ private:
 	JOIN(const JOIN& copy);
 	JOIN& operator = (const JOIN& copy);
-	~JOIN();
 // MEMBER VARIABLE
 // MEMBER FUNCITON
  public:
-	int execute(Protocol& protocol);
+	int		execute();
+	void	getProtocolMsg();
+	JOIN*	clone(std::stringstream input_cmd);
 };
 
 #endif

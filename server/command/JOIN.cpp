@@ -22,3 +22,17 @@ JOIN& JOIN::operator = (const JOIN& copy) {
 }
 
 // MEMBER FUNCTION
+
+int	JOIN::execute() {
+
+}
+
+void JOIN::getProtocolMsg() {
+
+}
+
+JOIN* JOIN::clone(std::stringstream input_cmd) {
+	JOIN* tmp = new JOIN();
+	tmp->_cmd = "JOIN";
+	
+}

@@ -16,6 +16,7 @@ class Client {
  	Client();
 	Client(const Client& copy);
 	Client& operator = (const Client& copy);
+
 // MEMBER VARIABLE
  private:
 	std::string	_buffer;
@@ -23,11 +24,17 @@ class Client {
 	std::string	_username;
 	std::string	_nickname;
 	Channel*	_curr_channel;
+
 // MEMBER FUNCITON
  public:
-	void		recvBuff();
-	Protocol&	parse();
+	void		recvToBuff();
+	Protocol*	parse();
+
 // EXCEPTION
+	class ReadErrorException : public std::exception {
+	 public:
+		virtual const char* what() const throw();
+	};
 };
 
 #endif

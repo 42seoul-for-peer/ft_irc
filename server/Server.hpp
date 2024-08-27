@@ -13,7 +13,8 @@
 
 # include "Channel.hpp"
 # include "Protocol.hpp"
-# include "Command.hpp"
+
+# include "command/Command.hpp"
 # include "command/JOIN.hpp"
 # include "command/PRIVMSG.hpp"
 // # include "command/CommandList.hpp" 이 헤더파일 안에 전부 include 되어 있음 (plan B)
@@ -45,9 +46,9 @@ class Server {
 
 	std::map< std::string, Channel* >	_channels;
 
-	std::queue< Protocol& > 			_protocols;
+	std::queue< Command* > 				_commandQueue;
 
-	std::vector< Command* >				_commandList;
+	const std::vector< Command* >		_commandList;
 
 // MEMBER FUNCITON
  public:
@@ -58,7 +59,7 @@ class Server {
 	// under serverProcess();
 	int		checkNewEvents();
 	void	acceptClnt();
-	void	recvMsgFromClnt(Client* client);	// parse message
+	void	recvMsgFromClnt(int clnt_fd);	// parse message
 	void	sendMsgToClnt();	// protocol 호출
 
 	// cmd parser
@@ -94,6 +95,11 @@ class Server {
 	};
 
 	class ServSockCloseException : public std::exception {
+	 public:
+	 	virtual const char* what() const throw();
+	};
+
+	class ClntAcceptionFailException : public std::exception {
 	 public:
 	 	virtual const char* what() const throw();
 	};
