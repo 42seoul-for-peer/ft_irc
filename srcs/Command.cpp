@@ -62,7 +62,8 @@ int	Command::getReplyNumber() const {
 // setter
 
 // usable function
-void	Command::parse(Server& serv) {
+void	Command::parse(int clnt_fd, Server& serv) {
+	// _sender = serv.clnt_list.find(clnt_fd);
 	if (_cmd == "CONNECT")
 		connect(serv);
 	else
