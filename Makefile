@@ -17,7 +17,7 @@ RED = \033[31m
 GREEN = \033[32m
 GRAY = \033[90m
 
-# Q = @
+Q = @
 MKDIR = mkdir -p
 # **************************************************************************** #
 INC_DIR = incs
@@ -53,7 +53,7 @@ $(NAME) : $(OBJS)
 	$(Q) echo "\t$(GREEN)make$(RESET) $(BOLD)FT_IRC$(RESET) mandatory OK"
 
 clean :
-	$(Q) $(RM) $(wildcard *.o) $(wildcard *.d)
+	$(Q) $(RM) $(wildcard $(OBJ_DIR)/*.o) $(wildcard $(OBJ_DIR)/*.d)
 	$(Q) echo "\t$(RED)$@$(RESET) $(BOLD)FT_IRC$(RESET) object files OK"
 
 fclean : clean
