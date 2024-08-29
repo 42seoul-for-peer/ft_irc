@@ -14,10 +14,7 @@
 # include "Channel.hpp"
 # include "Protocol.hpp"
 
-# include "command/Command.hpp"
-# include "command/JOIN.hpp"
-# include "command/PRIVMSG.hpp"
-// # include "command/CommandList.hpp" 이 헤더파일 안에 전부 include 되어 있음 (plan B)
+# include "Command.hpp"
 
 class Client;
 class Protocol;
@@ -40,15 +37,12 @@ class Server {
 	int					_sock_fd;
 	int					_kq;
 
-    std::map< int, Client* >	_clients; // <fd : buffer>
+	std::map< int, Client* >	_clients; // <fd : buffer>
 	std::vector<struct kevent>	_kq_events;
-    struct kevent       		_event[8];
+	struct kevent       		_event[8];
 
 	std::map< std::string, Channel* >	_channels;
-
 	std::queue< Command* > 				_commandQueue;
-
-	const std::vector< Command* >		_commandList;
 
 // MEMBER FUNCITON
  public:
@@ -59,16 +53,9 @@ class Server {
 	// under serverProcess();
 	int		checkNewEvents();
 	void	acceptClnt();
-	void	recvMsgFromClnt(int clnt_fd);	// parse message
-	void	sendMsgToClnt();	// protocol 호출
+	void	recvMsgFromClnt(int clnt_fd); //버퍼를 받아와서 cmd객체 생성, cmd parse 함수, 검사해서 괜찮으면 exec
+	void	sendMsgToClnt(); //writable 한지 보고 전송
 
-	// cmd parser
-	// protocol sender
-
-	// cmd process
-	// void processCMD(client, cmd);
-	// client.cmd();
-	// client 멤버 변수로 channel에 있는지 ㅇㄹ아야 하지 않을까요?
 
 	// EVFILT_WRITE 조작 안해서 빠질 예정인 함수
 	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 

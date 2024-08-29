@@ -131,29 +131,14 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
 	std::stringstream stream(readString);
-	std::getline(stream, cmdToken, ' ');
-	for (idx = 0; idx < commandSize; idx++) {
-		if (_commandList[idx]->getCmd() == cmdToken)
-			break ;
-	}
-	if (idx == commandSize)
-		std::cout << "Unknown command" << std::endl; // 명령어를 찾지 못함
-	else
-		_commandQueue.push(_commandList[idx]->clone(stream));
+
+	Command cmd(stream);
+	cmd.parse(*this);
+	cmd.execute();
+	
+	_commandQueue.push(cmd);
 }
-/*
-	_clients[clnt_fd]->recvToBuff();
-	tmp = _clients[clnt_fd]->parse();
-	if (tmp)
-		_commandQueue.push(tmp);
 
-
-	Command* tmp;
-	_clients[clnt_fd]->recvToBuff();
-	tmp = _clients[clnt_fd]->parse(); new JOIN / new PRIVMSG
-	std::stringstream	stream(_buffer);
-	std::string		cmd;
-*/
 void Server::sendMsgToClnt()
 {
 	int idx;
