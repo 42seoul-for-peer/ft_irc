@@ -2,8 +2,8 @@
 # define COMMAND_HPP
 
 # include <string>
-# include <vector>
 # include <sstream>
+# include <queue>
 
 # include "Server.hpp"
 # include "Client.hpp"
@@ -27,13 +27,15 @@ class Command {
  protected:
 	std::string					_cmd;
 
-	std::vector< std::string >	_args;
+	std::queue< std::string >	_args;
+	std::queue< std::string >	_confirmed_args;
+
 	std::string					_sender;
 	int							_receiver_cnt;
-	std::vector< std::string >	_receiver;
+	std::queue< std::string >	_receiver;
 	std::string					_proto_msg;
 
-	int							_rep_no;
+	int							_rpl_no;
 
 // MEMBER FUNCITON
  public:
@@ -41,7 +43,7 @@ class Command {
 	const std::string&					getCmd() const;
 	const std::string&					getSender() const;
 	int									getReceiverCnt() const;
-	const std::vector< std::string >&	getReceiver() const;
+	const std::queue< std::string >&	getReceiver() const;
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
 	const std::string&					getProtoMsg() const;
@@ -52,7 +54,7 @@ class Command {
 	void	parse(int clnt_fd, Server& serv);
 	void	execute();
 // irc message
-	// void	pass();
+	void	pass(int clnt_fd, Server& serv);
 	// void	nick();
 	// void	user();
 	// void	join();
@@ -62,7 +64,6 @@ class Command {
 	// void	topic();
 	// void	mode();
 	// void	part();
-	void	connect(Server& serv);
 	// void	quit();
 	// void	ping();
 	void	unknownCommand(Server& serv);

@@ -21,9 +21,9 @@ Command::Command(std::stringstream& input_cmd) {
 
 	input_cmd >> _cmd;
 	while (input_cmd >> tmp) {
-		_args.push_back(tmp);
+		_args.push(tmp);
 	}
-	_rep_no = 0;
+	_rpl_no = 0;
 }
 
 Command& Command::operator = (const Command& copy) {
@@ -43,7 +43,7 @@ const std::string&	Command::getSender() const {
 	return (_sender);
 }
 
-const std::vector< std::string >& Command::getReceiver() const {
+const std::queue< std::string >& Command::getReceiver() const {
 	return (_receiver);
 }
 
@@ -56,16 +56,16 @@ const std::string&	Command::getProtoMsg() const {
 }
 
 int	Command::getReplyNumber() const {
-	return (_rep_no);
+	return (_rpl_no);
 }
 
 // setter
 
 // usable function
 void	Command::parse(int clnt_fd, Server& serv) {
-	// _sender = serv.clnt_list.find(clnt_fd);
-	if (_cmd == "CONNECT")
-		connect(serv);
+	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
+	if (_cmd == "PASS")
+		pass(clnt_fd, serv);
 	else
 		unknownCommand(serv);
 }

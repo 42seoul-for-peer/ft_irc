@@ -32,7 +32,7 @@ serv_srcs = main.cpp\
 			Client.cpp\
 			Server.cpp\
 
-cmd_srcs = 
+cmd_srcs = pass.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(cmd_dir)/,$(cmd_srcs))
