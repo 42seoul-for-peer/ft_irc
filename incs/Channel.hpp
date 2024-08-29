@@ -6,6 +6,8 @@
 # include "Client.hpp"
 # include "Server.hpp"
 
+class Client;
+
 class Channel {
 // OCCF
  public:
