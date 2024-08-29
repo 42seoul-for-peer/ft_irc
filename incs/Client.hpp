@@ -21,16 +21,21 @@ class Client {
 	int _sock_fd;
 	std::string _username;
 	std::string _nickname;
-	std::vector< Channel& > _curr_channel;
+	std::vector< std::string > _curr_channel;
 
 // MEMBER FUNCTION
  public:
+	// GETTER
 	const int& 			getSockFd(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
+
+	// SETTER
 	void setUsername(std::string& str);
 	void setNickname(std::string& str);
-	void joinChannel(Channel& channel);
+
+	// HANDLING CHANNEL
+	void joinChannel(const Channel& channel);
 	void leaveChannel(const Channel& channel);
 
 // EXCEPTION

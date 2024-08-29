@@ -54,12 +54,12 @@ void Client::setNickname(std::string& str)
     _nickname = str;
 }
 
-void Client::joinChannel(Channel& channel)
+void Client::joinChannel(const Channel& channel)
 {
-	_curr_channel.push_back(channel);
+	_curr_channel.push_back(channel.getTitle());
 }
 
 void Client::leaveChannel(const Channel& channel)
 {
-	_curr_channel.erase(std::find(_curr_channel.begin(), _curr_channel.end(), channel));
+	_curr_channel.erase(std::find(_curr_channel.begin(), _curr_channel.end(), channel.getTitle()));
 }
