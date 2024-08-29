@@ -60,29 +60,22 @@ void Server::serverInit()
 void Server::serverProcess()
 {
 	int newEvent;
-	while (1)
-    {
+	while (1) {
 		newEvent = checkNewEvents();
-		for (int i = 0; i < newEvent; i++)
-		{
-			if (_event[i].flags & EV_ERROR)
-			{
+		for (int i = 0; i < newEvent; i++) {
+			if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					throw ServSockCloseException();
 				else
 					disconnectClnt(_event[i].ident);
-			}
-			else if (_event[i].filter == EVFILT_READ)
-			{
+			} else if (_event[i].filter == EVFILT_READ) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd)) {
 					try {
 						acceptClnt();
-					}
-					catch (ClntAcceptionFailException& e) {
+					} catch (ClntAcceptionFailException& e) {
 						std::cerr << e.what() << std::endl;
 					}
-				}
-				else if (_clients.find(_event[i].ident) != _clients.end()) {
+				} else if (_clients.find(_event[i].ident) != _clients.end()) {
 					try {
 						recvMsgFromClnt(_event[i].ident);
 					} catch (ClntErrException& e) {
@@ -121,8 +114,7 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	if (n > 0) {
 		rBuf.erase(rBuf.begin() + n, rBuf.end());
-	}
-	else {
+	} else {
 		if (n < 0)
 			throw ClntErrException();
 		disconnectClnt(clnt_fd);
@@ -141,14 +133,13 @@ void Server::sendMsgToClnt(Command& cmd)
 {
 	std::string							sender = cmd.getSender();
 	std::vector<std::string>			receiver = cmd.getReceiver();
-	std::string							outBuf = receiver.getProtocol();
+	std::string							outBuf = receiver.getProtoMsg();
 	std::vector<std::string>::iterator	receiver_it;
 	std::map< int, Client* >::iterator	clnt_it;
 	int									result;
 
 	receiver_it = receiver.begin(); 
-	while (receiver_it != receiver.end())
-	{
+	while (receiver_it != receiver.end()) {
 		clnt_it = _clients.begin();
 		while (clnt_it != _clients.end()) {
 			if (*it == clnt_it->second().getUsername())
