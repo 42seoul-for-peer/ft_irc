@@ -19,6 +19,7 @@ GRAY = \033[90m
 
 Q = @
 MKDIR = mkdir -p
+RM += -rf
 # **************************************************************************** #
 INC_DIR = incs
 
@@ -54,6 +55,7 @@ $(NAME) : $(OBJS)
 
 clean :
 	$(Q) $(RM) $(wildcard $(OBJ_DIR)/*.o) $(wildcard $(OBJ_DIR)/*.d)
+	$(Q) $(RM) $(OBJ_DIR)
 	$(Q) echo "\t$(RED)$@$(RESET) $(BOLD)FT_IRC$(RESET) object files OK"
 
 fclean : clean
