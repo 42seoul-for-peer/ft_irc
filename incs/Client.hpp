@@ -1,40 +1,40 @@
-#ifndef USER_HPP
-# define USER_HPP
+#ifndef CLIENT_HPP
+# define CLIENT_HPP
 
 # include <string>
-# include <exception>
-# include "Server.hpp"
+# include <vector>
+# include <map>
 # include "Channel.hpp"
-# include "Protocol.hpp"
 
 class Client {
 // OCCF
  public:
-	Client(int clientSock);
+	Client(int clientSock, std::string username, std::string nickname);
 	~Client();
  private:
- 	Client();
+	Client();
 	Client(const Client& copy);
 	Client& operator = (const Client& copy);
 
 // MEMBER VARIABLE
  private:
-	std::string	_buffer;
-	int			_sock_fd;
-	std::string	_username;
-	std::string	_nickname;
-	Channel*	_curr_channel;
+	int _sock_fd;
+	std::string _username;
+	std::string _nickname;
+	std::vector< Channel& > _curr_channel;
 
-// MEMBER FUNCITON
+// MEMBER FUNCTION
  public:
-	void		recvToBuff();
-	Protocol*	parse();
+	const int& 			getSockFd(void) const;
+	const std::string& 	getUsername(void) const;
+	const std::string& 	getNickname(void) const;
+	void setUsername(std::string& str);
+	void setNickname(std::string& str);
+	void joinChannel(Channel& channel);
+	void leaveChannel(const Channel& channel);
 
 // EXCEPTION
-	class ReadErrorException : public std::exception {
-	 public:
-		virtual const char* what() const throw();
-	};
+
 };
 
 #endif
