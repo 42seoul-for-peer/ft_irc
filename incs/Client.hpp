@@ -6,6 +6,8 @@
 # include <map>
 # include "Channel.hpp"
 
+class Channel;
+
 class Client {
 // OCCF
  public:
