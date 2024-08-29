@@ -95,7 +95,7 @@ void Server::serverProcess()
 			}
 		}
 		if (!_commandQueue.empty())
-			sendMsgToClnt();
+			sendMsgToClnt(_commandQueue.first());
     }
 }
 
@@ -139,15 +139,30 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	_commandQueue.push(cmd);
 }
 
-void Server::sendMsgToClnt()
+void Server::sendMsgToClnt(Command& cmd)
 {
-	int idx;
-	const int commandSize = _commandList.size();
-	while (_commandQueue.size())
+	std::string							sender = cmd.getSender();
+	std::vector<std::string>			receiver = cmd.getReceiver();
+	std::string							outBuf = receiver.getProtocol();
+	std::vector<std::string>::iterator	receiver_it;
+	std::map< int, Client* >::iterator	clnt_it;
+	int									result;
+
+	receiver_it = receiver.begin(); 
+	while (receiver_it != receiver.end())
 	{
-		_commandQueue.front()->execute();
-		_commandQueue.pop();
+		clnt_it = _clients.begin();
+		while (clnt_it != _clients.end()) {
+			if (*it == clnt_it->second().getUsername())
+				break;
+			clnt_it++;
+		}
+		result = send(clnt_it->first(), outBuf, outBuf.size(), 0);
+		if (result < 0)
+			//disconnect
+		it++;
 	}
+	_commandQueue.pop();
 }
 
 // EXCEPTION

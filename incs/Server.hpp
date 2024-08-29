@@ -55,7 +55,7 @@ class Server {
 	int		checkNewEvents();
 	void	acceptClnt();
 	void	recvMsgFromClnt(int clnt_fd); //버퍼를 받아와서 cmd객체 생성, cmd parse 함수, 검사해서 괜찮으면 exec
-	void	sendMsgToClnt(); //writable 한지 보고 전송
+	void	sendMsgToClnt(Command& cmd); //writable 한지 보고 전송
 
 
 	// EVFILT_WRITE 조작 안해서 빠질 예정인 함수
