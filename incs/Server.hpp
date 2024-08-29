@@ -12,11 +12,13 @@
 # include <queue>
 
 # include "Channel.hpp"
-
 # include "Command.hpp"
 
 class Client;
-class Protocol;
+
+class Channel;
+
+class Command;
 
 class Server {
 // OCCF
