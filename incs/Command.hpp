@@ -49,7 +49,7 @@ class Command {
 	int									getReplyNumber() const;
 // setter
 // usable function
-	void	parse(Server& serv);
+	void	parse(int clnt_fd, Server& serv);
 	void	execute();
 // irc message
 	// void	pass();
