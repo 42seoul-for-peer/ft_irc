@@ -57,12 +57,17 @@ class Server {
 	void	recvMsgFromClnt(int clnt_fd); //버퍼를 받아와서 cmd객체 생성, cmd parse 함수, 검사해서 괜찮으면 exec
 	void	sendMsgToClnt(Command& cmd); //writable 한지 보고 전송
 
-
 	// EVFILT_WRITE 조작 안해서 빠질 예정인 함수
 	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
             	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
 	void	disconnectClnt(int clnt_fd);
+
+	//getter
+	int									getPort() const;
+	std::string							getPassword() const;
+	std::map< int, Client* >&			getClients() const;
+	std::map< std::string, Channel* >&	getChannels() const;
 
 
 // EXCEPTION

@@ -125,13 +125,13 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	else {
 		if (n < 0)
 			throw ClntErrException();
-		disconnectClnt(_event[i].ident);
+		disconnectClnt(clnt_fd);
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
 	std::stringstream stream(readString);
 
 	Command cmd(stream);
-	cmd.parse(*this);
+	cmd.parse(clnt_fd, *this);
 	cmd.execute();
 	
 	_commandQueue.push(cmd);
@@ -168,6 +168,22 @@ void	Server::disconnectClnt(int clnt_fd) {
 	close(clnt_fd);
 	delete _clients.find(clnt_fd)->second;
 	_clients.erase(clnt_fd);
+}
+
+int	Server::getPort() const {
+	return _port;
+}
+
+int	Server::getPassword() const {
+	return _password;
+}
+
+std::map< int, Client* >&	Server::getClients() const {
+	return _clients;
+}
+
+std::map< std::string, Channel* >&	Server::getChannels() const {
+	return _channels;
 }
 
 // EXCEPTION
