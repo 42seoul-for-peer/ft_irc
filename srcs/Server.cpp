@@ -4,31 +4,29 @@
 #include "Server.hpp"
 
 // OCCF
-Server::Server() {
+// Server::Server() {
 	// std::cout << "Default constructor called for Server.\n";
-}
+// }
 
 Server::~Server() {
 	// std::cout << "Default destructor called for Server.\n";
 }
 
-Server::Server(const Server& copy) {
+// Server::Server(const Server& copy) {
 	// std::cout << "Copy constructor called for Server.\n";
-}
+// }
 
-Server& Server::operator = (const Server& copy) {
-	// std::cout << "Copy assignment called for Server.\n";
-	// if (this == &copy)
-	// 	return (*this);
-	// return (*this);
-}
+// Server& Server::operator = (const Server& copy) {
+// 	std::cout << "Copy assignment called for Server.\n";
+// 	if (this == &copy)
+// 		return (*this);
+// 	return (*this);
+// }
 
 Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password) {
 	if (_port <= 0 || _port > 65535)
 		throw PortOutOfRangeException();
-	_commandList.push_back(new PRIVMSG);
-	_commandList.push_back(new JOIN);
 }
 
 // MEMBER FUNCTION
@@ -47,14 +45,14 @@ void Server::serverInit()
 	_addr.sin_addr.s_addr = htons(_port);
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
-		throw ServInitFuncException("bind");
+		throw ServInitFuncException();
 
 	if (listen(_sock_fd, 50) == -1)
-		throw ServInitFuncException("listen");
+		throw ServInitFuncException();
 
 	_kq = kqueue();
 	if (_kq == -1)
-		throw ServInitFuncException("kqueue");
+		throw ServInitFuncException();
 
 	changeEvents(_kq_events, _sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
