@@ -12,7 +12,6 @@
 # include <queue>
 
 # include "Channel.hpp"
-# include "Protocol.hpp"
 
 # include "Command.hpp"
 
