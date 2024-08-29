@@ -23,8 +23,6 @@ Server& Server::operator = (const Server& copy) {
 	// return (*this);
 }
 
-// Server::Server(const int& port, const std::string& password)
-// : _port(port), _password(password)
 Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password) {
 	if (_port <= 0 || _port > 65535)
@@ -73,12 +71,8 @@ void Server::serverProcess()
 			{
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					throw ServSockCloseException();
-				else {
-					std::cout << "client disconnected: " << _event[i].ident << std::endl;
-					close(_event[i].ident);
-					delete _clients.find(_event[i].ident)->second;
-					_clients.erase(_clients.find(_event[i].ident));
-				}
+				else
+					disconnectClnt(_event[i].ident);
 			}
 			else if (_event[i].filter == EVFILT_READ)
 			{
@@ -90,8 +84,14 @@ void Server::serverProcess()
 						std::cerr << e.what() << std::endl;
 					}
 				}
-				else if (_clients.find(_event[i].ident) != _clients.end())
-					recvMsgFromClnt(_event[i].ident);
+				else if (_clients.find(_event[i].ident) != _clients.end()) {
+					try {
+						recvMsgFromClnt(_event[i].ident);
+					} catch (ClntErrException& e) {
+						std::cerr << e.what() << std::endl;
+						disconnectClnt(_event[i].ident);
+					}
+				}
 			}
 		}
 		if (!_commandQueue.empty())
@@ -126,8 +126,8 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	}
 	else {
 		if (n < 0)
-			; // exception
-		// disconect
+			throw ClntErrException();
+		disconnectClnt(_event[i].ident);
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
 	std::stringstream stream(readString);
@@ -159,10 +159,17 @@ void Server::sendMsgToClnt(Command& cmd)
 		}
 		result = send(clnt_it->first(), outBuf, outBuf.size(), 0);
 		if (result < 0)
-			//disconnect
+			disconnectClnt(clnt_it->first());
 		it++;
 	}
 	_commandQueue.pop();
+}
+
+void	Server::disconnectClnt(int clnt_fd) {
+	std::cout << "client disconnected: " << clnt_fd << std::endl;
+	close(clnt_fd);
+	delete _clients.find(clnt_fd)->second;
+	_clients.erase(clnt_fd);
 }
 
 // EXCEPTION
@@ -171,13 +178,11 @@ const char*	Server::PortOutOfRangeException::what() const throw() {
 	return (reason);
 }
 
-Server::ServInitFuncException::ServInitFuncException(const std::string& func_name) : _func_name(func_name) {}
-
 const char*	Server::ServInitFuncException::what() const throw() {
 	std::stringstream	stream;
 	char				*reason;
 
-	stream << _func_name << " error " << std::strerror(errno) << '.';
+	stream << "server init error " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }
@@ -187,6 +192,15 @@ const char*	Server::ClntAcceptionFailException::what() const throw() {
 	char				*reason;
 
 	stream << "accept() error " << std::strerror(errno) << '.';
+	stream >> reason;
+	return (reason);
+}
+
+const char*	Server::ClntErrException::what() const throw() {
+	std::stringstream	stream;
+	char				*reason;
+
+	stream << "client error " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }

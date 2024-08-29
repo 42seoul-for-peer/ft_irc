@@ -62,6 +62,7 @@ class Server {
 	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
             	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
+	void	disconnectClnt(int clnt_fd);
 
 
 // EXCEPTION
@@ -75,11 +76,7 @@ class Server {
 	// socket() 오류
 	class ServInitFuncException : public std::exception {
 	 public:
-		ServInitFuncException(const std::string& func_name);
 		virtual const char* what() const throw();
-
-	 private:
-		std::string _func_name;
 	};
 
 	class ServSockCloseException : public std::exception {
@@ -88,6 +85,11 @@ class Server {
 	};
 
 	class ClntAcceptionFailException : public std::exception {
+	 public:
+	 	virtual const char* what() const throw();
+	};
+
+	class ClntErrException : public std::exception {
 	 public:
 	 	virtual const char* what() const throw();
 	};
