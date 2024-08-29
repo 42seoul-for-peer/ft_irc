@@ -28,7 +28,7 @@ class Command {
 	std::string					_cmd;
 
 	std::queue< std::string >	_args;
-	std::queue< std::string >	_confirmed_args;
+	std::queue< std::string >	_confirmed_args; // 검사된 인자들
 
 	std::string					_sender;
 	int							_receiver_cnt;
@@ -55,7 +55,7 @@ class Command {
 	void	execute();
 // irc message
 	void	pass(int clnt_fd, Server& serv);
-	// void	nick();
+	void	nick(int clnt_fd, Server& serv);
 	// void	user();
 	// void	join();
 	// void	privmsg();
