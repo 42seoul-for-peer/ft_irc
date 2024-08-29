@@ -2,33 +2,72 @@
 #include "Command.hpp"
 
 // OCCF
-// Command::Command() {
-// 	// std::cout << "Default constructor called for Command.\n";
-// }
+Command::Command() {
+	// std::cout << "Default constructor called for Command.\n";
+}
 
 Command::~Command() {
-	std::cout << "Default destructor called for Command.\n";
+	// std::cout << "Default destructor called for Command.\n";
 }
 
 Command::Command(const Command& copy) {
 	// std::cout << "Copy constructor called for Command.\n";
-	_cmd = copy._cmd;
-	// _sender = copy._sender;
-	// _receiver = copy._receiver;
-	// _proto_msg = copy._proto_msg;
 }
 
 // parameterized constructor
-Command::Command(std::stringstream input_cmd) {
+Command::Command(std::stringstream& input_cmd) {
 	// std::cout << "Parameterized constructor called for Command.\n";
+	std::string tmp;
+
 	input_cmd >> _cmd;
+	while (input_cmd >> tmp) {
+		_args.push_back(tmp);
+	}
+	_rep_no = 0;
 }
 
-// Command& Command::operator = (const Command& copy) {
-// 	// std::cout << "Copy assignment called for Command.\n";
-// 	if (this == &copy)
-// 		return (*this);
-// 	return (*this);
-// }
+Command& Command::operator = (const Command& copy) {
+	// std::cout << "Copy assignment called for Command.\n";
+	if (this == &copy)
+		return (*this);
+	return (*this);
+}
 
 // MEMBER FUNCTION
+// getter
+const std::string&	Command::getCmd() const {
+	return (_cmd);
+}
+
+const std::string&	Command::getSender() const {
+	return (_sender);
+}
+
+const std::vector< std::string >& Command::getReceiver() const {
+	return (_receiver);
+}
+
+int	Command::getReceiverCnt() const {
+	return (_receiver_cnt);
+}
+
+const std::string&	Command::getProtoMsg() const {
+	return (_proto_msg);
+}
+
+int	Command::getReplyNumber() const {
+	return (_rep_no);
+}
+
+// setter
+
+// usable function
+void	Command::parse(Server& serv) {
+	if (_cmd == "CONNECT")
+		connect(serv);
+	else
+		unknownCommand(serv);
+}
+
+void	Command::execute() {
+}
