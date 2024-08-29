@@ -48,6 +48,11 @@ void Channel::setMode(int& bitNum)
     _mode = bitNum;
 }
 
+const std::string& Channel::getTitle(void) const
+{
+    return (_title);
+}
+
 const std::string& Channel::getTopic(void) const
 {
     return (_topic);
@@ -68,18 +73,18 @@ const int& Channel::getMode(void) const
     return (_mode);
 }
 
-void Channel::addClient(Client& client)
+void Channel::addClient(const Client& client)
 {
-    _clients.push_back(std::pair<bool, Client&>(false, client));
+    _clients.push_back(std::pair<bool, std::string>(false, client.getUsername()));
 }
 
-void Channel::leaveClient(Client& client)
+void Channel::leaveClient(const Client& client)
 {
-    std::vector< std::pair<bool, Client&> >::iterator it = _clients.begin();
+    std::vector< std::pair<bool, std::string> >::iterator it = _clients.begin();
 
     while (it != _clients.end())
     {
-        if (&(it->second) == &client)
+        if (it->second == client.getUsername())
             break;
         it++;
     }
