@@ -1,5 +1,5 @@
 # executable
-./ircserv
+ircserv
 client/client
 .vscode
 
