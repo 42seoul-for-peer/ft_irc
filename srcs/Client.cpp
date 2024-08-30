@@ -9,7 +9,7 @@ Client::~Client() {
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock) {}
+: _sock_fd(clientSock), _is_registered(false) {}
 
 const int& Client::getSockFd(void) const {
 	return (_sock_fd);
@@ -23,12 +23,20 @@ const std::string& Client::getNickname(void) const {
     return (_nickname);
 }
 
+const bool& Client::getIsRegistered(void) const {
+    return (_is_registered);
+}
+
 void Client::setUsername(std::string& str) {
     _username = str;
 }
 
 void Client::setNickname(std::string& str) {
     _nickname = str;
+}
+
+void Client::setRegistered(void) {
+    _is_registered = true;
 }
 
 void Client::joinChannel(const Channel& channel) {

@@ -20,7 +20,8 @@ class Client {
 
 // MEMBER VARIABLE
  private:
-	int _sock_fd;
+	int 		_sock_fd;
+	bool		_is_registered;
 	std::string _username;
 	std::string _nickname;
 	std::vector< std::string > _curr_channel;
@@ -31,10 +32,12 @@ class Client {
 	const int& 			getSockFd(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
+	const bool&			getIsRegistered(void) const;
 
 	// SETTER
 	void setUsername(std::string& str);
 	void setNickname(std::string& str);
+	void setRegistered(void);
 
 	// HANDLING CHANNEL
 	void joinChannel(const Channel& channel);
