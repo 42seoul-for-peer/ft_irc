@@ -1,0 +1,39 @@
+변수/함수:
+lowerCamelCase
+클래스
+UpperCamelCase
+
+returnType functionName(varOne, varTwo) {
+
+}
+
+Class ClassName {
+// VARIABLE
+ public:
+	varType var_name;
+ private:
+	varType	_var_name; // private 멤버 변수나 함수는 앞에 _를 사용한다
+
+// FUNCTION
+ public:
+	returnType funcName();
+ private: // 접근 지정자 앞은 space 1칸
+	returnType _funcName(); // type과 name 사이는  tab
+
+// OCCF
+ public:
+ private:
+
+// OPERATOR OVERRIDE
+};
+
+// OPERATOR OVERRIDE << >>
+
+void	test(const std::string& str){
+    int strLength = str.size(); << 한표
+
+	for문에서 선언하면 i, j, k // x, y, z
+	for문 외부에서 선언했다 idx
+
+    **tmp**(O) vs temp
+}
