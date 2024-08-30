@@ -12,6 +12,7 @@ Command::Command(std::stringstream& input_cmd) {
 	std::string tmp;
 
 	input_cmd >> _cmd;
+	std::cout << "got " << _cmd << std::endl;
 	while (input_cmd >> tmp) {
 		_args.push(tmp);
 	}
