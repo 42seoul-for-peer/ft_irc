@@ -1,4 +1,5 @@
 #include "Command.hpp"
+#include <iostream>
 
 // NICK <nickname> [ <hopcount> ]
 // hopcount는 server에서만 의미 있는 인자라서 ft_irc에서는 처리 안 함
@@ -13,11 +14,12 @@
 // ERR_NICKCOLLISION: 서버를 타고 갔을 때 다른 client와 겹치는 경우
 
 void	Command::nick(int clnt_fd, Server& serv) {
-	(void) clnt_fd;
 	// 비밀번호 있는지 확인해야함
-	if (_confirmed_args.empty()) {
+	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
+	if (it == serv.getClients().end() || it->second->getIsRegistered() == false) {
 		_rpl_no = 451;
 		_proto_msg = ":You have not registerd";
+		std::cout << _proto_msg << std::endl;
 		return ;
 	}
 	if (_args.size() < 1) {
@@ -37,7 +39,6 @@ void	Command::nick(int clnt_fd, Server& serv) {
 		}
 	}
 	// 중복되지 않는지 확인하는 상황
-	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
 			_rpl_no = 433;
@@ -46,5 +47,5 @@ void	Command::nick(int clnt_fd, Server& serv) {
 		}
 		it++;
 	}
-	_confirmed_args.push(newNick);
+	it->second->setNickname(newNick);
 }
