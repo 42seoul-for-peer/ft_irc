@@ -22,7 +22,7 @@ void Server::serverInit()
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	_addr.sin_addr.s_addr = htons(_port);
+	_addr.sin_port = htons(_port);
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
 		throw std::runtime_error("bind error: " + std::string(std::strerror(errno)) + '.');
@@ -34,14 +34,17 @@ void Server::serverInit()
 	if (_kq == -1)
 		throw std::runtime_error("kqueue error: " + std::string(std::strerror(errno)) + '.');
 
-	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	changeEvents(_sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	std::cout << "server activated with port " << ntohs(_addr.sin_port) << std::endl;
 }
 
 void Server::serverProcess()
 {
 	int newEvent;
 	while (1) {
+		// // std::cout << "while start" << std::endl;
 		newEvent = checkNewEvents();
+		// // std::cout << "event count: " << newEvent << std::endl;
 		for (int i = 0; i < newEvent; i++) {
 			if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
@@ -56,6 +59,7 @@ void Server::serverProcess()
 						std::cerr << e.what() << std::endl;
 					}
 				} else if (_clients.find(_event[i].ident) != _clients.end()) {
+					// // std::cout << "read event check" << std::endl;
 					try {
 						recvMsgFromClnt(_event[i].ident);
 					} catch (std::exception& e) {
@@ -64,10 +68,12 @@ void Server::serverProcess()
 					}
 				}
 			}
+			// // std::cout << "for end" << std::endl;
 		}
-		if (!_commandQueue.empty())
-			sendMsgToClnt(*_commandQueue.front());
+		// if (!_commandQueue.empty())
+		// 	sendMsgToClnt(*_commandQueue.front());
     }
+	// std::cout << "out of while" << std::endl;
 }
 
 void Server::acceptClnt()
@@ -78,8 +84,9 @@ void Server::acceptClnt()
 	if (clientSock == -1)
 		throw std::runtime_error("accept function error: " + std::string(std::strerror(errno)) + '.'); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
-	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	changeEvents(clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
+	std::cout << "Accepted Client: " << clientSock << std::endl;
 }
 
 void Server::recvMsgFromClnt(int clnt_fd)
@@ -88,7 +95,9 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	std::string readString;
 	std::string cmdToken;
 
+	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
+	// std::cout << "recv num: " << n << std::endl;
 	if (n > 0) {
 		rBuf.erase(rBuf.begin() + n, rBuf.end());
 	} else {
@@ -97,7 +106,10 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		disconnectClnt(clnt_fd);
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
+	std::cout << "Received msg: " << readString << std::endl;
 	std::stringstream stream(readString);
+	changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+
 
 	Command cmd(stream);
 	cmd.parse(clnt_fd, *this);
@@ -132,20 +144,23 @@ void Server::sendMsgToClnt(Command& cmd)
 }
 
 int		Server::checkNewEvents() {
-	int	newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
+	int newEvent = 0;
+	// std::cout << "newEvent while start" << std::endl;
 	while (newEvent <= 0) {
+		newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
 		if (newEvent < 0)
 			throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 	}
+	// std::cout << "newEvent while end" << std::endl;
 	// 수정 필요 (kqevent가 event보다 크면 이벤트가 씹힐 우려)
 	_kq_events.clear();
 	return (newEvent);
 }
 
-void	Server::changeEvents(int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
+void	Server::changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
 	struct kevent tmpEvent;
 
-    EV_SET(&tmpEvent, _sock_fd, filter, flags, fflags, data, udata);
+    EV_SET(&tmpEvent, ident, filter, flags, fflags, data, udata);
     _kq_events.push_back(tmpEvent);
 }
 
