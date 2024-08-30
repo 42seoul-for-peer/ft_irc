@@ -4,24 +4,7 @@
 #include "Server.hpp"
 
 // OCCF
-// Server::Server() {
-	// std::cout << "Default constructor called for Server.\n";
-// }
-
-Server::~Server() {
-	// std::cout << "Default destructor called for Server.\n";
-}
-
-// Server::Server(const Server& copy) {
-	// std::cout << "Copy constructor called for Server.\n";
-// }
-
-// Server& Server::operator = (const Server& copy) {
-// 	std::cout << "Copy assignment called for Server.\n";
-// 	if (this == &copy)
-// 		return (*this);
-// 	return (*this);
-// }
+Server::~Server() { }
 
 Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password) {
@@ -33,11 +16,8 @@ Server::Server(const std::string& port, const std::string& password)
 void Server::serverInit()
 {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
-	if (_sock_fd == -1) {
-		std::cerr << "server initiation failed (socket() error)" << std::endl;
-		exit(1);
-	}
-		throw ServInitFuncException("socket");
+	if (_sock_fd == -1)
+		throw ServInitFuncException();
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
@@ -54,7 +34,7 @@ void Server::serverInit()
 	if (_kq == -1)
 		throw ServInitFuncException();
 
-	changeEvents(_kq_events, _sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
 
 void Server::serverProcess()
@@ -86,7 +66,7 @@ void Server::serverProcess()
 			}
 		}
 		if (!_commandQueue.empty())
-			sendMsgToClnt(_commandQueue.first());
+			sendMsgToClnt(*_commandQueue.front());
     }
 }
 
@@ -98,18 +78,15 @@ void Server::acceptClnt()
 	if (clientSock == -1)
 		throw ClntAcceptionFailException(); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
-	changeEvents(_kq_events, clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
 }
 
 void Server::recvMsgFromClnt(int clnt_fd)
 {
-	const int commandSize = _commandList.size();
 	std::vector<char> rBuf(1024);
 	std::string readString;
 	std::string cmdToken;
-	Protocol	*tmp;
-	int			idx;
 
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	if (n > 0) {
@@ -125,33 +102,50 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	Command cmd(stream);
 	cmd.parse(clnt_fd, *this);
 	cmd.execute();
-	
-	_commandQueue.push(cmd);
+
+	_commandQueue.push(&cmd);
 }
 
 void Server::sendMsgToClnt(Command& cmd)
 {
 	std::string							sender = cmd.getSender();
 	std::vector<std::string>			receiver = cmd.getReceiver();
-	std::string							outBuf = receiver.getProtoMsg();
+	std::string							outBuf = cmd.getProtoMsg();
 	std::vector<std::string>::iterator	receiver_it;
 	std::map< int, Client* >::iterator	clnt_it;
 	int									result;
 
-	receiver_it = receiver.begin(); 
+	receiver_it = receiver.begin();
 	while (receiver_it != receiver.end()) {
 		clnt_it = _clients.begin();
 		while (clnt_it != _clients.end()) {
-			if (*it == clnt_it->second().getUsername())
+			if (*receiver_it == clnt_it->second->getUsername())
 				break;
 			clnt_it++;
 		}
-		result = send(clnt_it->first(), outBuf, outBuf.size(), 0);
+		result = send(clnt_it->first, outBuf.c_str(), outBuf.size(), 0);
 		if (result < 0)
-			disconnectClnt(clnt_it->first());
-		it++;
+			disconnectClnt(clnt_it->first);
+		receiver_it++;
 	}
 	_commandQueue.pop();
+}
+
+int		Server::checkNewEvents() {
+	int	newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
+	while (newEvent <= 0) {
+		if (newEvent < 0)
+			throw ServSockCloseException();
+	}
+	_kq_events.clear();
+	return (newEvent);
+}
+
+void	Server::changeEvents(int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
+	struct kevent tmpEvent;
+
+    EV_SET(&tmpEvent, _sock_fd, filter, flags, fflags, data, udata);
+    _kq_events.push_back(tmpEvent);
 }
 
 void	Server::disconnectClnt(int clnt_fd) {
@@ -162,19 +156,19 @@ void	Server::disconnectClnt(int clnt_fd) {
 }
 
 int	Server::getPort() const {
-	return _port;
+	return (_port);
 }
 
-int	Server::getPassword() const {
-	return _password;
+const std::string&	Server::getPassword() const {
+	return (_password);
 }
 
-std::map< int, Client* >&	Server::getClients() const {
-	return _clients;
+const std::map< int, Client* >&	Server::getClients() const {
+	return (_clients);
 }
 
-std::map< std::string, Channel* >&	Server::getChannels() const {
-	return _channels;
+const std::map< std::string, Channel* >&	Server::getChannels() const {
+	return (_channels);
 }
 
 // EXCEPTION
@@ -185,27 +179,36 @@ const char*	Server::PortOutOfRangeException::what() const throw() {
 
 const char*	Server::ServInitFuncException::what() const throw() {
 	std::stringstream	stream;
-	char				*reason;
+	char				*reason = nullptr;
 
-	stream << "server init error " << std::strerror(errno) << '.';
+	stream << "server init error: " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }
 
 const char*	Server::ClntAcceptionFailException::what() const throw() {
 	std::stringstream	stream;
-	char				*reason;
+	char				*reason = nullptr;
 
-	stream << "accept() error " << std::strerror(errno) << '.';
+	stream << "accept() error: " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }
 
 const char*	Server::ClntErrException::what() const throw() {
 	std::stringstream	stream;
-	char				*reason;
+	char				*reason = nullptr;
 
-	stream << "client error " << std::strerror(errno) << '.';
+	stream << "client error: " << std::strerror(errno) << '.';
+	stream >> reason;
+	return (reason);
+}
+
+const char*	Server::ServSockCloseException::what() const throw() {
+	std::stringstream	stream;
+	char				*reason = nullptr;
+
+	stream << "close() error: " << std::strerror(errno) << '.';
 	stream >> reason;
 	return (reason);
 }

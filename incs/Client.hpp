@@ -11,7 +11,7 @@ class Channel;
 class Client {
 // OCCF
  public:
-	Client(int clientSock, std::string username, std::string nickname);
+	Client(int clientSock);
 	~Client();
  private:
 	Client();

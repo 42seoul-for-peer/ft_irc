@@ -2,16 +2,8 @@
 #include "Command.hpp"
 
 // OCCF
-Command::Command() {
-	// std::cout << "Default constructor called for Command.\n";
-}
-
 Command::~Command() {
 	// std::cout << "Default destructor called for Command.\n";
-}
-
-Command::Command(const Command& copy) {
-	// std::cout << "Copy constructor called for Command.\n";
 }
 
 // parameterized constructor
@@ -26,13 +18,6 @@ Command::Command(std::stringstream& input_cmd) {
 	_rpl_no = 0;
 }
 
-Command& Command::operator = (const Command& copy) {
-	// std::cout << "Copy assignment called for Command.\n";
-	if (this == &copy)
-		return (*this);
-	return (*this);
-}
-
 // MEMBER FUNCTION
 // getter
 const std::string&	Command::getCmd() const {
@@ -43,7 +28,7 @@ const std::string&	Command::getSender() const {
 	return (_sender);
 }
 
-const std::queue< std::string >& Command::getReceiver() const {
+const std::vector< std::string >& Command::getReceiver() const {
 	return (_receiver);
 }
 
@@ -66,8 +51,10 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
 	if (_cmd == "PASS")
 		pass(clnt_fd, serv);
+	else if (_cmd == "NICK")
+		nick(clnt_fd, serv);
 	else
-		unknownCommand(serv);
+		unknownCommand(clnt_fd, serv);
 }
 
 void	Command::execute() {

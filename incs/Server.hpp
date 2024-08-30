@@ -49,7 +49,7 @@ class Server {
  public:
 	void	serverInit(); //sock fd 초기화, kq 생성하기
 	void	serverProcess();
-	void	serverClose(); // 어디서 호출할지 고민해보기
+	// void	serverClose(); // 어디서 호출할지 고민해보기
 
 	// under serverProcess();
 	int		checkNewEvents();
@@ -58,16 +58,15 @@ class Server {
 	void	sendMsgToClnt(Command& cmd); //writable 한지 보고 전송
 
 	// EVFILT_WRITE 조작 안해서 빠질 예정인 함수
-	void	changeEvents(std::vector<struct kevent>& kqEvents, uintptr_t ident, int16_t filter, 
-            	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
+	void	changeEvents(int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
 	void	disconnectClnt(int clnt_fd);
 
 	//getter
-	int									getPort() const;
-	std::string							getPassword() const;
-	std::map< int, Client* >&			getClients() const;
-	std::map< std::string, Channel* >&	getChannels() const;
+	int											getPort() const;
+	const std::string&							getPassword() const;
+	const std::map< int, Client* >&				getClients() const;
+	const std::map< std::string, Channel* >&	getChannels() const;
 
 
 // EXCEPTION

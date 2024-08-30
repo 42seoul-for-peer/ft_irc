@@ -13,6 +13,7 @@
 // ERR_NICKCOLLISION: 서버를 타고 갔을 때 다른 client와 겹치는 경우
 
 void	Command::nick(int clnt_fd, Server& serv) {
+	(void) clnt_fd;
 	// 비밀번호 있는지 확인해야함
 	if (_confirmed_args.empty()) {
 		_rpl_no = 451;
@@ -27,14 +28,16 @@ void	Command::nick(int clnt_fd, Server& serv) {
 	// 인자가 한 개보다 많은 경우는 무시되나? (프로토콜 뜯어보기)
 	std::string	newNick =_args.front();
 	_args.pop();
-	for (int i = 0; i < newNick.length(); i++) {
+	int	new_nick_len = newNick.length();
+	for (int i = 0; i < new_nick_len; i++) {
 		if (newNick[i] == '#') {
 			_rpl_no = 432;
 			_proto_msg = newNick + ":Erroneus nickname";
 			return ;
 		}
 	}
-	std::map< int, Client* >::iterator it = serv.getClients().begin();
+	// 중복되지 않는지 확인하는 상황
+	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
 			_rpl_no = 433;

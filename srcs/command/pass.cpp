@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Command.hpp"
 
 // PASS <password>
@@ -11,9 +12,11 @@ void	Command::pass(int clnt_fd, Server& serv) {
 		_proto_msg = _cmd + " :Not enough parameters";
 		return ;
 	}
-	std::map< int, Client* >::iterator it = serv.getClients().find(clnt_fd);
+
+	const std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	if (it == serv.getClients().end()) {
-		_confirmed_args.push(_args.front());
+		Client* new_clnt = new Client(clnt_fd);
+		std::cout << new_clnt << std::endl;
 	}
 	else {
 		_rpl_no = 462;

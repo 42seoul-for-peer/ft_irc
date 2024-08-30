@@ -25,17 +25,21 @@ INC_DIR = incs
 
 SRC_DIR = srcs
 OBJ_DIR = objs
-CMD_DIR = srcs/command
+CMD_DIR = command
 
 serv_srcs = main.cpp\
 			Channel.cpp\
 			Client.cpp\
+			Command.cpp\
 			Server.cpp\
 
 cmd_srcs = pass.cpp\
+			nick.cpp\
+			unknownCommand.cpp\
+			user.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
-SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(cmd_dir)/,$(cmd_srcs))
+SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 DEPS_M = $(SRCS:.cpp=.d)
 -include $(DEPS_M)
@@ -46,6 +50,7 @@ all : $(NAME)
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
 	$(Q) $(MKDIR) $(OBJ_DIR)
+	$(Q) $(MKDIR) $(OBJ_DIR)/$(CMD_DIR)
 	$(Q) $(CXX) $(CXXFLAGS) -c $< -o $@ -I$(INC_DIR)
 
 $(NAME) : $(OBJS)
