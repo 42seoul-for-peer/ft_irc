@@ -62,6 +62,7 @@ class Server {
 
 	// clnt, chnl controller
 	void	addNewClnt(int clnt_fd, Client* clnt);
+	void	deleteClnt(int clnt_fd);
 
 	// getter
 	int											getPort() const;

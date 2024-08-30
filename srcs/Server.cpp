@@ -106,16 +106,29 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		disconnectClnt(clnt_fd);
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
-	std::cout << "Received msg: " << readString << std::endl;
+	std::cout << "Received msg: \n\t" << readString << std::endl;
 	std::stringstream stream(readString);
 	changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 
 
-	Command cmd(stream);
-	cmd.parse(clnt_fd, *this);
-	cmd.execute();
 
-	_commandQueue.push(&cmd);
+	std::vector<std::string> tokens;
+    std::string token;
+    while (std::getline(stream, token, '\n')) {
+        tokens.push_back(token);
+    }
+
+	std::vector<std::string>::iterator token_it = tokens.begin();
+	while (token_it != tokens.end()) {
+		std::stringstream tmpstream(*token_it);
+
+		Command cmd(tmpstream);
+		cmd.parse(clnt_fd, *this);
+		cmd.execute();
+
+		_commandQueue.push(&cmd);
+		token_it++;
+	}
 }
 
 void Server::sendMsgToClnt(Command& cmd)
@@ -173,6 +186,11 @@ void	Server::disconnectClnt(int clnt_fd) {
 
 void	Server::addNewClnt(int clnt_fd, Client* clnt) {
 	_clients.insert(std::make_pair(clnt_fd, clnt));
+}
+
+void	Server::deleteClnt(int clnt_fd) {
+	delete _clients[clnt_fd];
+	_clients.erase(clnt_fd);
 }
 
 // getter
