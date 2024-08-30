@@ -9,7 +9,7 @@ Server::~Server() { }
 Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password) {
 	if (_port <= 0 || _port > 65535)
-		throw PortOutOfRangeException();
+		throw std::runtime_error("port number should be between 0 to 65535.");
 }
 
 // MEMBER FUNCTION
@@ -17,7 +17,7 @@ void Server::serverInit()
 {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_sock_fd == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)));
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
@@ -25,14 +25,14 @@ void Server::serverInit()
 	_addr.sin_addr.s_addr = htons(_port);
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
 
 	if (listen(_sock_fd, 50) == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
 
 	_kq = kqueue();
 	if (_kq == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
 
 	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
@@ -45,20 +45,20 @@ void Server::serverProcess()
 		for (int i = 0; i < newEvent; i++) {
 			if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
-					throw ServSockCloseException();
+					throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 				else
 					disconnectClnt(_event[i].ident);
 			} else if (_event[i].filter == EVFILT_READ) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd)) {
 					try {
 						acceptClnt();
-					} catch (ClntAcceptionFailException& e) {
+					} catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
 					}
 				} else if (_clients.find(_event[i].ident) != _clients.end()) {
 					try {
 						recvMsgFromClnt(_event[i].ident);
-					} catch (ClntErrException& e) {
+					} catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
 						disconnectClnt(_event[i].ident);
 					}
@@ -76,7 +76,7 @@ void Server::acceptClnt()
 
 	clientSock = accept(_sock_fd, NULL, NULL);
 	if (clientSock == -1)
-		throw ClntAcceptionFailException(); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
+		throw std::runtime_error("accept function error: " + std::string(std::strerror(errno)) + '.'); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
 	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
@@ -93,7 +93,7 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		rBuf.erase(rBuf.begin() + n, rBuf.end());
 	} else {
 		if (n < 0)
-			throw ClntErrException();
+			throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
 		disconnectClnt(clnt_fd);
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
@@ -135,8 +135,9 @@ int		Server::checkNewEvents() {
 	int	newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
 	while (newEvent <= 0) {
 		if (newEvent < 0)
-			throw ServSockCloseException();
+			throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 	}
+	// 수정 필요 (kqevent가 event보다 크면 이벤트가 씹힐 우려)
 	_kq_events.clear();
 	return (newEvent);
 }
@@ -155,6 +156,11 @@ void	Server::disconnectClnt(int clnt_fd) {
 	_clients.erase(clnt_fd);
 }
 
+void	Server::addNewClnt(int clnt_fd, Client* clnt) {
+	_clients.insert(std::make_pair(clnt_fd, clnt));
+}
+
+// getter
 int	Server::getPort() const {
 	return (_port);
 }
@@ -169,46 +175,4 @@ const std::map< int, Client* >&	Server::getClients() const {
 
 const std::map< std::string, Channel* >&	Server::getChannels() const {
 	return (_channels);
-}
-
-// EXCEPTION
-const char*	Server::PortOutOfRangeException::what() const throw() {
-	const char	*reason = "port number should be between 0 to 65535.";
-	return (reason);
-}
-
-const char*	Server::ServInitFuncException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "server init error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ClntAcceptionFailException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "accept() error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ClntErrException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "client error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ServSockCloseException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "close() error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
 }
