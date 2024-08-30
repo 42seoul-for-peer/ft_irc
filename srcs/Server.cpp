@@ -17,7 +17,7 @@ void Server::serverInit()
 {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_sock_fd == -1)
-		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)));
+		throw std::runtime_error("socket error: " + std::string(std::strerror(errno)));
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
@@ -25,14 +25,14 @@ void Server::serverInit()
 	_addr.sin_addr.s_addr = htons(_port);
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
-		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
+		throw std::runtime_error("bind error: " + std::string(std::strerror(errno)) + '.');
 
 	if (listen(_sock_fd, 50) == -1)
-		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
+		throw std::runtime_error("listen error: " + std::string(std::strerror(errno)) + '.');
 
 	_kq = kqueue();
 	if (_kq == -1)
-		throw std::runtime_error("server init error: " + std::string(std::strerror(errno)) + '.');
+		throw std::runtime_error("kqueue error: " + std::string(std::strerror(errno)) + '.');
 
 	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
