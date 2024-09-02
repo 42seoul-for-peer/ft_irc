@@ -3,6 +3,7 @@
 
 # include <string>
 # include <sstream>
+# include <queue>
 # include <vector>
 
 # include "Server.hpp"
@@ -29,25 +30,25 @@ class Command {
 	std::string					_cmd;
 
 	std::queue< std::string >	_args;
-	std::queue< std::string >	_confirmed_args; // 검사된 인자들
+	// std::queue< std::string >	_confirmed_args; // 검사된 인자들
 
 	std::string					_sender;
 	int							_receiver_cnt;
 	std::queue< std::pair < std::string, int > >	_receiver;
 	std::string					_proto_msg;
 
-	int							_rpl_no;
+	// int							_rpl_no;
 
 // MEMBER FUNCITON
  public:
 // getter
-	const std::string&					getCmd() const;
-	const std::string&					getSender() const;
-	int									getReceiverCnt() const;
-	// const std::vector< std::string >&	getReceiver() const;
+	const std::string&								getCmd() const;
+	const std::string&								getSender() const;
+	int												getReceiverCnt() const;
+	std::queue< std::pair < std::string, int > >&	getReceiver() const;
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
-	const std::string					getProtoMsg(std::string& recv_name, std::string& serv_name) const;
+	const std::string								getProtoMsg(std::string& recv_name, std::string& serv_name) const;
 
 	int									getReplyNumber() const;
 // setter
