@@ -8,6 +8,7 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "replyNumber.hpp"
 
 class Server;
 class Client;

@@ -4,26 +4,26 @@
 // NICK <nickname> [ <hopcount> ]
 // hopcount는 server에서만 의미 있는 인자라서 ft_irc에서는 처리 안 함
 
-// ERR_NOTREGISTERED: PASS 없이 온 경우
+// ERR_NOTREGISTERED: 451 PASS 없이 온 경우
 
-// ERR_NONICKNAMEGIVEN:
-// ERR_ERRONEUSNICKNAME: 비허용 문자 포함된 겨우
-// ERR_NICNAMEINUSE
+// ERR_NONICKNAMEGIVEN: 431
+// ERR_ERRONEUSNICKNAME: 432비허용 문자 포함된 겨우
+// ERR_NICNAMEINUSE 433
 
-// 우린 멀티 서버 아니라 괜찮을듯?
+// 우린 멀티 서버 아니라 불필요
 // ERR_NICKCOLLISION: 서버를 타고 갔을 때 다른 client와 겹치는 경우
 
 void	Command::nick(int clnt_fd, Server& serv) {
 	// 비밀번호 있는지 확인해야함
 	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	if (it == serv.getClients().end() || it->second->getIsRegistered() == false) {
-		_rpl_no = 451;
+		_rpl_no = ERR_NOTREGISTERED;
 		_proto_msg = ":You have not registerd";
 		std::cout << _proto_msg << std::endl;
 		return ;
 	}
 	if (_args.size() < 1) {
-		_rpl_no = 431; // no nickname given
+		_rpl_no = ERR_NONICKNAMEGIVEN;
 		_proto_msg = ":No nickname given";
 		return ;
 	}
@@ -33,7 +33,7 @@ void	Command::nick(int clnt_fd, Server& serv) {
 	int	new_nick_len = newNick.length();
 	for (int i = 0; i < new_nick_len; i++) {
 		if (newNick[i] == '#') {
-			_rpl_no = 432;
+			_rpl_no = ERR_ERRONEUSNICKNAME;
 			_proto_msg = newNick + ":Erroneus nickname";
 			return ;
 		}
@@ -41,7 +41,7 @@ void	Command::nick(int clnt_fd, Server& serv) {
 	// 중복되지 않는지 확인하는 상황
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
-			_rpl_no = 433;
+			_rpl_no = ERR_NICKNAMEINUSE;
 			_proto_msg = newNick + ":Nickname is already in use";
 			return ;
 		}
