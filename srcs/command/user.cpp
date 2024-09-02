@@ -17,26 +17,24 @@
 * (2) ERR_ALREADYREGISTERED<462>: 이미 등록된 클라이언트의 등록 정보 재정의 시도
 */
 
-void	Command::user(int clnt_fd, Server& serv) {
+void	Command::user(Client& send_clnt, Server& serv) {
 	// PASS, NICK 명령에서 문제가 발생, _receiver가 비어있지 않음
 	if (!_receiver.empty())
 		return ;
 	// 클라이언트가 충분한 파라미터를 전달하지 않음
-	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	if (_args.size() < 4)
 	{
-		const int reply_no = ERR_NEEDMOREPARAMS;
-		_receiver.push(std::pair< std::string, int >(it->second->getNickname(), reply_no));
-		_proto_msg = ":irc.local 461 as " + _cmd + " :Not enough parameters";
+		_receiver.push(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
+		_msg = ":irc.local 461 as " + _cmd + " :Not enough parameters";
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
-	if (!it->second->getUsername().empty())
+	if (send_clnt.getUsername().empty())
 	{
 		const int reply_no = ERR_ALREADYREGISTRED;
-		_receiver.push(std::pair< std::string, int >(it->second->getNickname(), reply_no));
-		_proto_msg= ":irc.local 462 " + it->second->getNickname() + ":You may not reregister";
+		_receiver.push(make_pair(send_clnt.getNickname(), ERR_ALREADYREGISTRED));
+		_msg= ":irc.local 462 " + send_clnt.getNickname() + ":You may not reregister";
 		return ;
 	}
-	it->second->setUsername(_args.front());
+	send_clnt.setUsername(_args.front());
 }
