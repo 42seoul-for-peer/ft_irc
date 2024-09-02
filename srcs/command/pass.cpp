@@ -7,31 +7,27 @@
 // ERR_ALREADYREGISTERED 462
 // ERR_PASSWDMISMATCH 464
 
-void	Command::pass(int clnt_fd, Server& serv) {
-	std::cout << "arg size: " << _args.size() << std::endl;
+void	Command::pass(Client& send_clnt, Server& serv) {
 	if (_args.size() != 1) {
-		_rpl_no = ERR_NEEDMOREPARAMS;
-		_proto_msg = _cmd + " :Not enough parameters";
+		_receiver.push(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
+		_msg = "Not enought parameters";
 		return ;
 	}
 
-	const std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
-	if (it->second->getIsRegistered() == false) {
+	if (send_clnt.getIsRegistered() == false) {
 		if (serv.getPassword() != _args.front()) {
-			_rpl_no = ERR_PASSWDMISMATCH;
-			_proto_msg = _cmd + ":Password incorrect";
-			std::cout << _proto_msg << std::endl;
+			_receiver.push(make_pair(send_clnt.getNickname(), ERR_PASSWDMISMATCH));
+			_msg = _cmd + "Password incorrect";
 			return ;
 		}
-		it->second->setRegistered();
+		send_clnt.setRegistered();
 	}
 	else {
-		_rpl_no = ERR_ALREADYREGISTRED;
-		_proto_msg = ERR_ALREADYREGISTRED + ":You may not register";
-		std::cout << _proto_msg << std::endl;
+		_receiver.push(make_pair(send_clnt.getNickname(), ERR_ALREADYREGISTRED));
+		_msg = "You may not register";
 	}
-	nick(clnt_fd, serv);
-	user(clnt_fd, serv);
-	if (_rpl_no == 0)
-		_receiver.push_back(make_pair(serv.getClients().find(clnt_fd), 1)); // 1번은 환영메세지 시작임...
+	nick(send_clnt, serv);
+	user(send_clnt, serv);
+	if (_receiver.empty())
+		_receiver.push(make_pair(send_clnt.getNickname(), RPL_WELCOME));
 }
