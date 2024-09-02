@@ -33,7 +33,7 @@ class Command {
 
 	std::string					_sender;
 	int							_receiver_cnt;
-	std::vector< std::string >	_receiver;
+	std::queue< std::pair < std::string, int > >	_receiver;
 	std::string					_proto_msg;
 
 	int							_rpl_no;
@@ -44,10 +44,10 @@ class Command {
 	const std::string&					getCmd() const;
 	const std::string&					getSender() const;
 	int									getReceiverCnt() const;
-	const std::vector< std::string >&	getReceiver() const;
+	// const std::vector< std::string >&	getReceiver() const;
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
-	const std::string&					getProtoMsg() const;
+	const std::string					getProtoMsg(std::string& recv_name, std::string& serv_name) const;
 
 	int									getReplyNumber() const;
 // setter
