@@ -4,10 +4,10 @@
 #include "Server.hpp"
 
 // OCCF
-Server::~Server() { }
+Server::~Server() {} // 추후 확인 필요
 
 Server::Server(const std::string& port, const std::string& password)
-: _port(std::atoi(port.c_str())), _password(password) {
+: _port(std::atoi(port.c_str())), _password(password), _serv_name("irc.local") {
 	if (_port <= 0 || _port > 65535)
 		throw std::runtime_error("port number should be between 0 to 65535.");
 }
@@ -135,7 +135,7 @@ void Server::sendMsgToClnt(Command& cmd)
 {
 	std::string							sender = cmd.getSender();
 	std::vector<std::string>			receiver = cmd.getReceiver();
-	std::string							outBuf = cmd.getProtoMsg();
+	std::string							outBuf = cmd.getProtoMsg(); // CLNT 이름을 인자로 넣어줘야 함
 	std::vector<std::string>::iterator	receiver_it;
 	std::map< int, Client* >::iterator	clnt_it;
 	int									result;

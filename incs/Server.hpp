@@ -1,7 +1,6 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <exception>
 # include <string>
 # include <sys/event.h>	// kqueue
 # include <arpa/inet.h>
@@ -33,6 +32,7 @@ class Server {
  private:
 	int			_port;
 	std::string	_password;
+	std::string	_serv_name;
 
 	struct sockaddr_in	_addr;
 	int					_sock_fd;
