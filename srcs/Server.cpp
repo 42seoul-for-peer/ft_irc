@@ -210,6 +210,6 @@ const std::map< std::string, Channel* >&	Server::getChannels() const {
 	return (_channels);
 }
 
-cosnt std::string& Server::getServName() const {
+const std::string& Server::getServName() const {
 	return (_serv_name);
 }
