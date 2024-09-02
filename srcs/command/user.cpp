@@ -25,7 +25,7 @@ void	Command::user(int clnt_fd, Server& serv) {
 	if (_args.size() < 4)
 	{
 		_rpl_no = ERR_NEEDMOREPARAMS;
-		_proto_msg = "USER :Not enough parameters";
+		_proto_msg = _cmd + " :Not enough parameters";
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
