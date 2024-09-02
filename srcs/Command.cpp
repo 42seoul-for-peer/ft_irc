@@ -54,6 +54,8 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		pass(clnt_fd, serv);
 	else if (_cmd == "NICK")
 		nick(clnt_fd, serv);
+	else if (_cmd == "USER")
+		user(clnt_fd, serv);
 	else
 		unknownCommand(clnt_fd, serv);
 }
