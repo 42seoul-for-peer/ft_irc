@@ -18,22 +18,24 @@
 */
 
 void	Command::user(int clnt_fd, Server& serv) {
-	// PASS, NICK 명령에서 _rpl_no가 설정됨
-	if (_rpl_no != 0)
+	// PASS, NICK 명령에서 문제가 발생, _receiver가 비어있지 않음
+	if (!_receiver.empty())
 		return ;
 	// 클라이언트가 충분한 파라미터를 전달하지 않음
+	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	if (_args.size() < 4)
 	{
-		_rpl_no = ERR_NEEDMOREPARAMS;
-		_proto_msg = _cmd + " :Not enough parameters";
+		const int reply_no = ERR_NEEDMOREPARAMS;
+		_receiver.push(std::pair< std::string, int >(it->second->getNickname(), reply_no));
+		_proto_msg = ":irc.local 461 as " + _cmd + " :Not enough parameters";
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
-	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	if (!it->second->getUsername().empty())
 	{
-		_rpl_no = ERR_ALREADYREGISTRED;
-		_proto_msg= ":You may not reregister";
+		const int reply_no = ERR_ALREADYREGISTRED;
+		_receiver.push(std::pair< std::string, int >(it->second->getNickname(), reply_no));
+		_proto_msg= ":irc.local 462 " + it->second->getNickname() + ":You may not reregister";
 		return ;
 	}
 	it->second->setUsername(_args.front());
