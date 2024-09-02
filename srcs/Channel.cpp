@@ -72,3 +72,14 @@ void Channel::addInvitedClient(std::string& name) {
     if (std::find(_invited_clients.begin(), _invited_clients.end(), name) != _invited_clients.end())
         _invited_clients.push_back(name);
 }
+
+bool Channel::isChannelMember(const std::string name) const {
+    std::vector< std::pair<bool, std::string> >::iterator it = _clients.begin();
+    while (it != _clients.end()) {
+        if (name == it->second)
+            return (true);
+        it++;
+    }
+    if (it == _clients.end())
+        return (false);
+}

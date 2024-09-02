@@ -48,6 +48,7 @@ class Channel {
 	void addClient(const Client& client);
 	void leaveClient(const Client& client);
 	void addInvitedClient(std::string& name);
+	bool isChannelMember(const std::string name) const;
 };
 
 #endif
