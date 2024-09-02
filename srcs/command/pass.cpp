@@ -24,13 +24,14 @@ void	Command::pass(int clnt_fd, Server& serv) {
 			return ;
 		}
 		it->second->setRegistered();
-		std::cout << "password registered\n";
 	}
 	else {
 		_rpl_no = ERR_ALREADYREGISTRED;
-		_proto_msg = ":You may not register";
+		_proto_msg = ERR_ALREADYREGISTRED + ":You may not register";
 		std::cout << _proto_msg << std::endl;
 	}
 	nick(clnt_fd, serv);
 	user(clnt_fd, serv);
+	if (_rpl_no == 0)
+		_receiver.push_back(make_pair(serv.getClients().find(clnt_fd), 1)); // 1번은 환영메세지 시작임...
 }

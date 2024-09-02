@@ -37,8 +37,10 @@ int	Command::getReceiverCnt() const {
 	return (_receiver_cnt);
 }
 
-const std::string&	Command::getProtoMsg() const {
-	return (_proto_msg);
+const std::string	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
+	std::string	reply(_sender);
+	reply += "!" + serv_name + " " + _cmd + " " + _proto_msg;
+	return (reply);
 }
 
 int	Command::getReplyNumber() const {
