@@ -12,11 +12,9 @@ Command::Command(std::stringstream& input_cmd) {
 	std::string tmp;
 
 	input_cmd >> _cmd;
-	std::cout << "got " << _cmd << std::endl;
 	while (input_cmd >> tmp) {
 		_args.push(tmp);
 	}
-	_rpl_no = 0;
 }
 
 // MEMBER FUNCTION
@@ -29,22 +27,11 @@ const std::string&	Command::getSender() const {
 	return (_sender);
 }
 
-const std::vector< std::string >& Command::getReceiver() const {
-	return (_receiver);
-}
-
-int	Command::getReceiverCnt() const {
-	return (_receiver_cnt);
-}
 
 const std::string	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
 	std::string	reply(_sender);
-	reply += "!" + serv_name + " " + _cmd + " " + _proto_msg;
+	reply += "!" + serv_name + " " + _cmd + " " + recv_name + " " + _proto_msg;
 	return (reply);
-}
-
-int	Command::getReplyNumber() const {
-	return (_rpl_no);
 }
 
 // setter
@@ -58,9 +45,14 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		nick(clnt_fd, serv);
 	else if (_cmd == "USER")
 		user(clnt_fd, serv);
+	else if (_cmd == "JOIN")
+		join(clnt_fd, serv);
+	else if (_cmd == "PRIVMSG")
+		join(clnt_fd, serv);
 	else
 		unknownCommand(clnt_fd, serv);
 }
 
-void	Command::execute() {
+std::string	Command::execute() {
+	return (std::string("empty"));
 }
