@@ -5,11 +5,11 @@
 # define ERR_NOSUCHNICK 401
 # define ERR_NOSUCHCHANNEL 403
 # define ERR_CANNOTSENDTOCHAN 404
-# define ERR_TOOMANNYCHANNELS 405
+# define ERR_TOOMANYCHANNELS 405
 # define ERR_WASNOSUCHNICK 406
 # define ERR_TOOMANYTARGETS 407
 # define ERR_NOORIGIN 409
-# define ERR_NOERECIPENT 411
+# define ERR_NORECIPIENT 411
 # define ERR_NOTEXTTOSEND 412
 # define ERR_UNKNOWNCOMMAND 421
 # define ERR_NOMOTD 422 // message of today: 기존 서버들에서 보내는 "오늘의 메세지(message of today)"가 없을 때
