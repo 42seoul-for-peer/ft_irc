@@ -38,6 +38,11 @@ const std::string& Channel::getPasswd(void) const {
     return (_passwd);
 }
 
+const std::vector< std::pair<bool, std::string> >& Channel::getClients() const {
+    return (_clients);
+}
+
+
 const int& Channel::getMaxClients(void) const {
     return (_max_clients);
 }

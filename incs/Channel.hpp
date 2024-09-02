@@ -40,6 +40,7 @@ class Channel {
 	const std::string& getTitle(void) const;
 	const std::string& getTopic(void) const;
 	const std::string& getPasswd(void) const;
+	const std::vector< std::pair<bool, std::string> >& getClients() const;
 	const int& getMaxClients(void) const;
 	const int& getMode(void) const;
 	
