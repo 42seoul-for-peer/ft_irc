@@ -2,8 +2,9 @@
 
 // <command> :Unknown command"
 
-void	Command::unknownCommand(int clnt_fd, Server& serv) {
-	(void) clnt_fd;
+void	Command::unknownCommand(Client& send_clnt, Server& serv) {
+	(void) send_clnt;
 	(void) serv;
-	_rpl_no = ERR_UNKNOWNCOMMAND; // ERR_UNKNOWNCOMMAND 421
+	_receiver.push(make_pair(send_clnt.getNickname(), ERR_UNKNOWNCOMMAND));
+	_msg = "Unknown command";
 }
