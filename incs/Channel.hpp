@@ -11,7 +11,7 @@ class Client;
 class Channel {
 // OCCF
  public:
-	Channel(std::string title);
+	Channel(std::string title, Client* client);
 	~Channel();
  private:
 	Channel();

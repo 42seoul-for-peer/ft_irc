@@ -7,8 +7,10 @@ Channel::~Channel() {
 }
 
 // MEMBER FUNCTION
-Channel::Channel(std::string title)
-    : _title(title), _max_clients(-1), _mode(0) {}
+Channel::Channel(std::string title, Client* client)
+: _title(title), _max_clients(-1), _mode(0) {
+    _clients.push_back(std::pair< bool, Client* >(true, client));
+}
 
 void Channel::setTopic(std::string& str) {
     _topic = str;
