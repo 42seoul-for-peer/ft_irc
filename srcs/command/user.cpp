@@ -1,4 +1,5 @@
 #include "Command.hpp"
+#include <iostream>
 
 // USER <username> <servername> <servername> <realname>
 
@@ -30,12 +31,13 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
-	if (send_clnt.getUsername().empty())
+	if (!send_clnt.getUsername().empty())
 	{
 		_receiver.insert(make_pair(_args.front(), ERR_ALREADYREGISTRED));
 		// _msg= ":irc.local 462 " + send_clnt.getNickname() + ":You may not reregister";
 		return ;
 	}
+	std::cout << "nick in user: " << send_clnt.getNickname() << std::endl;
 	send_clnt.setUsername(_args.front());
 	_receiver.insert(make_pair(send_clnt.getNickname(), RPL_WELCOME));
 }
