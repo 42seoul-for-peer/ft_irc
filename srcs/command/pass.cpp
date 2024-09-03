@@ -9,7 +9,7 @@
 
 void	Command::pass(Client& send_clnt, Server& serv) {
 	if (_args.size() != 1) {
-		_receiver.insert(make_pair("", ERR_NEEDMOREPARAMS));
+		_receiver.insert(make_pair(std::string(""), ERR_NEEDMOREPARAMS));
 		return ;
 	}
 
