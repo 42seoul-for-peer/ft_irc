@@ -70,8 +70,8 @@ void Server::serverProcess()
 			}
 			// // std::cout << "for end" << std::endl;
 		}
-		// if (!_commandQueue.empty())
-		// 	sendMsgToClnt(*_commandQueue.front());
+		if (!_commandQueue.empty())
+			sendMsgToClnt(*_commandQueue.front());
     }
 	// std::cout << "out of while" << std::endl;
 }
