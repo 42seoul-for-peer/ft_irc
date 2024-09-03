@@ -37,4 +37,5 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		return ;
 	}
 	send_clnt.setUsername(_args.front());
+	_receiver.insert(make_pair(send_clnt.getNickname(), RPL_WELCOME));
 }
