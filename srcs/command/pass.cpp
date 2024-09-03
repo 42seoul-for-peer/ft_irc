@@ -23,8 +23,8 @@ void	Command::pass(Client& send_clnt, Server& serv) {
 	else {
 		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_ALREADYREGISTRED));
 	}
-	nick(send_clnt, serv);
-	user(send_clnt, serv);
-	if (_receiver.empty())
-		_receiver.insert(make_pair(send_clnt.getNickname(), RPL_WELCOME));
+	// nick(send_clnt, serv);
+	// user(send_clnt, serv);
+	// _receiver.insert(make_pair(std::string(send_clnt.getNickname()), RPL_WELCOME));
+	std::cout << "returned to pass\n" << _receiver.size() << std::endl;
 }
