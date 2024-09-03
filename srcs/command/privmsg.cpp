@@ -6,10 +6,10 @@ void Command::privmsg(int clnt_fd, Server& serv) {
 	std::map< int, Client* >::const_iterator it = serv.getClients().find(clnt_fd);
 	_sender = it->second.getNickname();
 	if (_arg.empty()) {
-		_receiver.insert(std::make_pair("", ERR_NORECIPIENT));
+		_receiver.push(std::make_pair("", ERR_NORECIPIENT));
 		return ;
 	} else if (_arg.size() < 3) {
-		_receiver.insert(std::make_pair(_arg.front(), ERR_NOTEXTTOSEND));
+		_receiver.push(std::make_pair(_arg.front(), ERR_NOTEXTTOSEND));
 		return ;
 	}
 	
@@ -28,7 +28,7 @@ void Command::privmsg(int clnt_fd, Server& serv) {
 		args.pop();
 	}
 	if (_msg[0] != ':') {
-		_receiver.insert(std::make_pair(_arg.front(), ERR_NOTEXTTOSEND));
+		_receiver.push(std::make_pair(_arg.front(), ERR_NOTEXTTOSEND));
 		return ;
 	} else {
 		_msg = _msg.substr(1);
@@ -41,26 +41,26 @@ void Command::privmsg(int clnt_fd, Server& serv) {
 			while (chnl != serv.getChannels().end()) {
 				if (chnl->first == tmp.substr(1)) {
 					if (chnl->first->isChannelMember())
-						_receiver.insert(std::make_pair(tmp, 0));
+						_receiver.push(std::make_pair(tmp, 0));
 					else
-						_recevier.insert(std::make_pair(tmp, ERR_CANNOTSENDTOCHAN));
+						_recevier.push(std::make_pair(tmp, ERR_CANNOTSENDTOCHAN));
 					break;
 				}
 				chnl++;
 			}
 			if (chnl == serv.getChannels().end())
-				_receiver.insert(std::make_pair(tmp, ERR_NOSUCHCHANNEL));
+				_receiver.push(std::make_pair(tmp, ERR_NOSUCHCHANNEL));
 		} else {
 			clnt = serv.getClients().begin();
 			while (clnt != serv.getClients().end()) {
 				if (clnt->second->getNickname() == tmp) {
-					_receiver.insert(std::make_pair(tmp, 0));
+					_receiver.push(std::make_pair(tmp, 0));
 					break;
 				}
 				clnt++;
 			}
 			if (clnt == serv.getClients().end())
-				_receiver.insert(std::make_pair(tmp, ERR_NOSUCHNICK));
+				_receiver.push(std::make_pair(tmp, ERR_NOSUCHNICK));
 		}
 	}
 }
