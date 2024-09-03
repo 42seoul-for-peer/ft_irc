@@ -208,7 +208,7 @@ const std::map< int, Client* >&	Server::getClients() const {
 	return (_clients);
 }
 
-const Client* Server::getClient(int clnt_fd) {
+Client* Server::getClient(int clnt_fd) const {
 	std::map< int, Client* >::iterator it = _clients.find(clnt_fd);
 	if (it == _clients.end())
 		return (NULL);
