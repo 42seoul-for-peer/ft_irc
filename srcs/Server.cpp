@@ -122,11 +122,11 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	while (token_it != tokens.end()) {
 		std::stringstream tmpstream(*token_it);
 
-		Command cmd(tmpstream);
-		cmd.parse(clnt_fd, *this);
-		cmd.execute();
+		Command* cmd = new Command(tmpstream);
+		cmd->parse(clnt_fd, *this);
+		cmd->execute();
 
-		_commandQueue.push(&cmd);
+		_commandQueue.push(cmd);
 		token_it++;
 	}
 }
