@@ -87,8 +87,9 @@ void Command::join(Client& send_clnt, Server& serv)
 {
     if (_args.size() < 2)
     {
-		;
         //! ERR_NEEDMOREPARAMS<461>   -> "<command> :Not enough parameters"
+		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
+		return ;
     }
 
     std::vector<std::string> titles = parsebyComma(_args.front());
@@ -106,15 +107,18 @@ void Command::join(Client& send_clnt, Server& serv)
 		// 클라이언트가 현재 접속한 채널의 수가 10개 이상임
 		if (send_clnt.getCurrChannel().size() >= 10)
 		{
-			;
 			//! ERR_TOOMANYCHANNELS<405>  -> "<channel name> :You have joined too many channels"
+			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_TOOMANYCHANNELS));
+			break ;
+			
 		}
 		// protocol message로 전달 받은 channel title의 첫 글자가 '#'가 아님 (nc로 직접 보낼 때 발생 우려 있음)
 		// 또는, title의 길이가 200자를 초과함
 		if (titles[i][0] != '#' || titles[i].size() > 200)
 		{
-			;
 			//! ERR_NOSUCHCHANNEL<403>    -> "<channel name> :No such channel"
+			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NOSUCHCHANNEL));
+			break ;
 		}
         // titles[i]이 channel list에 있는지 찾음
         chan_it = chan_list.find(titles[i]);
@@ -136,8 +140,9 @@ void Command::join(Client& send_clnt, Server& serv)
 				// 인자로 입력받은 key 값이 없음
 				if (i > password_size - 1 || passwords[i] != chan_it->second->getPasswd())
 				{
-					;
 					//! ERR_BADCHANNELKEY<475>    -> "<channel> :Cannot join channel (+k)"
+					_receiver.insert(make_pair(send_clnt.getNickname(), ERR_BADCHANNELKEY));
+					break ;
 				}
 			}
 			// invite 채널인 경우 (이때, 최대 인원 수를 초과할 수 있음)
@@ -147,8 +152,9 @@ void Command::join(Client& send_clnt, Server& serv)
 				// invited_list에 send_clnt의 username이 존재하지 않음
 				if (std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()) == invited_list.end())
 				{
-					;
 					//! ERR_INVITEONLYCHAN<473>   -> "<channel> :Cannot join channel (+i)"
+					_receiver.insert(make_pair(send_clnt.getNickname(), ERR_INVITEONLYCHAN));
+					break ;
 				}
 				// invited_list에 존재함
 				else
@@ -165,8 +171,9 @@ void Command::join(Client& send_clnt, Server& serv)
 				// 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼(초대 채널 상태였다가 해제된 경우)
 				if (chan_it->second->getClients().size() >= chan_it->second->getMaxClients())
 				{
-					;
 					//! ERR_CHANNELISFULL<471>    -> "<channel> :Cannot join channel (+l)"
+					_receiver.insert(make_pair(send_clnt.getNickname(), ERR_CHANNELISFULL));
+					break ;
 				}
 				else
 				{
