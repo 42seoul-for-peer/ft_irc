@@ -2,8 +2,8 @@
 # define REPLY_NUMBER_HPP
 
 // ERROR REPLIES ver. 1459
-# define ERR_NOSUCHNICK 401
-# define ERR_NOSUCHCHANNEL 403
+# define ERR_NOSUCHNICK 401 // "<nickname> :No such nick/channel"
+# define ERR_NOSUCHCHANNEL 403 // "<channel name> :No such channel"
 # define ERR_CANNOTSENDTOCHAN 404
 # define ERR_TOOMANYCHANNELS 405
 # define ERR_WASNOSUCHNICK 406

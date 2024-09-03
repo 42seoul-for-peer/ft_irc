@@ -28,8 +28,19 @@ const std::string&	Command::getSender() const {
 }
 
 
-const std::pair< int, std::string>&	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
-	// std::set<std::pair< std::string, int > >::iterator _recv = _receiver.find(recv_name)
+const std::pair< int, std::string>	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
+	std::map< std::string, int>::const_iterator it = _receiver.find(recv_name);
+	// it == end()인 경우 처리 해야하나?
+	(void) serv_name;
+	std::string reply = "";
+	if (it->second > 399) {
+		reply += std::to_string(it->second);
+		reply += " " + _sender + " " + recv_name + " :"; // 마지막에 error message 들어가야 함
+	}
+	else {
+		reply += _cmd;
+	}
+	return (std::make_pair(it->second, reply));
 }
 
 // setter
