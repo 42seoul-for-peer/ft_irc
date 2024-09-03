@@ -28,10 +28,8 @@ const std::string&	Command::getSender() const {
 }
 
 
-const std::string	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
-	std::string	reply(_sender);
-	reply += "!" + serv_name + " " + _cmd + " " + recv_name + ":" + _msg;
-	return (reply);
+const std::pair< int, std::string>&	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
+	// std::set<std::pair< std::string, int > >::iterator _recv = _receiver.find(recv_name)
 }
 
 // setter
