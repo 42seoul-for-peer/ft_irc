@@ -68,6 +68,7 @@ class Server {
 	int											getPort() const;
 	const std::string&							getPassword() const;
 	const std::map< int, Client* >&				getClients() const;
+	const Client*								getClient(int clnt_fd) const;
 	const std::map< std::string, Channel* >&	getChannels() const;
 	const std::string&							getServName() const;
 };

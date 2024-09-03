@@ -208,6 +208,13 @@ const std::map< int, Client* >&	Server::getClients() const {
 	return (_clients);
 }
 
+const Client* Server::getClient(int clnt_fd) {
+	std::map< int, Client* >::iterator it = _clients.find(clnt_fd);
+	if (it == _clients.end())
+		return (NULL);
+	return (it->second);
+}
+
 const std::map< std::string, Channel* >&	Server::getChannels() const {
 	return (_channels);
 }
