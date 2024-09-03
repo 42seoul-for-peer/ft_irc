@@ -70,6 +70,7 @@ class Server {
 	const std::string&							getPassword() const;
 	const std::map< int, Client* >&				getClients() const;
 	Client*										getClient(int clnt_fd) const;
+	std::pair< int, Client* >&					getClient(std::string nickname) const;
 	const std::map< std::string, Channel* >&	getChannels() const;
 	const std::string&							getServName() const;
 };
