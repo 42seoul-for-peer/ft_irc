@@ -25,7 +25,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	if (_args.size() < 4)
 	{
 		_receiver.insert(make_pair(_args.front(), ERR_NEEDMOREPARAMS));
-		// _msg = "irc.local 461 as " + _cmd + " :Not enough parameters";
+		// _msg = ":irc.local 461 as " + _cmd + " :Not enough parameters";
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
@@ -33,7 +33,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	{
 		const int reply_no = ERR_ALREADYREGISTRED;
 		_receiver.insert(make_pair(_args.front(), ERR_ALREADYREGISTRED));
-		// _msg= "irc.local 462 " + send_clnt.getNickname() + ":You may not reregister";
+		// _msg= ":irc.local 462 " + send_clnt.getNickname() + ":You may not reregister";
 		return ;
 	}
 	send_clnt.setUsername(_args.front());
