@@ -38,7 +38,7 @@ const std::string& Channel::getPasswd(void) const {
     return (_passwd);
 }
 
-const std::vector< std::pair<bool, std::string> >& Channel::getClients() const {
+const std::vector< std::pair< bool, Client* > >& Channel::getClients() const {
     return (_clients);
 }
 
@@ -51,16 +51,16 @@ const int& Channel::getMode(void) const {
     return (_mode);
 }
 
-void Channel::addClient(const Client& client) {
-    _clients.push_back(std::pair<bool, std::string>(false, client.getUsername()));
+void Channel::addClient(std::pair< bool, Client* > new_client) {
+    _clients.push_back(new_client);
 }
 
 void Channel::leaveClient(const Client& client) {
-    std::vector< std::pair<bool, std::string> >::iterator it = _clients.begin();
+    std::vector< std::pair< bool, Client* > >::iterator it = _clients.begin();
 
     while (it != _clients.end())
     {
-        if (it->second == client.getUsername())
+        if (it->second->getUsername() == client.getUsername())
             break;
         it++;
     }
@@ -74,12 +74,12 @@ void Channel::addInvitedClient(std::string& name) {
 }
 
 bool Channel::isChannelMember(const std::string name) const {
-    std::vector< std::pair<bool, std::string> >::iterator it = _clients.begin();
+    std::vector< std::pair< bool, Client* > >::const_iterator it = _clients.begin();
+
     while (it != _clients.end()) {
-        if (name == it->second)
+        if (name == it->second->getUsername())
             return (true);
         it++;
     }
-    if (it == _clients.end())
-        return (false);
+    return (false);
 }
