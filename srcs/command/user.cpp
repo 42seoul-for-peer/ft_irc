@@ -18,6 +18,7 @@
 */
 
 void	Command::user(Client& send_clnt, Server& serv) {
+	(void) serv;
 	// PASS, NICK 명령에서 문제가 발생, _receiver가 비어있지 않음
 	if (!_receiver.empty())
 		return ;
@@ -31,7 +32,6 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
 	if (send_clnt.getUsername().empty())
 	{
-		const int reply_no = ERR_ALREADYREGISTRED;
 		_receiver.insert(make_pair(_args.front(), ERR_ALREADYREGISTRED));
 		// _msg= ":irc.local 462 " + send_clnt.getNickname() + ":You may not reregister";
 		return ;
