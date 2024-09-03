@@ -46,6 +46,9 @@ class Command {
 	const std::map< std::string, int >&	getReceiver() const;
 	// getReceiver의 경우 const 키워드를 걸어야 하는 getter의 한계 때문에 execute 호출해서 메세지 받는 것으로 대신 하기
 
+
+	const std::string getMsg() const; // test 용으로 임시로 추가함
+
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
 	const std::string	getProtoMsg(std::string& recv_name) const;

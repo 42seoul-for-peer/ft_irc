@@ -7,7 +7,7 @@ Command::~Command() {
 }
 
 // parameterized constructor
-Command::Command(std::stringstream& input_cmd) {
+Command::Command(std::stringstream& input_cmd) : _msg("") {
 	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string tmp;
 
@@ -46,6 +46,10 @@ const std::string	Command::getProtoMsg(std::string& recv_name) const {
 	return (reply);
 }
 
+const std::string Command::getMsg() const {
+	return (_msg);
+}
+
 // setter
 
 // usable function
@@ -61,7 +65,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "JOIN")
 		join(send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
-		join(send_clnt, serv);
+		privmsg(send_clnt, serv);
 	else if (_cmd != "")
 		unknownCommand(send_clnt, serv);
 }
