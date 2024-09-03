@@ -148,20 +148,29 @@ void Server::sendMsgToClnt(Command& cmd)
 
 		if (receiver_it->second > 400) {
 			dest = getClient(sender);
+			std::cout << __func__ << ": err detacted " << receiver_it->second << ", recv : " << sender << "," << dest << std::endl;
 			if (dest != 0) {
-				outBuf = _serv_name + " " + std::to_string(receiver_it->second);
+				outBuf = ":" + _serv_name + " " + std::to_string(receiver_it->second) + "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
 			}
-			if (dest == 0 || result < 0)
+			if (dest == 0 || result < 0){
+				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 				disconnectClnt(dest);
+			}
 		} else {
 			dest = getClient(receiver_it->first);
 			if (dest != 0) {
-				outBuf = getClient(dest)->getUsername() + " " + std::to_string(receiver_it->second);
+				outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
+				outBuf += " " + std::to_string(receiver_it->second);
+				if (cmd.getMsg() != "")
+					outBuf += " :" + cmd.getMsg();
+				outBuf += "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
 			}
-			if (dest == 0 || result < 0)
+			if (dest == 0 || result < 0) {
+				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 				disconnectClnt(dest);
+			}
 		}
 		receiver_it++;
 	}
