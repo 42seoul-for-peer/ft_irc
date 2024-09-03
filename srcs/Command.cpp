@@ -27,11 +27,14 @@ const std::string&	Command::getSender() const {
 	return (_sender);
 }
 
+const std::map< std::string, int >& Command::getReceiver() const {
+	return (_receiver);
+}
 
-const std::pair< int, std::string>	Command::getProtoMsg(std::string& recv_name, std::string& serv_name) const {
+
+const std::string	Command::getProtoMsg(std::string& recv_name) const {
 	std::map< std::string, int>::const_iterator it = _receiver.find(recv_name);
 	// it == end()인 경우 처리 해야하나?
-	(void) serv_name;
 	std::string reply = "";
 	if (it->second > 399) {
 		reply += std::to_string(it->second);
@@ -40,7 +43,7 @@ const std::pair< int, std::string>	Command::getProtoMsg(std::string& recv_name, 
 	else {
 		reply += _cmd;
 	}
-	return (std::make_pair(it->second, reply));
+	return (reply);
 }
 
 // setter
