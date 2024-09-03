@@ -5,6 +5,7 @@
 # include <sstream>
 # include <queue>
 # include <set>
+# include <utility>
 
 # include "Server.hpp"
 # include "Client.hpp"

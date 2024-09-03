@@ -20,14 +20,12 @@
 void	Command::nick(Client& send_clnt, Server& serv) {
 	// 비밀번호 있는지 확인해야함
 	if (send_clnt.getIsRegistered() == false) {
-		_receiver.push(make_pair(send_clnt.getNickname(), ERR_NOTREGISTERED));
-		_msg = "You have not registerd";
+		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NOTREGISTERED));
 		return ;
 	}
 	// 비밀번호가 같이 안 들어온 경우
 	if (_args.size() < 1) {
-		_receiver.push(make_pair(send_clnt.getNickname(), ERR_NONICKNAMEGIVEN));
-		_msg = "No nickname given";
+		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NONICKNAMEGIVEN));
 		return ;
 	}
 	// nickname으로 쓸 수 없는 문자 들어있는지 검사
@@ -37,8 +35,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	int	new_nick_len = newNick.length();
 	for (int i = 0; i < new_nick_len; i++) {
 		if (invalid_chars.find(newNick[i])) {
-			_receiver.push(make_pair(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME));
-			_msg = "Erroneus nickname";
+			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME));
 			return ;
 		}
 	}
@@ -46,8 +43,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
-			_receiver.push(make_pair(send_clnt.getNickname(), ERR_NICKNAMEINUSE));
-			_msg = "Nickname is already in use";
+			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NICKNAMEINUSE));
 			return ;
 		}
 		it++;
