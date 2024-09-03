@@ -25,8 +25,8 @@ void Command::privmsg(Client& send_clnt, Server& serv) {
 			_msg += " ";
 		_args.pop();
 	}
-	if (_msg[0] != ':') {
-		_receiver.insert(std::make_pair(_args.front(), ERR_NOTEXTTOSEND));
+	if (_msg[0] != ':' || _msg.size() == 1) {
+		_receiver.insert(std::make_pair("", ERR_NOTEXTTOSEND));
 		return ;
 	} else {
 		_msg = _msg.substr(1);
