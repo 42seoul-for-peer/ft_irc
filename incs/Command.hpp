@@ -4,7 +4,7 @@
 # include <string>
 # include <sstream>
 # include <queue>
-# include <vector>
+# include <set>
 
 # include "Server.hpp"
 # include "Client.hpp"
@@ -33,7 +33,7 @@ class Command {
 
 	std::string					_sender;
 	// int							_receiver_cnt;
-	std::queue< std::pair < std::string, int > >	_receiver; // <recv_name: rpl_no>의 쌍으로 queue에 저장
+	std::set< std::pair < std::string, int > >	_receiver; // <recv_name: rpl_no>의 쌍으로 queue에 저장
 	std::string					_msg;
 
 // MEMBER FUNCITON

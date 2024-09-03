@@ -133,6 +133,8 @@ void Server::recvMsgFromClnt(int clnt_fd)
 
 void Server::sendMsgToClnt(Command& cmd)
 {
+	// receiver set 하나 받아온 뒤, rpl_no 먼저 확인하고
+	// 전송할 대상을 결정
 	std::string							sender = cmd.getSender();
 	std::vector<std::string>			receiver = cmd.getReceiver();
 	std::string							outBuf = cmd.getProtoMsg(); // CLNT 이름을 인자로 넣어줘야 함
