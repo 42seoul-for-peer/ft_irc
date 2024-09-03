@@ -15,6 +15,10 @@ const int& Client::getSockFd(void) const {
 	return (_sock_fd);
 }
 
+const std::vector< std::string > Client::getCurrChannel(void) const {
+    return (_curr_channel);
+}
+
 const std::string& Client::getUsername(void) const {
     return (_username);
 }

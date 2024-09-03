@@ -30,9 +30,10 @@ class Client {
  public:
 	// GETTER
 	const int& 			getSockFd(void) const;
+	const bool&			getIsRegistered(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
-	const bool&			getIsRegistered(void) const;
+	const std::vector< std::string > getCurrChannel(void) const;
 
 	// SETTER
 	void setUsername(std::string& str);
