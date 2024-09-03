@@ -1,4 +1,4 @@
-#include "Command.cpp"
+#include "Command.hpp"
 #include <string>
 
 std::string	Command::_genErrMsg(int err_no) {

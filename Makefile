@@ -38,6 +38,8 @@ cmd_srcs = pass.cpp\
 			unknownCommand.cpp\
 			user.cpp\
 			errorMsg.cpp\
+			join.cpp\
+			privmsg.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
