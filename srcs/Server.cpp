@@ -133,35 +133,35 @@ void Server::recvMsgFromClnt(int clnt_fd)
 
 void Server::sendMsgToClnt(Command& cmd)
 {
-	// receiver set 하나 받아온 뒤, rpl_no 먼저 확인하고
-	// 전송할 대상을 서버에서 결정
-
-	// 프로토메세지에서 받은게 rpl no 랑 메세지 이렇게 받을 예정
 	std::string						sender = cmd.getSender();
-	std::map< std::string, int >	receiver = cmd.getReceiver();
+	const std::map< std::string, int >	receiver = cmd.getReceiver();
 
-	std::map< std::string, int >::iterator		receiver_it;
-	std::map< int, Client* >::iterator			clnt_it;
-	std::pair< int, Client* >					dest;
-	int											result;
+	std::map< std::string, int >::const_iterator	receiver_it;
+	std::map< int, Client* >::iterator				clnt_it;
+	int												dest;
+	int												result;
 
-	std::string 	outBuf;
+	std::string 	outBuf; // 추후 protomsg함수 연결...
 
 	receiver_it = receiver.begin();
 	while (receiver_it != receiver.end()) {
 
 		if (receiver_it->second > 400) {
 			dest = getClient(sender);
-			outBuf = _serv_name + " " + std::to_string(receiver_it->second);
-			result = send(dest->first, outBuf.c_str(), outBuf.size(), 0);
-			if (result < 0)
-				disconnectClnt(dest->first);
+			if (dest != 0) {
+				outBuf = _serv_name + " " + std::to_string(receiver_it->second);
+				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
+			}
+			if (dest == 0 || result < 0)
+				disconnectClnt(dest);
 		} else {
 			dest = getClient(receiver_it->first);
-			outBuf = dest->second->getUsername() + " " + std::to_string(receiver_it->second);
-			result = send(dest->first, outBuf.c_str(), outBuf.size(), 0);
-			if (result < 0)
-				disconnectClnt(dest->first);
+			if (dest != 0) {
+				outBuf = getClient(dest)->getUsername() + " " + std::to_string(receiver_it->second);
+				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
+			}
+			if (dest == 0 || result < 0)
+				disconnectClnt(dest);
 		}
 		receiver_it++;
 	}
@@ -223,22 +223,22 @@ const std::map< int, Client* >&	Server::getClients() const {
 }
 
 Client* Server::getClient(int clnt_fd) const {
-	std::map< int, Client* >::iterator it = _clients.find(clnt_fd);
+	std::map< int, Client* >::const_iterator it = _clients.find(clnt_fd);
 	if (it == _clients.end())
 		return (NULL);
 	return (it->second);
 }
 
-std::pair< int, Client* >& Server::getClient(std::string nickname) const {
-	std::map< int, Client* >::iterator it = _clients.begin();
+int Server::getClient(std::string nickname) const {
+	std::map< int, Client* >::const_iterator it = _clients.begin();
 	while (it != _clients.end()) {
-		if (it->second.getNickname() == nickname)
+		if (it->second->getNickname() == nickname)
 			break;
 		it++;
 	}
 	if (it == _clients.end())
-		return (NULL);
-	return (*it);
+		return (0);
+	return (it->first);
 }
 
 const std::map< std::string, Channel* >&	Server::getChannels() const {
