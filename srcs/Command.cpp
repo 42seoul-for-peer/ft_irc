@@ -38,20 +38,22 @@ const std::string	Command::getProtoMsg(std::string& recv_name, std::string& serv
 
 // usable function
 void	Command::parse(int clnt_fd, Server& serv) {
-	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
-	Client&	send_clnt = *(serv.getClients().find(clnt_fd)->second);
+	const Client*	send_clnt = serv.getClient(clnt_fd);
+	// 해당 fd가 목록에 없는 경우
+	if (!send_clnt)
+		return ;
 	if (_cmd == "PASS")
-		pass(send_clnt, serv);
+		pass(*send_clnt, serv);
 	else if (_cmd == "NICK")
-		nick(send_clnt, serv);
+		nick(*send_clnt, serv);
 	else if (_cmd == "USER")
-		user(send_clnt, serv);
+		user(*send_clnt, serv);
 	else if (_cmd == "JOIN")
-		join(send_clnt, serv);
+		join(*send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
-		join(send_clnt, serv);
+		join(*send_clnt, serv);
 	else
-		unknownCommand(send_clnt, serv);
+		unknownCommand(*send_clnt, serv);
 }
 
 std::string	Command::execute() {

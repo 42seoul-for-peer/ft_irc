@@ -54,11 +54,11 @@ class Command {
 	void		parse(int clnt_fd, Server& serv);
 	std::string	execute();
 // irc message
-	void	pass(Client& send_clnt, Server& serv);
-	void	nick(Client& send_clnt, Server& serv);
-	void	user(Client& send_clnt, Server& serv);
-	void	join(Client& send_clnt, Server& serv);
-	void	privmsg(Client& send_clnt, Server& serv);
+	void	pass(const Client& send_clnt, Server& serv);
+	void	nick(const Client& send_clnt, Server& serv);
+	void	user(const Client& send_clnt, Server& serv);
+	void	join(const Client& send_clnt, Server& serv);
+	void	privmsg(const Client& send_clnt, Server& serv);
 	// void	kick();
 	// void	invite();
 	// void	topic();
@@ -66,7 +66,7 @@ class Command {
 	// void	part();
 	// void	quit();
 	// void	ping();
-	void	unknownCommand(Client& send_clnt, Server& serv);
+	void	unknownCommand(const Client& send_clnt, Server& serv);
 };
 
 #endif
