@@ -15,7 +15,6 @@
 
 // invalid character
 // ~!@#$%&*()_+-=
-# define INVALID_CHARS "~!@#$%&*()_+-="
 
 void	Command::nick(Client& send_clnt, Server& serv) {
 	// 비밀번호 있는지 확인해야함
@@ -34,7 +33,8 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	_args.pop();
 	int	new_nick_len = newNick.length();
 	for (int i = 0; i < new_nick_len; i++) {
-		if (invalid_chars.find(newNick[i])) {
+		if (invalid_chars.find(newNick[i]) < invalid_chars.length()) {
+			std::cout << invalid_chars.find(newNick[i]) << ": " << newNick[i] << std::endl;
 			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME));
 			return ;
 		}

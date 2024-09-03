@@ -62,7 +62,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		join(send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
 		join(send_clnt, serv);
-	else
+	else if (_cmd != "")
 		unknownCommand(send_clnt, serv);
 }
 
