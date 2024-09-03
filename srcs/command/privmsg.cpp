@@ -7,7 +7,7 @@ void Command::privmsg(Client& send_clnt, Server& serv) {
 	if (_args.empty()) {
 		_receiver.insert(std::make_pair("", ERR_NORECIPIENT));
 		return ;
-	} else if (_args.size() < 3) {
+	} else if (_args.size() < 2) {
 		_receiver.insert(std::make_pair(_args.front(), ERR_NOTEXTTOSEND));
 		return ;
 	}
