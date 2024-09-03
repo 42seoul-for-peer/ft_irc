@@ -148,7 +148,7 @@ void Server::sendMsgToClnt(Command& cmd)
 
 		if (receiver_it->second > 400) {
 			dest = getClient(sender);
-			std::cout << __func__ << ": err detacted " << receiver_it->second << ", recv : " << sender << "," << dest << std::endl;
+			std::cout << __func__ << ": err detected " << receiver_it->second << ", recv : " << sender << "," << dest << std::endl;
 			if (dest != 0) {
 				outBuf = ":" + _serv_name + " " + std::to_string(receiver_it->second) + "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
@@ -156,6 +156,8 @@ void Server::sendMsgToClnt(Command& cmd)
 			if (dest == 0 || result < 0){
 				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 				disconnectClnt(dest);
+			} else {
+				std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
 			}
 		} else {
 			dest = getClient(receiver_it->first);
@@ -170,6 +172,8 @@ void Server::sendMsgToClnt(Command& cmd)
 			if (dest == 0 || result < 0) {
 				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 				disconnectClnt(dest);
+			} else {
+				std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
 			}
 		}
 		receiver_it++;
