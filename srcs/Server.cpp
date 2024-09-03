@@ -195,6 +195,10 @@ void	Server::deleteClnt(int clnt_fd) {
 	_clients.erase(clnt_fd);
 }
 
+void	Server::addNewChnl(Channel* chnl) {
+	_channels.insert(std::make_pair(chnl->getTitle(), chnl));
+}
+
 // getter
 int	Server::getPort() const {
 	return (_port);
