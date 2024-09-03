@@ -40,6 +40,10 @@ const std::string& Channel::getPasswd(void) const {
     return (_passwd);
 }
 
+const std::vector< std::string >& Channel::getInvitedClients(void) const {
+    return (_invited_clients);
+}
+
 const std::vector< std::pair< bool, Client* > >& Channel::getClients() const {
     return (_clients);
 }
@@ -73,6 +77,11 @@ void Channel::leaveClient(const Client& client) {
 void Channel::addInvitedClient(std::string& name) {
     if (std::find(_invited_clients.begin(), _invited_clients.end(), name) != _invited_clients.end())
         _invited_clients.push_back(name);
+}
+
+void Channel::rmInvitedClients(std::string& name) {
+    if (std::find(_invited_clients.begin(), _invited_clients.end(), name) != _invited_clients.end())
+        _invited_clients.erase(std::find(_invited_clients.begin(), _invited_clients.end(), name));
 }
 
 bool Channel::isChannelMember(const std::string name) const {

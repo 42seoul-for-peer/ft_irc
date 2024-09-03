@@ -40,6 +40,7 @@ class Channel {
 	const std::string& getTitle(void) const;
 	const std::string& getTopic(void) const;
 	const std::string& getPasswd(void) const;
+	const std::vector< std::string >& getInvitedClients(void) const;
 	const std::vector< std::pair< bool, Client* > >& getClients() const;
 	const int& getMaxClients(void) const;
 	const int& getMode(void) const;
@@ -48,6 +49,7 @@ class Channel {
 	void addClient(std::pair< bool, Client* > new_client);
 	void leaveClient(const Client& client);
 	void addInvitedClient(std::string& name);
+	void rmInvitedClients(std::string& name);
 	bool isChannelMember(const std::string name) const;
 };
 

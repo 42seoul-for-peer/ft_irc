@@ -2,6 +2,7 @@
 ircserv
 client/client
 .vscode
+dump/
 
 # Prerequisites
 *.d
