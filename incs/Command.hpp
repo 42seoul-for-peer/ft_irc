@@ -4,7 +4,7 @@
 # include <string>
 # include <sstream>
 # include <queue>
-# include <set>
+# include <map>
 # include <utility>
 
 # include "Server.hpp"
@@ -33,8 +33,9 @@ class Command {
 	std::queue< std::string >	_args;
 
 	std::string					_sender;
-	// int							_receiver_cnt;
-	std::set< std::pair < std::string, int > >	_receiver; // <recv_name: rpl_no>의 쌍으로 queue에 저장
+	std::map< std::string, int >	_receiver;
+	// <recv_name: rpl_no> // 오류가 발생한 recv_name도 일단 그대로 넣어둔다
+	// proto_msg 만들 때 rpl_no 검사할 것임
 	std::string					_msg;
 
 // MEMBER FUNCITON
@@ -48,7 +49,8 @@ class Command {
 
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
-	const std::string								getProtoMsg(std::string& recv_name, std::string& serv_name) const;
+	const std::pair< int, std::string>&	getProtoMsg(std::string& recv_name, std::string& serv_name) const;
+	// <rpl_no, actual msg>
 
 // setter
 // usable function
