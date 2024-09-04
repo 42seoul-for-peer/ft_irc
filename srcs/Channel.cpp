@@ -88,7 +88,7 @@ bool Channel::isChannelMember(const std::string name) const {
     std::vector< std::pair< bool, Client* > >::const_iterator it = _clients.begin();
 
     while (it != _clients.end()) {
-        if (name == it->second->getUsername())
+        if (name == it->second->getNickname())
             return (true);
         it++;
     }
