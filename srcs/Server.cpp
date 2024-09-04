@@ -149,19 +149,21 @@ void Server::sendMsgToClnt(Command& cmd)
 	while (receiver_it != receiver.end()) {
 
 		if (receiver_it->second > 400) {
+			std::cout << "sender: " << sender << std::endl;
 			dest = getClient(sender);
 			std::cout << __func__ << ": err detected " << receiver_it->second << ", dest_nick : \"" << sender << "\"," << dest << std::endl;
 			if (dest != 0) {
 				outBuf = ":" + _serv_name + " " + std::to_string(receiver_it->second) + "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
-			}
-			if (dest == 0 || result < 0){
-				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
-				disconnectClnt(dest);
-			} else {
-				std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
+				if (result < 0){
+					std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+					disconnectClnt(dest);
+				} else {
+					std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
+				}
 			}
 		} else {
+			std::cout <<"send prepare" << std::endl;
 			dest = getClient(receiver_it->first);
 			if (dest != 0) {
 				outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
@@ -170,12 +172,12 @@ void Server::sendMsgToClnt(Command& cmd)
 					outBuf += " :" + cmd.getMsg();
 				outBuf += "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
-			}
-			if (dest == 0 || result < 0) {
-				std::cout << __func__ << ": SEND err. disconnect." << std::endl;
-				disconnectClnt(dest);
-			} else {
-				std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
+				if (result < 0) {
+					std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+					disconnectClnt(dest);
+				} else {
+					std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
+				}
 			}
 		}
 		receiver_it++;
@@ -205,10 +207,12 @@ void	Server::changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint3
 }
 
 void	Server::disconnectClnt(int clnt_fd) {
-	std::cout << "client disconnected: " << clnt_fd << std::endl;
-	close(clnt_fd);
-	delete _clients.find(clnt_fd)->second;
-	_clients.erase(clnt_fd);
+	if (clnt_fd > 0) {
+		std::cout << "client disconnected: " << clnt_fd << std::endl;
+		close(clnt_fd);
+		delete _clients.find(clnt_fd)->second;
+		_clients.erase(clnt_fd);
+	}
 }
 
 void	Server::addNewClnt(int clnt_fd, Client* clnt) {
