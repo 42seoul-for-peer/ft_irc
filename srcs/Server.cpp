@@ -103,7 +103,9 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	} else {
 		if (n < 0)
 			throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
+		std::cout << "Read nothing from client." << std::endl;
 		disconnectClnt(clnt_fd);
+		return ;
 	}
 	readString = std::string(rBuf.begin(), rBuf.end());
 	std::cout << "Received msg: \n\t" << readString << std::endl;
@@ -148,7 +150,7 @@ void Server::sendMsgToClnt(Command& cmd)
 
 		if (receiver_it->second > 400) {
 			dest = getClient(sender);
-			std::cout << __func__ << ": err detected " << receiver_it->second << ", recv : " << sender << "," << dest << std::endl;
+			std::cout << __func__ << ": err detected " << receiver_it->second << ", dest_nick : \"" << sender << "\"," << dest << std::endl;
 			if (dest != 0) {
 				outBuf = ":" + _serv_name + " " + std::to_string(receiver_it->second) + "\n";
 				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
