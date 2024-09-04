@@ -36,9 +36,14 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 		if (tmp[0] == '#') {
 			chnl = serv.getChannels().begin();
 			while (chnl != serv.getChannels().end()) {
-				if (chnl->first == tmp.substr(1)) {
-					if (chnl->second->isChannelMember(_sender))
-						_receiver.insert(std::make_pair(tmp, 0));
+				if (chnl->first == tmp) {
+					if (chnl->second->isChannelMember(_sender)) {
+						std::vector< std::pair< bool, Client* > >::const_iterator it = chnl->second->getClients().begin();
+						while (it != chnl->second->getClients().end()) {
+							_receiver.insert(std::make_pair(it->second->getNickname(), 0));
+							it++;
+						}
+					}
 					else
 						_receiver.insert(std::make_pair(tmp, ERR_CANNOTSENDTOCHAN));
 					break;
