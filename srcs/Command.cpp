@@ -56,6 +56,8 @@ const std::string Command::getMsg() const {
 void	Command::parse(int clnt_fd, Server& serv) {
 	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
 	Client&	send_clnt = *(serv.getClients().find(clnt_fd)->second);
+	_sender = send_clnt.getNickname();
+
 	if (_cmd == "PASS")
 		pass(send_clnt, serv);
 	else if (_cmd == "NICK")

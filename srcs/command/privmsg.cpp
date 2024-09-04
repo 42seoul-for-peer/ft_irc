@@ -1,9 +1,8 @@
 #include "Command.hpp"
 #include <string>
 
-void Command::privmsg(Client& send_clnt, Server& serv) {
+void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아도 됨 여기는 ..
 
-	_sender = send_clnt.getNickname();
 	if (_args.empty()) {
 		_receiver.insert(std::make_pair("", ERR_NORECIPIENT));
 		return ;
