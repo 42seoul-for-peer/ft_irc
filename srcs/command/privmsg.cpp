@@ -2,7 +2,7 @@
 #include <string>
 
 void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아도 됨 여기는 ..
-
+	(void) send_clnt;
 	if (_args.empty()) {
 		_receiver.insert(std::make_pair("", ERR_NORECIPIENT));
 		return ;
