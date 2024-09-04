@@ -85,7 +85,7 @@ std::vector<std::string> parsebyComma(std::string& string)
 
 void Command::join(Client& send_clnt, Server& serv)
 {
-    if (_args.size() < 2)
+    if (_args.size() < 1)
     {
         //! ERR_NEEDMOREPARAMS<461>   -> "<command> :Not enough parameters"
 		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
