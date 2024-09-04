@@ -21,7 +21,7 @@
 void	Command::user(Client& send_clnt, Server& serv) {
 	(void) serv;
 	// PASS, NICK 명령에서 문제가 발생, _receiver가 비어있지 않음
-	if (!_receiver.empty())
+	if (!_receiver.empty() || _args.empty())
 		return ;
 	// 클라이언트가 충분한 파라미터를 전달하지 않음
 	if (_args.size() < 4)
