@@ -72,14 +72,17 @@ To reply to a NAMES message, a reply pair consisting
 todo "JOIN <channel>{,<channel>} [<key>{,<key}]
 */
 
-std::vector<std::string> parsebyComma(std::string& string)
+std::vector<std::string> parsebyComma(std::queue< std::string >& _args)
 {
     std::vector<std::string>    token_vec;
-    std::stringstream           stream(string);
+	if (_args.empty())
+		return (std::vector< std::string >(0));
+    std::stringstream           stream(_args.front());
     std::string                 token;
     
     while (std::getline(stream, token, ','))
         token_vec.push_back(token);
+	_args.pop();
     return (token_vec);
 }
 
@@ -92,9 +95,8 @@ void Command::join(Client& send_clnt, Server& serv)
 		return ;
     }
 
-    std::vector<std::string> titles = parsebyComma(_args.front());
-    _args.pop();
-    std::vector<std::string> passwords = parsebyComma(_args.front());
+    std::vector<std::string> titles = parsebyComma(_args);
+    std::vector<std::string> passwords = parsebyComma(_args);
     const int title_size = titles.size();
     const int password_size = passwords.size();
 
