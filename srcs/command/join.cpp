@@ -137,7 +137,7 @@ void Command::join(Client& send_clnt, Server& serv)
 			const int chan_mode = chan_it->second->getMode();
 			(void) chan_mode;
 			// key가 필요한 채널
-			if (/* (chan_mode | KEY_ACTIVATED) */ 1)
+			if (/* (chan_mode | KEY_ACTIVATED) */ 0)
 			{
 				// 인자로 입력받은 key 값이 없음
 				if (i > password_size - 1 || passwords[i] != chan_it->second->getPasswd())
@@ -148,7 +148,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				}
 			}
 			// invite 채널인 경우 (이때, 최대 인원 수를 초과할 수 있음)
-			if (/* (chan_mode | INVITED_REQUIRED) */ 1)
+			if (/* (chan_mode | INVITED_REQUIRED) */ 0)
 			{
 				std::vector< std::string > invited_list = chan_it->second->getInvitedClients();
 				// invited_list에 send_clnt의 username이 존재하지 않음
@@ -168,7 +168,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				}
 			}
 			// 최대 접속 가능 유저수가 지정됨
-			else if (/* (chan_mode | LIMIT_ACTIVATED) */ 1)
+			else if (/* (chan_mode | LIMIT_ACTIVATED) */ 0)
 			{
 				// 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼(초대 채널 상태였다가 해제된 경우)
 				if (chan_it->second->getClients().size() >= chan_it->second->getMaxClients())
@@ -182,6 +182,12 @@ void Command::join(Client& send_clnt, Server& serv)
 					chan_it->second->addClient(std::make_pair(false, &send_clnt));
 					send_clnt.joinChannel(*chan_it->second);
 				}
+			}
+			// invite 채널도 아니고, 최대 접속 제한도 아님 (자유롭게 접속 가능)
+			else
+			{
+				chan_it->second->addClient(std::make_pair(false, &send_clnt));
+				send_clnt.joinChannel(*chan_it->second);
 			}
         }
     }    
