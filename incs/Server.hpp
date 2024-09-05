@@ -56,6 +56,8 @@ class Server {
 	void	acceptClnt();
 	void	recvMsgFromClnt(int clnt_fd); //버퍼를 받아와서 cmd객체 생성, cmd parse 함수, 검사해서 괜찮으면 exec
 	void	sendMsgToClnt(Command& cmd); //writable 한지 보고 전송
+	void	sendMsgModule(Command& cmd, const std::string& sender, const std::string& dest_nick, const std::string& dest_obj, int rpl);
+	std::string generatePrefix(const std::string& sender, int rpl, int dest_fd);
 
 	void	changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 	void	disconnectClnt(int clnt_fd);
