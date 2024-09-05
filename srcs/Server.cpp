@@ -189,9 +189,10 @@ void	Server::sendMsgModule(Command& cmd, const std::string& sender, const std::s
 	dest_fd = getClient(dest_nick);
 	if (dest_fd != 0) {
 		outBuf = generatePrefix(sender, rpl, dest_fd) + " " + dest_obj;
-		if (cmd.getMsg() != "")
-			outBuf += " :" + cmd.getMsg();
-		outBuf += "\n";
+		// if (cmd.getMsg() != "")
+		// 	outBuf += " :" + cmd.getMsg();
+		// outBuf += "\n";
+		outBuf += cmd.getProtoMsg(dest_nick);
 		result = send(dest_fd, outBuf.c_str(), outBuf.size(), 0);
 		if (result < 0) {
 			std::cout << __func__ << ": SEND err. disconnect." << std::endl;

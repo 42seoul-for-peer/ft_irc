@@ -32,18 +32,22 @@ const std::map< std::string, int >& Command::getReceiver() const {
 }
 
 
-const std::string	Command::getProtoMsg(std::string& recv_name) const {
+const std::string	Command::getProtoMsg(const std::string& recv_name) const {
 	std::map< std::string, int>::const_iterator it = _receiver.find(recv_name);
 	// it == end()인 경우 처리 해야하나?
-	std::string reply = "";
-	if (it->second > 399) {
-		reply += std::to_string(it->second);
-		reply += " " + _sender + " " + recv_name + " :"; // 마지막에 error message 들어가야 함
+	switch (it->second) {
+		case 1:
+			return (" Welcome to local irc server\n");
+		case 421:
+			return (_cmd + " " + recv_name + " :Unkown command\n");
+		default:
+			return (_cmd + " " + recv_name + " " + _msg +" via proto msg\n");
 	}
-	else {
-		reply += _cmd;
-	}
-	return (reply);
+	// if (it->second > 399) {
+	// 	reply += std::to_string(it->second);
+	// 	reply += " " + _sender + " " + recv_name + " :"; // 마지막에 error message 들어가야 함
+	// 	reply += _genErrMsg(it->second);
+	// }
 }
 
 const std::string Command::getMsg() const {
