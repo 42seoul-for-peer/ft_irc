@@ -68,6 +68,8 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		join(send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
 		privmsg(send_clnt, serv);
+	else if (_cmd == "MODE")
+		mode(send_clnt, serv);
 	else if (_cmd != "")
 		unknownCommand(send_clnt, serv);
 }

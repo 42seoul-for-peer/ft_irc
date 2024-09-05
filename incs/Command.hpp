@@ -64,10 +64,10 @@ class Command {
 	void	user(Client& send_clnt, Server& serv);
 	void	join(Client& send_clnt, Server& serv);
 	void	privmsg(Client& send_clnt, Server& serv);
+	void	mode(Client& send_clnt, Server& serv);
 	// void	kick();
 	// void	invite();
 	// void	topic();
-	// void	mode();
 	// void	part();
 	// void	quit();
 	// void	ping();
