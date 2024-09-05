@@ -103,7 +103,7 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	} else {
 		if (n < 0)
 			throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
-		std::cout << "Read nothing from client." << std::endl;
+		std::cout << "\tRead nothing from client." << std::endl;
 		disconnectClnt(clnt_fd);
 		return ;
 	}
@@ -149,10 +149,10 @@ void Server::sendMsgToClnt(Command& cmd)
 	while (receiver_it != receiver.end()) { //전체 리시버 돌면서 하나씩 보내기
 
 		if (receiver_it->second > 400) { //에러 코드 일 경우
-			std::cout << "sender: " << sender << std::endl;
+			// std::cout << "sender: " << sender << std::endl;
 			sendMsgModule(cmd, sender, sender, sender, receiver_it->second);
 		} else {//에러가 아닐경우
-			std::cout <<"send prepare" << std::endl;
+			// std::cout <<"send prepare" << std::endl;
 			std::map< std::string, int >	channel_receiver;
 			std::map< std::string, int >::iterator	channel_receiver_it;
 			std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;

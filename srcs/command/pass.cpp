@@ -26,5 +26,5 @@ void	Command::pass(Client& send_clnt, Server& serv) {
 	// nick(send_clnt, serv);
 	// user(send_clnt, serv);
 	// _receiver.insert(make_pair(std::string(send_clnt.getNickname()), RPL_WELCOME));
-	std::cout << "returned to pass\n" << _receiver.size() << std::endl;
+	// std::cout << "returned to pass\n" << _receiver.size() << std::endl;
 }

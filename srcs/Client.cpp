@@ -4,7 +4,7 @@
 
 // OCCF
 Client::~Client() {
-	std::cout << "Default destructor called for Client.\n";
+	// std::cout << "Default destructor called for Client.\n";
 }
 
 // MEMBER FUNCTION
