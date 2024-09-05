@@ -35,7 +35,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	for (int i = 0; i < new_nick_len; i++) {
 		if (invalid_chars.find(newNick[i]) < invalid_chars.length()) {
 			std::cout << invalid_chars.find(newNick[i]) << ": " << newNick[i] << std::endl;
-			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME));
+			_receiver.insert(make_pair(newNick, ERR_ERRONEUSNICKNAME));
 			return ;
 		}
 	}
@@ -43,7 +43,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
-			_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NICKNAMEINUSE));
+			_receiver.insert(make_pair(newNick, ERR_NICKNAMEINUSE));
 			return ;
 		}
 		it++;
