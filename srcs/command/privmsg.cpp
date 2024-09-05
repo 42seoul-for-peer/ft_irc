@@ -35,20 +35,15 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 	while(std::getline(recv_list, tmp, ',')) {
 
 		if (tmp[0] == '#') {
-			chnl = serv.getChannels().begin();
-			while (chnl != serv.getChannels().end()) {
-				//find??
-
+			chnl = serv.getChannels().find(tmp);
+			if (chnl != serv.getChannels().end()) {
 				if (chnl->first == tmp) {
 					if (chnl->second->isChannelMember(_sender))
 						_receiver.insert(std::make_pair(tmp, 0));
 					else
 						_receiver.insert(std::make_pair(tmp, ERR_CANNOTSENDTOCHAN));
-					break;
 				}
-				chnl++;
-			}
-			if (chnl == serv.getChannels().end())
+			} else
 				_receiver.insert(std::make_pair(tmp, ERR_NOSUCHCHANNEL));
 		} else {
 			clnt = serv.getClients().begin();
