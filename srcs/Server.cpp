@@ -164,10 +164,41 @@ void Server::sendMsgToClnt(Command& cmd)
 			}
 		} else {
 			std::cout <<"send prepare" << std::endl;
+			std::map< std::string, int >	channel_receiver;
+			std::map< std::string, int >::iterator	channel_receiver_it;
+			std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
+
+			if (receiver_it->first[0] == '#') {
+				std::map< std::string, Channel* >::iterator it = _channels.find(receiver_it->first);
+				channel_member_it = it->second->getClients().begin();
+				while (channel_member_it != it->second->getClients().end()) {
+					if (channel_member_it->second->getNickname() != sender)
+						channel_receiver.insert(std::make_pair(channel_member_it->second->getNickname(), 0));
+					channel_member_it++;
+				}
+
+				channel_receiver_it = channel_receiver.begin();
+				dest = getClient(channel_receiver_it->first);
+				if (dest != 0) {
+					outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
+					outBuf += " " + std::to_string(channel_receiver_it->second) + " " + receiver_it->first;
+					if (cmd.getMsg() != "")
+						outBuf += " :" + cmd.getMsg();
+					outBuf += "\n";
+					result = send(dest, outBuf.c_str(), outBuf.size(), 0);
+					if (result < 0) {
+						std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+						disconnectClnt(dest);
+					} else {
+						std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
+					}
+				}
+			}
+
 			dest = getClient(receiver_it->first);
 			if (dest != 0) {
 				outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
-				outBuf += " " + std::to_string(receiver_it->second);
+				outBuf += " " + std::to_string(receiver_it->second) + " " + receiver_it->first;
 				if (cmd.getMsg() != "")
 					outBuf += " :" + cmd.getMsg();
 				outBuf += "\n";
