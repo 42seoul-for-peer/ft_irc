@@ -130,12 +130,12 @@ void Command::join(Client& send_clnt, Server& serv)
             Channel* new_channel = new Channel(titles[i], &send_clnt);
             serv.addNewChnl(new_channel);
 			send_clnt.joinChannel(*new_channel);
+			_receiver.insert(make_pair("#" + new_channel->getTitle(), RPL_NAMREPLY));
         }
         // 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
         else
         {
 			const int chan_mode = chan_it->second->getMode();
-			(void) chan_mode;
 			// key가 필요한 채널
 			if (chan_mode & MODE_K)
 			{
@@ -165,6 +165,7 @@ void Command::join(Client& send_clnt, Server& serv)
 					send_clnt.joinChannel(*chan_it->second);
 					// invited_list에서 username 삭제
 					invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()));
+					_receiver.insert(make_pair("#" + chan_it->second->getTitle(), RPL_NAMREPLY));
 				}
 			}
 			// 최대 접속 가능 유저수가 지정됨
@@ -181,6 +182,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				{
 					chan_it->second->addClient(std::make_pair(false, &send_clnt));
 					send_clnt.joinChannel(*chan_it->second);
+					_receiver.insert(make_pair("#" + chan_it->second->getTitle(), RPL_NAMREPLY));
 				}
 			}
 			// invite 채널도 아니고, 최대 접속 제한도 아님 (자유롭게 접속 가능)
@@ -188,6 +190,7 @@ void Command::join(Client& send_clnt, Server& serv)
 			{
 				chan_it->second->addClient(std::make_pair(false, &send_clnt));
 				send_clnt.joinChannel(*chan_it->second);
+				_receiver.insert(make_pair("#" + chan_it->second->getTitle(), RPL_NAMREPLY));
 			}
         }
     }    

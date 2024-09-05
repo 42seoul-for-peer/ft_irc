@@ -39,6 +39,7 @@
 # define RPL_NOTOPIC 331
 # define RPL_TOPIC 332
 # define RPL_INVITING 341
+# define RPL_NAMREPLY 353
 # define RPL_YOUREOPER 381
 // v.2812
 # define RPL_WELCOME 1
