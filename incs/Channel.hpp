@@ -1,6 +1,12 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+# define MODE_K 0b00001
+# define MODE_L 0b00010
+# define MODE_I 0b00100
+# define MODE_T 0b01000
+# define MODE_P 0b10000
+
 # include <string>
 # include <vector>
 # include "Client.hpp"
@@ -34,7 +40,7 @@ class Channel {
 	void setTopic(std::string& str);
 	void setPasswd(std::string& str);
 	void setMaxClients(int& num);
-	void setMode(int& bitNum);
+	void setMode(const bool& status, const int& changedMode);
 
 	// GETTER
 	const std::string& getTitle(void) const;
