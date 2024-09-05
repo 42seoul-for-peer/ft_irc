@@ -143,6 +143,7 @@ void Command::mode(Client& send_clnt, Server& serv)
                     _receiver.insert(make_pair(send_clnt.getNickname(), ERR_KEYSET));
                 }
             }
+            _args.pop();
         }
         // 해당 flag가 존재하지 않음
         else
