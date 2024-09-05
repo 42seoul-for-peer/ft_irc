@@ -129,11 +129,10 @@ void Command::join(Client& send_clnt, Server& serv)
         // 채널이 존재하지 않음 (신규 생성)
         if (chan_it == chan_list.end())
         {
-			std::cout << "new channel" << std::endl;
             Channel* new_channel = new Channel(titles[i], &send_clnt);
 			send_clnt.joinChannel(*new_channel);
 			serv.addNewChnl(new_channel);
-			_receiver.insert(make_pair("#" + new_channel->getTitle(), RPL_NAMREPLY));
+			_receiver.insert(make_pair(new_channel->getTitle(), RPL_NAMREPLY));
         }
         // 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
         else
