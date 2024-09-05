@@ -24,8 +24,17 @@ void Channel::setMaxClients(int& num) {
     _max_clients = num;
 }
 
-void Channel::setMode(int& bitNum) {
-    _mode = bitNum;
+void Channel::setMode(const bool& status, const int& changedMode) {
+    // flag가 + 상태
+    if (status == true)
+    {
+        _mode |= changedMode;
+    }
+    // flag가 - 상태
+    else
+    {
+        _mode &= changedMode;
+    }
 }
 
 const std::string& Channel::getTitle(void) const {
