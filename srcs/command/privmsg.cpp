@@ -25,11 +25,11 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 		_args.pop();
 	}
 
-	if (_msg[0] != ':' || _msg.size() == 1) {
-		_receiver.insert(std::make_pair("", ERR_NOTEXTTOSEND));
-		return ;
-	} else {
+	if (_msg[0] == ':' && _msg.size() > 1) {
 		_msg = _msg.substr(1);
+	} else if (_msg[0] == ':' && _msg.size() == 0) {
+		_receiver.insert(std::make_pair(_args.front(), ERR_NOTEXTTOSEND));
+		return ;
 	}
 
 	while(std::getline(recv_list, tmp, ',')) {
