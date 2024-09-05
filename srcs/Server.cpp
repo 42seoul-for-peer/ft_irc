@@ -135,22 +135,17 @@ void Server::recvMsgFromClnt(int clnt_fd)
 
 void Server::sendMsgToClnt(Command& cmd)
 {
-	std::string						sender = cmd.getSender();
 	const std::map< std::string, int >	receiver = cmd.getReceiver();
 
 	std::map< std::string, int >::const_iterator	receiver_it;
 	std::map< int, Client* >::iterator				clnt_it;
-	// int												dest;
-	// int												result;
-
-	std::string 	outBuf; // 추후 protomsg함수 연결...
 
 	receiver_it = receiver.begin();
 	while (receiver_it != receiver.end()) { //전체 리시버 돌면서 하나씩 보내기
 
 		if (receiver_it->second > 400) { //에러 코드 일 경우
 			// std::cout << "sender: " << sender << std::endl;
-			sendMsgModule(cmd, sender, sender, sender, receiver_it->second);
+			sendMsgModule(cmd, *receiver_it, receiver_it->first);
 		} else {//에러가 아닐경우
 			// std::cout <<"send prepare" << std::endl;
 			std::map< std::string, int >	channel_receiver;
@@ -159,20 +154,21 @@ void Server::sendMsgToClnt(Command& cmd)
 
 			if (receiver_it->first[0] == '#') {  //채널일경우
 				std::map< std::string, Channel* >::iterator it = _channels.find(receiver_it->first);
+				// if (it != _channels.end())
 				channel_member_it = it->second->getClients().begin();
 				while (channel_member_it != it->second->getClients().end()) {
-					if (channel_member_it->second->getNickname() != sender)
+					if (channel_member_it->second->getNickname() != cmd.getSender())
 						channel_receiver.insert(std::make_pair(channel_member_it->second->getNickname(), 0));
 					channel_member_it++;
 				}
 
 				channel_receiver_it = channel_receiver.begin();
 				while (channel_receiver_it != channel_receiver.end()) {
-					sendMsgModule(cmd, sender, channel_receiver_it->first, receiver_it->first, channel_receiver_it->second);
+					sendMsgModule(cmd, *channel_receiver_it, receiver_it->first);
 					channel_receiver_it++;
 				}
 			} else { //일반 유저일 경우
-				sendMsgModule(cmd, sender, receiver_it->first, receiver_it->first, receiver_it->second);
+				sendMsgModule(cmd, *receiver_it, receiver_it->first);
 			}
 		}
 		receiver_it++;
@@ -181,18 +177,22 @@ void Server::sendMsgToClnt(Command& cmd)
 }
 
 //일단 getProtoMsg 완성전까지 임시로,, 이후 리팩토링 필요
-void	Server::sendMsgModule(Command& cmd, const std::string& sender, const std::string& dest_nick, const std::string& dest_obj, int rpl) {
+void	Server::sendMsgModule(Command& cmd, const std::pair< std::string, int>& recv, const std::string& target) {
 	int			dest_fd;
+	std::string	dest_nick;
 	std::string	outBuf;
 	int			result;
 
+	std::string	sender = cmd.getSender();
+
+	if (recv.second > 400)
+		dest_nick = recv.first;
+	else
+		dest_nick = sender;
+
 	dest_fd = getClient(dest_nick);
 	if (dest_fd != 0) {
-		outBuf = generatePrefix(sender, rpl, dest_fd) + " " + dest_obj + " ";
-		// if (cmd.getMsg() != "")
-		// 	outBuf += " :" + cmd.getMsg();
-		// outBuf += "\n";
-		outBuf += cmd.getProtoMsg(dest_nick);
+		outBuf = generatePrefix(sender, recv.second, dest_fd) + " " + cmd.getProtoMsg(recv, target); 
 		result = send(dest_fd, outBuf.c_str(), outBuf.size(), 0);
 		if (result < 0) {
 			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
