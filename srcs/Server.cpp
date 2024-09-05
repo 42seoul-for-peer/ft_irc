@@ -188,7 +188,7 @@ void	Server::sendMsgModule(Command& cmd, const std::string& sender, const std::s
 
 	dest_fd = getClient(dest_nick);
 	if (dest_fd != 0) {
-		outBuf = generatePrefix(sender, rpl, dest_fd) + " " + dest_obj;
+		outBuf = generatePrefix(sender, rpl, dest_fd) + " " + dest_obj + " ";
 		// if (cmd.getMsg() != "")
 		// 	outBuf += " :" + cmd.getMsg();
 		// outBuf += "\n";
