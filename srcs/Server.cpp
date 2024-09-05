@@ -146,9 +146,9 @@ void Server::sendMsgToClnt(Command& cmd)
 	std::string 	outBuf; // 추후 protomsg함수 연결...
 
 	receiver_it = receiver.begin();
-	while (receiver_it != receiver.end()) {
+	while (receiver_it != receiver.end()) { //전체 리시버 돌면서 하나씩 보내기
 
-		if (receiver_it->second > 400) {
+		if (receiver_it->second > 400) { //에러 코드 일 경우
 			std::cout << "sender: " << sender << std::endl;
 			dest = getClient(sender);
 			std::cout << __func__ << ": err detected " << receiver_it->second << ", dest_nick : \"" << sender << "\"," << dest << std::endl;
@@ -162,13 +162,13 @@ void Server::sendMsgToClnt(Command& cmd)
 					std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
 				}
 			}
-		} else {
+		} else {//에러가 아닐경우
 			std::cout <<"send prepare" << std::endl;
 			std::map< std::string, int >	channel_receiver;
 			std::map< std::string, int >::iterator	channel_receiver_it;
 			std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
 
-			if (receiver_it->first[0] == '#') {
+			if (receiver_it->first[0] == '#') {  //채널일경우
 				std::map< std::string, Channel* >::iterator it = _channels.find(receiver_it->first);
 				channel_member_it = it->second->getClients().begin();
 				while (channel_member_it != it->second->getClients().end()) {
@@ -178,10 +178,29 @@ void Server::sendMsgToClnt(Command& cmd)
 				}
 
 				channel_receiver_it = channel_receiver.begin();
-				dest = getClient(channel_receiver_it->first);
+				while (channel_receiver_it != channel_receiver.end()) {
+					dest = getClient(channel_receiver_it->first);
+					if (dest != 0) {
+						outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
+						outBuf += " " + std::to_string(channel_receiver_it->second) + " " + receiver_it->first;
+						if (cmd.getMsg() != "")
+							outBuf += " :" + cmd.getMsg();
+						outBuf += "\n";
+						result = send(dest, outBuf.c_str(), outBuf.size(), 0);
+						if (result < 0) {
+							std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+							disconnectClnt(dest);
+						} else {
+							std::cout << ">> Send msg to " << channel_receiver_it->first << ":\n\t" << outBuf << "\n\n";
+						}
+					}
+					channel_receiver_it++;
+				}
+			} else { //일반 유저일 경우
+				dest = getClient(receiver_it->first);
 				if (dest != 0) {
 					outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
-					outBuf += " " + std::to_string(channel_receiver_it->second) + " " + receiver_it->first;
+					outBuf += " " + std::to_string(receiver_it->second) + " " + receiver_it->first;
 					if (cmd.getMsg() != "")
 						outBuf += " :" + cmd.getMsg();
 					outBuf += "\n";
@@ -192,22 +211,6 @@ void Server::sendMsgToClnt(Command& cmd)
 					} else {
 						std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
 					}
-				}
-			}
-
-			dest = getClient(receiver_it->first);
-			if (dest != 0) {
-				outBuf = ":" + sender + "!" + getClient(dest)->getUsername() + "@localhost"; //일단 하드코딩
-				outBuf += " " + std::to_string(receiver_it->second) + " " + receiver_it->first;
-				if (cmd.getMsg() != "")
-					outBuf += " :" + cmd.getMsg();
-				outBuf += "\n";
-				result = send(dest, outBuf.c_str(), outBuf.size(), 0);
-				if (result < 0) {
-					std::cout << __func__ << ": SEND err. disconnect." << std::endl;
-					disconnectClnt(dest);
-				} else {
-					std::cout << ">> Send msg:\n\t" << outBuf << "\n\n";
 				}
 			}
 		}
