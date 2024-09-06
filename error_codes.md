@@ -3,15 +3,15 @@
 
 | Error Number | Error Name             | Error Message                                   |
 |:------------:|------------------------|-------------------------------------------------|
-| 401          | ERR_NOSUCHNICK         | "<nickname> :No such nick/channel"             |X(mode)
-| 403          | ERR_NOSUCHCHANNEL      | "<channel name> :No such channel"              |O
-| 404          | ERR_CANNOTSENDTOCHAN   | "<channel name> :Cannot send to channel"       |
+| 401          | ERR_NOSUCHNICK         | "<nickname> :No such nick/channel"             |X(mode) O(privmsg)
+| 403          | ERR_NOSUCHCHANNEL      | "<channel name> :No such channel"              |O	O(privmsg)
+| 404          | ERR_CANNOTSENDTOCHAN   | "<channel name> :Cannot send to channel"       |O(privmsg)
 | 405          | ERR_TOOMANYCHANNELS    | "<channel name> :You have joined too many channels" |O
 | 406          | ERR_WASNOSUCHNICK      | "<nickname> :There was no such nickname"       |
-| 407          | ERR_TOOMANYTARGETS     | "<target> :Duplicate recipients. No message delivered" |
+| 407          | ERR_TOOMANYTARGETS     | "<target> :Duplicate recipients. No message delivered" |X(privmsg)
 | 409          | ERR_NOORIGIN           | ":No origin specified"                         |
-| 411          | ERR_NORECIPIENT        | ":No recipient given (<command>)"              |
-| 412          | ERR_NOTEXTTOSEND       | ":No text to send"                             |
+| 411          | ERR_NORECIPIENT        | ":No recipient given (<command>)"              |O(privmsg)
+| 412          | ERR_NOTEXTTOSEND       | ":No text to send"                             |O(privmsg)
 | 421          | ERR_UNKNOWNCOMMAND     | "<command> :Unknown command"                   |
 | 422          | ERR_NOMOTD             | ":MOTD File is missing"                        |
 | 431          | ERR_NONICKNAMEGIVEN    | ":No nickname given"                           |O
