@@ -28,14 +28,12 @@ class Command {
 // MEMBER VARIABLE
  protected:
 	std::string					_cmd;
-
 	std::queue< std::string >	_args;
 
 	std::string					_sender;
-	std::map< std::string, int >	_receiver;
-	// <recv_name: rpl_no> // 오류가 발생한 recv_name도 일단 그대로 넣어둔다
-	// proto_msg 만들 때 rpl_no 검사할 것임
-	std::string					_msg;
+	std::map< std::string, std::string > _msgs;
+	// <clnt or chan name, msg>
+	// std::string					_msg;
 
 // MEMBER FUNCITON
  public:
@@ -44,6 +42,7 @@ class Command {
 	const std::string&								getSender() const;
 	// int												getReceiverCnt() const;
 	const std::map< std::string, int >&	getReceiver() const;
+	const std::map< std::string, std::string>& getMsgs() const;
 	// getReceiver의 경우 const 키워드를 걸어야 하는 getter의 한계 때문에 execute 호출해서 메세지 받는 것으로 대신 하기
 
 
@@ -51,10 +50,11 @@ class Command {
 
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
-	const std::string	getProtoMsg(const std::pair< std::string, int>& recv, const std::string& target) const;
+	// const std::string	getProtoMsg(const std::pair< std::string, int>& recv, const std::string& target) const;
 	// <rpl_no, actual msg>
 
-// setter
+// setter etMsg(str& name, str& msg)
+	void	setMsgs(std::string& name, std::string& msg); // msgs 변수에 새 메세지 연장/추가 하는 함수
 // usable function
 	void		parse(int clnt_fd, Server& serv);
 	std::string	execute();
@@ -72,9 +72,11 @@ class Command {
 	// void	quit();
 	// void	ping();
 	void	unknownCommand(Client& send_clnt, Server& serv);
+
  private:
-	// std::string _genErrMsg(int err_no) const;
-	// std::string	_genErrMsg(int err_no, std::string& channel) const;
+	std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
+	std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
+	std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
 };
 
 #endif
