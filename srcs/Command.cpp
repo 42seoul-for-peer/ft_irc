@@ -86,12 +86,12 @@ void	Command::setMsgs(std::string& name, std::string& msg) {
 // 		// 	return (":You may not reregister\n");
 // 		// case ERR_PASSWDMISMATCH:
 // 		// 	return (":Password incorrect\n");
-// 		case ERR_CHANNELISFULL:
-// 			return (target + " :Cannot join channel (+l)\n");
-// 		case ERR_NOPRIVILEGES:
-// 			return (":Permission Denied- You're not an IRC operator\n");
-// 		case ERR_CHANOPRIVSNEEDED:
-// 			return (target + " :You're not channel operator\n");
+// 		// case ERR_CHANNELISFULL:
+// 		// 	return (target + " :Cannot join channel (+l)\n");
+// 		// case ERR_NOPRIVILEGES:
+// 		// 	return (":Permission Denied- You're not an IRC operator\n");
+// 		// case ERR_CHANOPRIVSNEEDED:
+// 		// 	return (target + " :You're not channel operator\n");
 // 		// case ERR_UMODEUNKNOWNFLAG: 삭제
 // 		// 	return (":Unknown MODE flag\n");
 // 		// case ERR_USERSDONTMATCH:
@@ -100,8 +100,8 @@ void	Command::setMsgs(std::string& name, std::string& msg) {
 // 			return ("Dummy reply number. Not used.\n");
 // 		case RPL_YOUREOPER:
 // 			return (":You are now an IRC operator\n");
-// 		default:
-// 			return (_cmd + " " + target + " " + _msg + "\tvia default case\n"); // 마지막 문자열은 디버깅 용도
+// 		// default:
+// 		// 	return (_cmd + " " + target + " " + _msg + "\tvia default case\n"); // 마지막 문자열은 디버깅 용도
 // 	}
 // 	// if (it->second > 399) {
 // 	// 	reply += std::to_string(it->second);
