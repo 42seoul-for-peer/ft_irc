@@ -194,7 +194,7 @@ void	Server::sendMsgModule(Command& cmd, const std::pair< std::string, int>& rec
 
 	dest_fd = getClient(dest_nick);
 	if (dest_fd != 0) {
-		outBuf = generatePrefix(sender, recv.second, dest_fd) + " " + cmd.getProtoMsg(recv, target); 
+		outBuf = generatePrefix(sender, recv.second) + " " + cmd.getProtoMsg(recv, target); 
 		result = send(dest_fd, outBuf.c_str(), outBuf.size(), 0);
 		if (result < 0) {
 			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
@@ -205,16 +205,16 @@ void	Server::sendMsgModule(Command& cmd, const std::pair< std::string, int>& rec
 	}
 }
 
-std::string Server::generatePrefix(const std::string& sender, int rpl, int dest_fd) {
+std::string Server::generatePrefix(const std::string& sender, int rpl) {
 	std::string outBuf = ":";
 	std::stringstream ss;
-	ss << std::setw(3) << std::setfill('0') << std::to_string(rpl);
+	ss << std::setw(3) << std::setfill('0') << rpl;
 
 	if (rpl != 0) {
 		outBuf += _serv_name + " " + ss.str();
 		return outBuf;
 	} else
-		outBuf += sender + "!" + getClient(dest_fd)->getUsername() + "@localhost";
+		outBuf += sender + "!" + getClient(getClient(sender))->getUsername() + "@localhost";
 	return outBuf;
 }
 
