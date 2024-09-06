@@ -59,12 +59,28 @@ const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix, std::st
 			return (prefix + target + " :You're not on that channel\n");
 		case ERR_CHANNELISFULL:
 			return (prefix + target + " :Cannot join channel (+l)\n");
+		case ERR_CHANOPRIVSNEEDED:
+			return (prefix + target + " :You're not channel operator\n");
+		case ERR_KEYSET:
+			return (prefix + target + " :Channel key already set\n");
+		case ERR_UNKNOWNMODE:
+			return (prefix + target + " :is unknown mode char to me\n");
+		case ERR_INVITEONLYCHAN:
+			return (prefix + target + " :Cannot join channel (+i)\n");
+		case ERR_BADCHANNELKEY:
+			return (prefix + target + " :Cannot join channel (+k)\n");
 		default:
 			return (prefix + target + " :Unknown error with one target\n");
 	}
 }
 const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const {
 	switch (rpl_no) {
+		case ERR_NOSUCHNICK:
+			return (prefix + target1 + " " + target2 + " :No such nick/channel\n");
+		case ERR_NOSUCHCHANNEL:
+			return (prefix + target1 + " " + target2 + " :No such channel\n");
+		case ERR_USERNOTINCHANNEL:
+			return (prefix + target1 + " " + target2 + " :They aren't on that channel\n");
 		default:
 			return (prefix + target1 + " " + target2 + " :Unknown error with two target\n");
 	}
