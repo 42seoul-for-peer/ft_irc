@@ -32,10 +32,8 @@ class Command {
 	std::queue< std::string >	_args;
 
 	std::string					_sender;
-	std::map< std::string, int >	_receiver;
-	// <recv_name: rpl_no> // 오류가 발생한 recv_name도 일단 그대로 넣어둔다
-	// proto_msg 만들 때 rpl_no 검사할 것임
-	std::string					_msg;
+	std::map< std::string, std::string > _msgs;
+	// std::string					_msg;
 
 // MEMBER FUNCITON
  public:
