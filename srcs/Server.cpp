@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <unistd.h>
 #include "Server.hpp"
 
@@ -173,6 +174,7 @@ void Server::sendMsgToClnt(Command& cmd)
 		}
 		receiver_it++;
 	}
+	//delete 해야 함
 	_commandQueue.pop();
 }
 
@@ -205,9 +207,11 @@ void	Server::sendMsgModule(Command& cmd, const std::pair< std::string, int>& rec
 
 std::string Server::generatePrefix(const std::string& sender, int rpl, int dest_fd) {
 	std::string outBuf = ":";
+	std::stringstream ss;
+	ss << std::setw(3) << std::setfill('0') << std::to_string(rpl);
 
-	if (rpl > 400) {
-		outBuf += _serv_name + " " + std::to_string(rpl);
+	if (rpl != 0) {
+		outBuf += _serv_name + " " + ss.str();
 		return outBuf;
 	} else
 		outBuf += sender + "!" + getClient(dest_fd)->getUsername() + "@localhost";
