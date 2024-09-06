@@ -74,9 +74,9 @@ class Command {
 	void	unknownCommand(Client& send_clnt, Server& serv);
 
  private:
-	std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
-	std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
-	std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
 };
 
 #endif

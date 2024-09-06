@@ -37,7 +37,7 @@ cmd_srcs = pass.cpp\
 			nick.cpp\
 			unknownCommand.cpp\
 			user.cpp\
-			errorMsg.cpp\
+			protocolMsg.cpp\
 			join.cpp\
 			privmsg.cpp\
 			mode.cpp\
