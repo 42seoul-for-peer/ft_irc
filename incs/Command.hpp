@@ -80,9 +80,9 @@ class Command {
 	void	_tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
 	void	_oMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
 
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
 };
 
 #endif

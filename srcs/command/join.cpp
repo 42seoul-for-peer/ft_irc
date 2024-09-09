@@ -28,7 +28,7 @@ todo 해야 하는 것
     - 채널에 접속함(새로 생성된 것은 아님)
     - client가 채널에 속하게 됨
 
-! * 실패/오류 
+! * 실패/오류
 * asdf
 
 todo 처리해야 하는 오류
@@ -81,7 +81,7 @@ std::vector<std::string> parsebyComma(std::queue< std::string >& _args)
 		return (std::vector< std::string >(0));
     std::stringstream           stream(_args.front());
     std::string                 token;
-    
+
     while (std::getline(stream, token, ','))
         token_vec.push_back(token);
 	_args.pop();
@@ -94,8 +94,8 @@ void Command::join(Client& send_clnt, Server& serv)
     {
         //! ERR_NEEDMOREPARAMS<461>   -> "<command> :Not enough parameters"
 		std::string pref = serv.generatePrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
-		std::string msg = _genProtoMsg(ERR_NEEDMOREPARAMS, pref, send_clnt.getNickname(), "JOIN");
-		setMsgs(send_clnt.getNickname(), msg);
+		std::string msg = _genProtoMsg(ERR_NEEDMOREPARAMS, pref);
+		// setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, pref, send_clnt.getNickname()));
 		// _receiver.insert(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
 		return ;
     }
@@ -108,7 +108,7 @@ void Command::join(Client& send_clnt, Server& serv)
 
     std::map< std::string, Channel* > chan_list = serv.getChannels();
     std::map< std::string, Channel* >::iterator chan_it;
-    
+
     for (int i = 0; i < title_size; i++)
     {
 		// 클라이언트가 현재 접속한 채널의 수가 10개 이상임
