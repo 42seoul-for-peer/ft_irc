@@ -35,7 +35,6 @@ serv_srcs = main.cpp\
 
 cmd_srcs = pass.cpp\
 			nick.cpp\
-			unknownCommand.cpp\
 			user.cpp\
 			protocolMsg.cpp\
 			join.cpp\
