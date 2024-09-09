@@ -11,7 +11,7 @@
 // 		case
 // 	}
 // }
-const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix) const {
+const std::string	Command::_genProtoMsg(int rpl_no, const std::string& prefix) const {
 	switch (rpl_no) {
 		case ERR_NOORIGIN:
 			return (prefix + ":No origin specified\n");
@@ -39,7 +39,7 @@ const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix) const {
 			return (prefix + ":Unknown error\n");
 	}
 }
-const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix, std::string& target) const {
+const std::string	Command::_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target) const {
 	switch (rpl_no) {
 		case RPL_WELCOME:
 			return (prefix + target + " :Welcome to local irc server\n");
@@ -73,7 +73,7 @@ const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix, std::st
 			return (prefix + target + " :Unknown error with one target\n");
 	}
 }
-const std::string	Command::_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const {
+const std::string	Command::_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const {
 	switch (rpl_no) {
 		case ERR_NOSUCHNICK:
 			return (prefix + target1 + " " + target2 + " :No such nick/channel\n");

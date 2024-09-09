@@ -18,13 +18,16 @@
 
 void	Command::nick(Client& send_clnt, Server& serv) {
 	// 비밀번호 있는지 확인해야함
+	std::string prefix;
 	if (send_clnt.getIsRegistered() == false) {
-		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NOTREGISTERED));
+		prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NOTREGISTERED);
+		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NOTREGISTERED, prefix));
 		return ;
 	}
 	// 비밀번호가 같이 안 들어온 경우
 	if (_args.size() < 1) {
-		_receiver.insert(make_pair(send_clnt.getNickname(), ERR_NONICKNAMEGIVEN));
+		prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NONICKNAMEGIVEN);
+		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NONICKNAMEGIVEN, prefix));
 		return ;
 	}
 	// nickname으로 쓸 수 없는 문자 들어있는지 검사
@@ -34,8 +37,9 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	int	new_nick_len = newNick.length();
 	for (int i = 0; i < new_nick_len; i++) {
 		if (invalid_chars.find(newNick[i]) < invalid_chars.length()) {
-			std::cout << invalid_chars.find(newNick[i]) << ": " << newNick[i] << std::endl;
-			_receiver.insert(make_pair(newNick, ERR_ERRONEUSNICKNAME));
+			// std::cout << invalid_chars.find(newNick[i]) << ": " << newNick[i] << std::endl;
+			prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME);
+			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_ERRONEUSNICKNAME, prefix));
 			return ;
 		}
 	}
@@ -43,7 +47,8 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
 	while (it != serv.getClients().end()) {
 		if (it->second->getNickname() == newNick) {
-			_receiver.insert(make_pair(newNick, ERR_NICKNAMEINUSE));
+			prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NICKNAMEINUSE);
+			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NICKNAMEINUSE, prefix));
 			return ;
 		}
 		it++;
