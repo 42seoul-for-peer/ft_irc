@@ -40,6 +40,7 @@ cmd_srcs = pass.cpp\
 			join.cpp\
 			privmsg.cpp\
 			mode.cpp\
+			part.cpp\
 			unknownCommand.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
