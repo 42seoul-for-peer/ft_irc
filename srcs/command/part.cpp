@@ -31,7 +31,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		{
 			prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
 			setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, channels[i]));
-			break ;
+			continue ;
 		}
 		// 채널은 존재하지만 클라이언트가 속해있지 않음
 		std::vector< std::string > currChannelList = send_clnt.getCurrChannel();
@@ -39,7 +39,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		{
 			prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
 			setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, channels[i]));
-			break ;
+			continue ;
 		}
 		// 정상 작동 상황
 		// (1) client의 current channel list에서 삭제
@@ -48,6 +48,15 @@ void Command::part(Client& send_clnt, Server& serv)
 		send_clnt.leaveChannel(*(chan_it->second));
 		chan_it->second->leaveClient(send_clnt);
 		if (chan_it->second->getClients().size() == 0)
+		{
 			serv.deleteChnl(chan_it->second);
+			continue ;
+		}
+		else
+		{
+			prefix = serv.generatePrefix(_sender, 0);
+			std::string msg = prefix + " PART " + chan_it->first + " :" + leaveMessage;
+			setMsgs(chan_it->first, msg);
+		}
 	}
 }
