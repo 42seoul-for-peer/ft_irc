@@ -17,8 +17,6 @@ const std::string	Command::_genProtoMsg(int rpl_no, const std::string& prefix) c
 			return (prefix + ":You have not registered\n");
 		case ERR_ALREADYREGISTRED:
 			return (prefix + ":You may not reregister\n");
-		case ERR_PASSWDMISMATCH:
-			return (prefix + ":Password incorrect\n");
 		case ERR_UNKNOWNCOMMAND:
 			return (prefix + _cmd + " :Unknown command\n");
 		case ERR_NEEDMOREPARAMS:
