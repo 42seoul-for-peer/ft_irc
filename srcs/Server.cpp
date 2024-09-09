@@ -136,71 +136,56 @@ void Server::recvMsgFromClnt(int clnt_fd)
 
 void Server::sendMsgToClnt(Command& cmd)
 {
-	const std::map< std::string, int >	receiver = cmd.getReceiver();
+	const std::map< std::string, std::string >	msgs = cmd.getMsgs();
 
-	std::map< std::string, int >::const_iterator	receiver_it;
+	std::map< std::string, std::string >::const_iterator	msgs_it;
 	std::map< int, Client* >::iterator				clnt_it;
 
-	receiver_it = receiver.begin();
-	while (receiver_it != receiver.end()) { //전체 리시버 돌면서 하나씩 보내기
+	msgs_it = msgs.begin();
+	while (msgs_it != msgs.end()) { //전체 리시버 돌면서 하나씩 보내기
 
-		if (receiver_it->second > 400) { //에러 코드 일 경우
-			// std::cout << "sender: " << sender << std::endl;
-			sendMsgModule(cmd, *receiver_it, receiver_it->first);
-		} else {//에러가 아닐경우
-			// std::cout <<"send prepare" << std::endl;
-			std::map< std::string, int >	channel_receiver;
-			std::map< std::string, int >::iterator	channel_receiver_it;
-			std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
+		std::vector< std::string >	channel_receiver;
+		std::vector< std::string >::iterator	channel_receiver_it;
+		std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
 
-			if (receiver_it->first[0] == '#') {  //채널일경우
-				std::map< std::string, Channel* >::iterator it = _channels.find(receiver_it->first);
-				// if (it != _channels.end())
-				channel_member_it = it->second->getClients().begin();
-				while (channel_member_it != it->second->getClients().end()) {
-					if (channel_member_it->second->getNickname() != cmd.getSender())
-						channel_receiver.insert(std::make_pair(channel_member_it->second->getNickname(), 0));
-					channel_member_it++;
-				}
-
-				channel_receiver_it = channel_receiver.begin();
-				while (channel_receiver_it != channel_receiver.end()) {
-					sendMsgModule(cmd, *channel_receiver_it, receiver_it->first);
-					channel_receiver_it++;
-				}
-			} else { //일반 유저일 경우
-				sendMsgModule(cmd, *receiver_it, receiver_it->first);
+		if (msgs_it->first[0] == '#') {  //채널일경우
+			std::map< std::string, Channel* >::iterator it = _channels.find(msgs_it->first);
+			// if (it != _channels.end())
+			channel_member_it = it->second->getClients().begin();
+			while (channel_member_it != it->second->getClients().end()) {
+				std::string nickname = channel_member_it->second->getNickname();
+				if (nickname != cmd.getSender())
+					channel_receiver.push_back(nickname);
+				channel_member_it++;
 			}
+
+			channel_receiver_it = channel_receiver.begin();
+			while (channel_receiver_it != channel_receiver.end()) {
+				sendMsgModule(*channel_receiver_it, msgs_it->second);
+				channel_receiver_it++;
+			}
+		} else { //일반 유저일 경우
+			sendMsgModule(msgs_it->first, msgs_it->second);
 		}
-		receiver_it++;
+		msgs_it++;
 	}
 	//delete 해야 함
 	_commandQueue.pop();
 }
 
 //일단 getProtoMsg 완성전까지 임시로,, 이후 리팩토링 필요
-void	Server::sendMsgModule(Command& cmd, const std::pair< std::string, int>& recv, const std::string& target) {
+void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 	int			dest_fd;
-	std::string	dest_nick;
-	std::string	outBuf;
 	int			result;
 
-	std::string	sender = cmd.getSender();
-
-	if (recv.second > 400)
-		dest_nick = recv.first;
-	else
-		dest_nick = sender;
-
-	dest_fd = getClient(dest_nick);
+	dest_fd = getClient(recv);
 	if (dest_fd != 0) {
-		outBuf = generatePrefix(sender, recv.second) + " " + cmd.getProtoMsg(recv, target); 
-		result = send(dest_fd, outBuf.c_str(), outBuf.size(), 0);
+		result = send(dest_fd, msg.c_str(), msg.size(), 0);
 		if (result < 0) {
 			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 			disconnectClnt(dest_fd);
 		} else {
-			std::cout << ">> Send msg to " << dest_nick << ":\n\t" << outBuf << "\n\n";
+			std::cout << ">> Send msg to " << recv << ":\n\t" << msg << "\n\n";
 		}
 	}
 }
