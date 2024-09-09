@@ -2,5 +2,5 @@
 
 void Command::part(Server& serv)
 {
-    
+    (void) serv;
 }
