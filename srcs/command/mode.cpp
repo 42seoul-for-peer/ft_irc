@@ -42,270 +42,270 @@ To answer a query about a client's own mode, RPL_UMODEIS is sent back.
 
 std::queue< std::pair< bool, char > > getFlag(const std::string& string)
 {
-    std::queue< std::pair< bool, char> > flag_queue;
-    bool        enable_flag = true;
-    const int   length = string.size();
-    char        flag;
+	std::queue< std::pair< bool, char> > flag_queue;
+	bool        enable_flag = true;
+	const int   length = string.size();
+	char        flag;
 
-    for (int i = 0; i < length; i++)
-    {
-        flag = string[i];
-        if (flag == '+')
-            enable_flag = true;
-        else if (flag == '-')
-            enable_flag = false;
-        else if (flag == 'o' || flag == 'i' || flag == 'l' || flag == 'k' || flag == 't')
-            flag_queue.push(std::make_pair(enable_flag, flag));
-        else
-            flag_queue.push(std::make_pair(false, 'X'));
-    }
-    return (flag_queue);
+	for (int i = 0; i < length; i++)
+	{
+		flag = string[i];
+		if (flag == '+')
+			enable_flag = true;
+		else if (flag == '-')
+			enable_flag = false;
+		else if (flag == 'o' || flag == 'i' || flag == 'l' || flag == 'k' || flag == 't')
+			flag_queue.push(std::make_pair(enable_flag, flag));
+		else
+			flag_queue.push(std::make_pair(false, 'X'));
+	}
+	return (flag_queue);
 }
 
 void Command::_kMode(bool flag, Server& serv, Channel* chan)
 {
-    std::string pref;
-    std::string msg;
-    // 'k' 옵션은 args가 필수인데, args가 비어있음
-    // 이 에러는 원래 696 error code인데, rfc에 존재하지 않아서 임의로 지정한 메시지를 보냄
-    if (_args.empty())
-    {
-        pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
-        // overriding 필요
-        setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "k *"));
-        return ;
-    }
-    std::string pw_str = _args.front();
-    // flag가 true(+)이고, 이미 +k 모드가 아닐 때
-    if (flag == true && !(chan->getMode() & MODE_K))
-    {
-        chan->setMode(flag, MODE_K);
-        chan->setPasswd(pw_str);
-        pref = serv.generatePrefix(_sender, 0);
-        msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
-        setMsgs(chan->getTitle(), msg);
-    }
-    // flag가 flase(-)이고, 이미 -k 모드가 아닐 때
-    else if (flag == false && (chan->getMode() & MODE_K))
-    {
-        // 인자의 string이 설정된 비밀번호와 같을 때
-        if (chan->getPasswd() == pw_str)
-        {
-            chan->setMode(false, MODE_K);
-            pref = serv.generatePrefix(_sender, 0);
-            msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
-            setMsgs(chan->getTitle(), msg);
-        }
-        // 인자의 string과 설정된 비밀번호가 다를 때
-        else
-        {
-            pref = serv.generatePrefix(_sender, ERR_KEYSET);
-            setMsgs(_sender, _genProtoMsg(ERR_KEYSET, pref, chan->getTitle()));
-        }
-    }
-    _args.pop();
+	std::string pref;
+	std::string msg;
+	// 'k' 옵션은 args가 필수인데, args가 비어있음
+	// 이 에러는 원래 696 error code인데, rfc에 존재하지 않아서 임의로 지정한 메시지를 보냄
+	if (_args.empty())
+	{
+		pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+		// overriding 필요
+		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "k *"));
+		return ;
+	}
+	std::string pw_str = _args.front();
+	// flag가 true(+)이고, 이미 +k 모드가 아닐 때
+	if (flag == true && !(chan->getMode() & MODE_K))
+	{
+		chan->setMode(flag, MODE_K);
+		chan->setPasswd(pw_str);
+		pref = serv.generatePrefix(_sender, 0);
+		msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
+		setMsgs(chan->getTitle(), msg);
+	}
+	// flag가 flase(-)이고, 이미 -k 모드가 아닐 때
+	else if (flag == false && (chan->getMode() & MODE_K))
+	{
+		// 인자의 string이 설정된 비밀번호와 같을 때
+		if (chan->getPasswd() == pw_str)
+		{
+			chan->setMode(false, MODE_K);
+			pref = serv.generatePrefix(_sender, 0);
+			msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
+			setMsgs(chan->getTitle(), msg);
+		}
+		// 인자의 string과 설정된 비밀번호가 다를 때
+		else
+		{
+			pref = serv.generatePrefix(_sender, ERR_KEYSET);
+			setMsgs(_sender, _genProtoMsg(ERR_KEYSET, pref, chan->getTitle()));
+		}
+	}
+	_args.pop();
 }
 
 void Command::_iMode(bool flag, Server& serv, Channel* chan)
 {
-    std::string pref;
-    std::string msg;
+	std::string pref;
+	std::string msg;
 
-    // flag가 '+', 채널은 '-'인 상태 / 또는 flag가 '-', 채널은 '+'인 상태
-    if ((flag == true && !(chan->getMode() & MODE_I)) || \
-            (flag == false && (chan->getMode() & MODE_I)))
-    {
-        chan->setMode(flag, MODE_I);
-        pref = serv.generatePrefix(_sender, 0);
-        if (flag == true)
-            msg = pref + " MODE " + chan->getTitle() + " :+i";
-        else
-            msg = pref + " MODE " + chan->getTitle() + " :-i";
-        setMsgs(chan->getTitle(), msg);
-    }
+	// flag가 '+', 채널은 '-'인 상태 / 또는 flag가 '-', 채널은 '+'인 상태
+	if ((flag == true && !(chan->getMode() & MODE_I)) || \
+			(flag == false && (chan->getMode() & MODE_I)))
+	{
+		chan->setMode(flag, MODE_I);
+		pref = serv.generatePrefix(_sender, 0);
+		if (flag == true)
+			msg = pref + " MODE " + chan->getTitle() + " :+i";
+		else
+			msg = pref + " MODE " + chan->getTitle() + " :-i";
+		setMsgs(chan->getTitle(), msg);
+	}
 }
 
 void Command::_lMode(bool flag, Server& serv, Channel* chan)
 {
-    std::string pref;
-    std::string msg;
+	std::string pref;
+	std::string msg;
 
-    // flag가 '-'
-    if (flag == false && (chan->getMode() & MODE_L))
-    {
-        chan->setMode(flag, MODE_L);
-        pref = serv.generatePrefix(_sender, 0);
-        msg = pref + " MODE " + chan->getTitle() + " :-l";
-        setMsgs(chan->getTitle(), msg);
-    }
-    else if (flag == true)
-    {
-        // 인자가 없음
-        if (_args.empty())
-        {
-            pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
-            // overriding 필요
-            setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "l *"));
-            return ;
-        }
-        int limit_str = std::atoi(_args.front().c_str());
-        if (limit_str < 0)
-        {
-            // 특수한 케이스
-            pref = serv.generatePrefix(_sender, 696);
-            msg = pref + " " + chan->getTitle() + " l " + _args.front() + " :Invalid limit mode parameter. Syntax: <limit>.";
-            setMsgs(_sender, msg);
-        }
-        // flag가 +고, 현재 채널의 최대 유저수와 바꾸려는 값이 다름
-        // :seungjun!root@127.0.0.1 MODE #room0 +l :12
-        if (chan->getMaxClients() != limit_str)
-        {
-            chan->setMode(flag, MODE_L);
-            chan->setMaxClients(limit_str);
-            pref = serv.generatePrefix(_sender, 0);
-            msg = pref + " MODE " + chan->getTitle() + " +l :" + _args.front();
-            setMsgs(chan->getTitle(), msg);
-        }
-        _args.pop();
-    }
+	// flag가 '-'
+	if (flag == false && (chan->getMode() & MODE_L))
+	{
+		chan->setMode(flag, MODE_L);
+		pref = serv.generatePrefix(_sender, 0);
+		msg = pref + " MODE " + chan->getTitle() + " :-l";
+		setMsgs(chan->getTitle(), msg);
+	}
+	else if (flag == true)
+	{
+		// 인자가 없음
+		if (_args.empty())
+		{
+			pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+			// overriding 필요
+			setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "l *"));
+			return ;
+		}
+		int limit_str = std::atoi(_args.front().c_str());
+		if (limit_str < 0)
+		{
+			// 특수한 케이스
+			pref = serv.generatePrefix(_sender, 696);
+			msg = pref + " " + chan->getTitle() + " l " + _args.front() + " :Invalid limit mode parameter. Syntax: <limit>.";
+			setMsgs(_sender, msg);
+		}
+		// flag가 +고, 현재 채널의 최대 유저수와 바꾸려는 값이 다름
+		// :seungjun!root@127.0.0.1 MODE #room0 +l :12
+		if (chan->getMaxClients() != limit_str)
+		{
+			chan->setMode(flag, MODE_L);
+			chan->setMaxClients(limit_str);
+			pref = serv.generatePrefix(_sender, 0);
+			msg = pref + " MODE " + chan->getTitle() + " +l :" + _args.front();
+			setMsgs(chan->getTitle(), msg);
+		}
+		_args.pop();
+	}
 }
 
 void Command::_tMode(bool flag, Server& serv, Channel* chan)
 {
-    std::string pref;
-    std::string msg;
+	std::string pref;
+	std::string msg;
 
-    if ((flag == true && !(chan->getMode() & MODE_T)) || \
-                (flag == false && (chan->getMode() & MODE_T)))
-    {
-        chan->setMode(flag, MODE_T);
-        pref = serv.generatePrefix(_sender, 0);
-        if (flag == true)
-            msg = pref + " MODE " + chan->getTitle() + " :+t";
-        else
-            msg = pref + " MODE " + chan->getTitle() + " :-t";
-        setMsgs(chan->getTitle(), msg);
-    }
+	if ((flag == true && !(chan->getMode() & MODE_T)) || \
+				(flag == false && (chan->getMode() & MODE_T)))
+	{
+		chan->setMode(flag, MODE_T);
+		pref = serv.generatePrefix(_sender, 0);
+		if (flag == true)
+			msg = pref + " MODE " + chan->getTitle() + " :+t";
+		else
+			msg = pref + " MODE " + chan->getTitle() + " :-t";
+		setMsgs(chan->getTitle(), msg);
+	}
 }
 
 void Command::_oMode(bool flag, Server& serv, Channel* chan)
 {
-    std::vector< std::pair< bool, Client* > >::const_iterator clnt_list = chan->getClients().begin();
-    std::string pref;
-    std::string msg;
+	std::vector< std::pair< bool, Client* > >::const_iterator clnt_list = chan->getClients().begin();
+	std::string pref;
+	std::string msg;
 
-    // 전달받을 인자가 없음
-    if (_args.empty())
-    {
-        pref = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
-        setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, pref, chan->getTitle(), "k"));
-        return ;
-    }
-    //! target 탐색
-    while (clnt_list != chan->getClients().end())
-    {
-        if (_args.front() == clnt_list->second->getNickname())
-            break ;
-        clnt_list++;
-    }
-    //! target이 없음
-    if (clnt_list == chan->getClients().end())
-    {
-        pref = serv.generatePrefix(_sender, ERR_NOSUCHNICK);
-        setMsgs(_sender, _genProtoMsg(ERR_NOSUCHNICK, pref, _args.front()));
-        return ;
-    }
-    //* (1) flag는 true, target는 false
-    if (flag == true && clnt_list->first == false)
-    {   
-        chan->setOperator(true, _args.front());
-        pref = serv.generatePrefix(_sender, 0);
-        msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
-        setMsgs(chan->getTitle(), msg);
-    }
-    //* (2) flag는 false, target은 true
-    else if (flag == false && clnt_list->first == true)
-    {
-        chan->setOperator(false, _args.front());
-        pref = serv.generatePrefix(_sender, 0);
-        msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
-        setMsgs(chan->getTitle(), msg);
-    }
+	// 전달받을 인자가 없음
+	if (_args.empty())
+	{
+		pref = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
+		setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, pref, chan->getTitle(), "k"));
+		return ;
+	}
+	//! target 탐색
+	while (clnt_list != chan->getClients().end())
+	{
+		if (_args.front() == clnt_list->second->getNickname())
+			break ;
+		clnt_list++;
+	}
+	//! target이 없음
+	if (clnt_list == chan->getClients().end())
+	{
+		pref = serv.generatePrefix(_sender, ERR_NOSUCHNICK);
+		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHNICK, pref, _args.front()));
+		return ;
+	}
+	//* (1) flag는 true, target는 false
+	if (flag == true && clnt_list->first == false)
+	{   
+		chan->setOperator(true, _args.front());
+		pref = serv.generatePrefix(_sender, 0);
+		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
+		setMsgs(chan->getTitle(), msg);
+	}
+	//* (2) flag는 false, target은 true
+	else if (flag == false && clnt_list->first == true)
+	{
+		chan->setOperator(false, _args.front());
+		pref = serv.generatePrefix(_sender, 0);
+		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
+		setMsgs(chan->getTitle(), msg);
+	}
 }
 
 void Command::mode(Server& serv)
 {
-    std::string prefix;
-    // 인자가 부족함 (최소 1개의 인자 필요 <channel>)
-    if (_args.size() < 1)
-    {
-        prefix = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+	std::string prefix;
+	// 인자가 부족함 (최소 1개의 인자 필요 <channel>)
+	if (_args.size() < 1)
+	{
+		prefix = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix, "MODE"));
-        return ;
-    }
-    std::map< std::string, Channel* >::const_iterator chan_it = serv.getChannels().find(_args.front());
-    _args.pop();
-    // channel이 존재하지 않음
-    if (chan_it == serv.getChannels().end())
-    {
-        prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
-        setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_it->first));
-        return ;
-    }
-    std::vector< std::pair< bool, Client* > >::const_iterator chan_clnt_it = \
-        chan_it->second->getClients().begin();
-    while (1)
-    {
-        // channel에 속해있지 않음
-        if (chan_clnt_it == chan_it->second->getClients().end())
-        {
-            prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
-            setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, chan_it->first));
-            return ;
-        }
-        if (chan_clnt_it->second->getNickname() == _sender)
-        {
-            // channel에 존재하지만, operator가 아님
-            if (chan_clnt_it->first != true)
-            {
-                prefix = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
-                setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix, chan_it->first));
-                return ;
-            }
-            else
-                break ;
-        }
-        chan_clnt_it++;
-    }
-    std::queue< std::pair< bool, char > > flag_queue = getFlag(_args.front());
-    _args.pop();
-    while (!flag_queue.empty())
-    {
-        std::pair< bool, char > flag = flag_queue.front();
-        switch (flag.second)
-        {
-            case 'k':
-                _kMode(flag.first, serv, chan_it->second);
-                break ;
-            case 'l':
-                _lMode(flag.first, serv, chan_it->second);
-                break ;
-            case 'o':
-                _oMode(flag.first, serv, chan_it->second);
-                break ;
-            case 'i':
-                _iMode(flag.first, serv, chan_it->second);
-                break ;
-            case 't':
-                _tMode(flag.first, serv, chan_it->second);
-                break ;
-            default:
-                prefix = serv.generatePrefix(_sender, ERR_UNKNOWNMODE);
-                std::string token;
-                token += flag.second;
-                setMsgs(_sender, _genProtoMsg(ERR_UNKNOWNMODE, prefix, token));
-                break ;
-        }
-        flag_queue.pop();
-    }
+		return ;
+	}
+	std::map< std::string, Channel* >::const_iterator chan_it = serv.getChannels().find(_args.front());
+	_args.pop();
+	// channel이 존재하지 않음
+	if (chan_it == serv.getChannels().end())
+	{
+		prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
+		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_it->first));
+		return ;
+	}
+	std::vector< std::pair< bool, Client* > >::const_iterator chan_clnt_it = \
+		chan_it->second->getClients().begin();
+	while (1)
+	{
+		// channel에 속해있지 않음
+		if (chan_clnt_it == chan_it->second->getClients().end())
+		{
+			prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
+			setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, chan_it->first));
+			return ;
+		}
+		if (chan_clnt_it->second->getNickname() == _sender)
+		{
+			// channel에 존재하지만, operator가 아님
+			if (chan_clnt_it->first != true)
+			{
+				prefix = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
+				setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix, chan_it->first));
+				return ;
+			}
+			else
+				break ;
+		}
+		chan_clnt_it++;
+	}
+	std::queue< std::pair< bool, char > > flag_queue = getFlag(_args.front());
+	_args.pop();
+	while (!flag_queue.empty())
+	{
+		std::pair< bool, char > flag = flag_queue.front();
+		switch (flag.second)
+		{
+			case 'k':
+				_kMode(flag.first, serv, chan_it->second);
+				break ;
+			case 'l':
+				_lMode(flag.first, serv, chan_it->second);
+				break ;
+			case 'o':
+				_oMode(flag.first, serv, chan_it->second);
+				break ;
+			case 'i':
+				_iMode(flag.first, serv, chan_it->second);
+				break ;
+			case 't':
+				_tMode(flag.first, serv, chan_it->second);
+				break ;
+			default:
+				prefix = serv.generatePrefix(_sender, ERR_UNKNOWNMODE);
+				std::string token;
+				token += flag.second;
+				setMsgs(_sender, _genProtoMsg(ERR_UNKNOWNMODE, prefix, token));
+				break ;
+		}
+		flag_queue.pop();
+	}
 }

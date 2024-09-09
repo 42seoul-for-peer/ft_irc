@@ -157,3 +157,20 @@ std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args
         token_vec.push_back(token);
     return (token_vec);
 }
+
+const std::string& Command::appendRemaining()
+{
+    if (_args.empty())
+        return ("");
+
+    std::string leaving_msg;
+
+    while (!_args.empty())
+    {
+        leaving_msg += _args.front();
+        _args.pop();
+        if (!_args.empty())
+            leaving_msg += " ";
+    }
+    return (leaving_msg);
+}
