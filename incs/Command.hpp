@@ -66,7 +66,7 @@ class Command {
 	void	privmsg(Server& serv);
 	void	mode(Server& serv);
 	void	kick(Client& send_clnt, Server& serv);
-	void	part(Server& serv);
+	void	part(Client& send_clnt, Server& serv);
 	// void	invite();
 	// void	topic();
 	// void	quit();
@@ -85,7 +85,7 @@ class Command {
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
 
 	std::vector<std::string> _parsebyComma(std::queue<std::string>& _args);
-	const std::string& Command::appendRemaining();
+	const std::string _appendRemaining();
 };
 
 #endif

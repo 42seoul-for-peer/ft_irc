@@ -26,7 +26,7 @@ void Command::privmsg(Server& serv) {
 	std::map< std::string, Channel* >::const_iterator chnl;
 
 	_args.pop();
-	msg_content = appendRemaining();
+	msg_content = _appendRemaining();
 	if (msg_content.size() == 0) {
 		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
 		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
