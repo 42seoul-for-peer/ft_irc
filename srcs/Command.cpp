@@ -144,8 +144,7 @@ std::string	Command::execute() {
 	return (std::string("empty"));
 }
 
-std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args)
-{
+std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args) {
     std::vector<std::string>    token_vec;
 
 	if (_args.empty())
@@ -158,8 +157,7 @@ std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args
     return (token_vec);
 }
 
-const std::string& Command::appendRemaining()
-{
+const std::string& Command::appendRemaining() {
     if (_args.empty())
         return ("");
 
@@ -172,5 +170,11 @@ const std::string& Command::appendRemaining()
         if (!_args.empty())
             leaving_msg += " ";
     }
+
+	if (leaving_msg[0] == ':' && leaving_msg.size() > 1) {
+		leaving_msg = leaving_msg.substr(1);
+	else if (leaving_msg[0] == ':' && leaving_msg.size() == 1)
+		leaving_msg = "";
+
     return (leaving_msg);
 }
