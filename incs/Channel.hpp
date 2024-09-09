@@ -41,6 +41,7 @@ class Channel {
 	void setPasswd(std::string& str);
 	void setMaxClients(int& num);
 	void setMode(const bool& status, const int& changedMode);
+	void setOperator(const bool& status, const std::string& clnt_name);
 
 	// GETTER
 	const std::string& getTitle(void) const;

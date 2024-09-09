@@ -37,6 +37,22 @@ void Channel::setMode(const bool& status, const int& changedMode) {
     }
 }
 
+void Channel::setOperator(const bool& status, const std::string& clnt_name)
+{
+    int clnt_size = _clients.size();
+    int idx;
+    
+    for (idx = 0; idx < clnt_size; idx++)
+    {
+        if (_clients[idx].second->getNickname() == clnt_name)
+            break ;
+    }
+    if (idx == 0 || idx == clnt_size)
+        return ;
+    else
+        _clients[idx].first = status;
+}
+
 const std::string& Channel::getTitle(void) const {
     return (_title);
 }
