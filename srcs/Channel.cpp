@@ -73,6 +73,20 @@ const std::vector< std::pair< bool, Client* > >& Channel::getClients() const {
     return (_clients);
 }
 
+const std::string Channel::printClientsList(void) const {
+    std::string clients_list(0);
+
+    if (_clients.empty())
+        return (clients_list);
+    int size = _clients.size();
+    for (int i = 0; i < size; i++)
+    {
+        clients_list += _clients[i].second->getNickname();
+        if (i != size - 1)
+            clients_list += " ";
+    }
+    return (clients_list);
+}
 
 const int& Channel::getMaxClients(void) const {
     return (_max_clients);

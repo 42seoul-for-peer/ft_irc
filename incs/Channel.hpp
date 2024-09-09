@@ -53,6 +53,7 @@ class Channel {
 	const int& getMode(void) const;
 	
 	// HANDLING CLIENT
+	const std::string printClientsList(void) const;
 	void addClient(std::pair< bool, Client* > new_client);
 	void leaveClient(const Client& client);
 	void addInvitedClient(std::string& name);
