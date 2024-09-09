@@ -133,7 +133,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "PRIVMSG")
 		privmsg(serv);
 	else if (_cmd == "MODE")
-		mode(send_clnt, serv);
+		mode(serv);
 	else if (_cmd != "")
 		unknownCommand(send_clnt, serv);
 }

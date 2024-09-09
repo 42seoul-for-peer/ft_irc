@@ -64,7 +64,7 @@ class Command {
 	void	user(Client& send_clnt, Server& serv);
 	void	join(Client& send_clnt, Server& serv);
 	void	privmsg(Server& serv);
-	void	mode(Client& send_clnt, Server& serv);
+	void	mode(Server& serv);
 	void	kick(Client& send_clnt, Server& serv);
 	// void	invite();
 	// void	topic();

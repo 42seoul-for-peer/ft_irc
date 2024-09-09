@@ -233,16 +233,14 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
     }
 }
 
-void Command::mode(Client& send_clnt, Server& serv)
+void Command::mode(Server& serv)
 {
-    (void) send_clnt;
-    std::string pref;
-    std::string msg;
+    std::string prefix;
     // 인자가 부족함 (최소 1개의 인자 필요 <channel>)
     if (_args.size() < 1)
     {
-        pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
-		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, "MODE"));
+        prefix = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix, "MODE"));
         return ;
     }
     std::map< std::string, Channel* >::const_iterator chan_it = serv.getChannels().find(_args.front());
@@ -250,8 +248,8 @@ void Command::mode(Client& send_clnt, Server& serv)
     // channel이 존재하지 않음
     if (chan_it == serv.getChannels().end())
     {
-        pref = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
-        setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, pref, chan_it->first));
+        prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
+        setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_it->first));
         return ;
     }
     std::vector< std::pair< bool, Client* > >::const_iterator chan_clnt_it = \
@@ -261,8 +259,8 @@ void Command::mode(Client& send_clnt, Server& serv)
         // channel에 속해있지 않음
         if (chan_clnt_it == chan_it->second->getClients().end())
         {
-            pref = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
-            setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, pref, chan_it->first));
+            prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
+            setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, chan_it->first));
             return ;
         }
         if (chan_clnt_it->second->getNickname() == _sender)
@@ -270,8 +268,8 @@ void Command::mode(Client& send_clnt, Server& serv)
             // channel에 존재하지만, operator가 아님
             if (chan_clnt_it->first != true)
             {
-                pref = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
-                setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, pref, chan_it->first));
+                prefix = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
+                setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix, chan_it->first));
                 return ;
             }
             else
@@ -302,19 +300,12 @@ void Command::mode(Client& send_clnt, Server& serv)
                 _tMode(flag.first, serv, chan_it->second);
                 break ;
             default:
-                pref = serv.generatePrefix(_sender, ERR_UNKNOWNMODE);
+                prefix = serv.generatePrefix(_sender, ERR_UNKNOWNMODE);
                 std::string token;
                 token += flag.second;
-                setMsgs(_sender, _genProtoMsg(ERR_UNKNOWNMODE, pref, token));
+                setMsgs(_sender, _genProtoMsg(ERR_UNKNOWNMODE, prefix, token));
                 break ;
         }
         flag_queue.pop();
     }
 }
-
-/* MODE #room0 +kli-tasdf password 20
-!:irc.local 472 seungjun a :is not a recognised channel mode.
-!:irc.local 472 seungjun d :is not a recognised channel mode.
-!:irc.local 472 seungjun f :is not a recognised channel mode.
-!:seungjun!root@127.0.0.1 MODE #room0 +kli-t password :20
-*/
