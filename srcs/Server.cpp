@@ -169,7 +169,7 @@ void Server::sendMsgToClnt(Command& cmd)
 		}
 		msgs_it++;
 	}
-	//delete 해야 함
+	delete _commandQueue.front();
 	_commandQueue.pop();
 }
 
