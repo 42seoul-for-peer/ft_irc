@@ -28,18 +28,18 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	// 클라이언트가 충분한 파라미터를 전달하지 않음
 	if (_args.size() < 4)
 	{
-		prefix = serv.generatePrefix(send_nick, ERR_NEEDMOREPARAMS);
+		prefix = serv.genPrefix(send_nick, ERR_NEEDMOREPARAMS);
 		setMsgs(send_nick, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
 	// 이미 등록된 클라이언트임 (현재 판단 조건: username이 이미 존재함)
 	if (!send_clnt.getUsername().empty())
 	{
-		prefix = serv.generatePrefix(send_nick, ERR_ALREADYREGISTRED);
+		prefix = serv.genPrefix(send_nick, ERR_ALREADYREGISTRED);
 		setMsgs(send_nick, _genProtoMsg(ERR_ALREADYREGISTRED, prefix));
 		return ;
 	}
 	send_clnt.setUsername(_args.front());
-	prefix = serv.generatePrefix(send_nick, RPL_WELCOME);
+	prefix = serv.genPrefix(send_nick, RPL_WELCOME);
 	setMsgs(send_nick, _genProtoMsg(RPL_WELCOME, prefix));
 }

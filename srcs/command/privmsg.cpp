@@ -8,12 +8,12 @@ void Command::privmsg(Server& serv) {
 	std::string msg_content;
 
 	if (_args.empty()) {
-		prefix = serv.generatePrefix(_sender, ERR_NORECIPIENT);
+		prefix = serv.genPrefix(_sender, ERR_NORECIPIENT);
 		msg = _genProtoMsg(ERR_NORECIPIENT, prefix);
 		setMsgs(_sender, msg);
 		return ;
 	} else if (_args.size() < 2) {
-		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
+		prefix = serv.genPrefix(_sender, ERR_NOTEXTTOSEND);
 		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
 		setMsgs(_sender, msg);
 		return ;
@@ -28,7 +28,7 @@ void Command::privmsg(Server& serv) {
 	_args.pop();
 	msg_content = _appendRemaining();
 	if (msg_content.size() == 0) {
-		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
+		prefix = serv.genPrefix(_sender, ERR_NOTEXTTOSEND);
 		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
 		setMsgs(_sender, msg);
 		return ;
@@ -41,17 +41,17 @@ void Command::privmsg(Server& serv) {
 			if (chnl != serv.getChannels().end()) {
 				if (chnl->first == target) {
 					if (chnl->second->isChannelMember(_sender)) {
-						prefix = serv.generatePrefix(_sender, 0);
+						prefix = serv.genPrefix(_sender, 0);
 						msg = prefix + " " + _cmd + " " + target + " :" + msg_content + "\n";
 						setMsgs(target, msg);
 					} else {
-						prefix = serv.generatePrefix(_sender, ERR_CANNOTSENDTOCHAN);
+						prefix = serv.genPrefix(_sender, ERR_CANNOTSENDTOCHAN);
 						msg = _genProtoMsg(ERR_CANNOTSENDTOCHAN, prefix, target);
 						setMsgs(_sender, msg);
 					}
 				}
 			} else {
-				prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
+				prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
 				msg = _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, target);
 				setMsgs(_sender, msg);
 			}
@@ -59,7 +59,7 @@ void Command::privmsg(Server& serv) {
 			clnt = serv.getClients().begin();
 			while (clnt != serv.getClients().end()) {
 				if (clnt->second->getNickname() == target) {
-					prefix = serv.generatePrefix(target, 0);
+					prefix = serv.genPrefix(target, 0);
 					msg = prefix + " " + _cmd + " " + target + " :" + msg_content + "\n";
 					setMsgs(target, msg);
 					break;
@@ -67,7 +67,7 @@ void Command::privmsg(Server& serv) {
 				clnt++;
 			}
 			if (clnt == serv.getClients().end()) {
-				prefix = serv.generatePrefix(_sender, ERR_NOSUCHNICK);
+				prefix = serv.genPrefix(_sender, ERR_NOSUCHNICK);
 				msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
 				setMsgs(_sender, msg);
 			}

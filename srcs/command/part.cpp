@@ -12,7 +12,7 @@ void Command::part(Client& send_clnt, Server& serv)
 
 	if (_args.size() < 1)
 	{
-		prefix = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
@@ -29,7 +29,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		// 존재하지 않는 채널명
 		if (chan_it == chan_list.end())
 		{
-			prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
+			prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
 			setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, channels[i]));
 			continue ;
 		}
@@ -37,7 +37,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		std::vector< std::string > currChannelList = send_clnt.getCurrChannel();
 		if (std::find(currChannelList.begin(), currChannelList.end(), chan_it->first) == currChannelList.end())
 		{
-			prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
+			prefix = serv.genPrefix(_sender, ERR_NOTONCHANNEL);
 			setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, channels[i]));
 			continue ;
 		}
@@ -54,7 +54,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		}
 		else
 		{
-			prefix = serv.generatePrefix(_sender, 0);
+			prefix = serv.genPrefix(_sender, 0);
 			std::string msg = prefix + " PART " + chan_it->first + " :" + leaveMessage;
 			setMsgs(chan_it->first, msg);
 		}

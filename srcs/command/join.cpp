@@ -81,7 +81,7 @@ void Command::join(Client& send_clnt, Server& serv)
 
 	if (_args.size() < 1)
 	{
-		prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
+		prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
 		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
@@ -101,7 +101,7 @@ void Command::join(Client& send_clnt, Server& serv)
 		if (send_clnt.getCurrChannel().size() >= 10)
 		{
 			//! :irc.local 405 seungjun [channelname] :You are on too many channels
-			prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_TOOMANYCHANNELS);
+			prefix = serv.genPrefix(send_clnt.getNickname(), ERR_TOOMANYCHANNELS);
 			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_TOOMANYCHANNELS, prefix, titles[i]));
 			break ;
 			
@@ -110,7 +110,7 @@ void Command::join(Client& send_clnt, Server& serv)
 		// 또는, title의 길이가 200자를 초과함
 		if (titles[i][0] != '#' || titles[i].size() > 200)
 		{
-			prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NOSUCHCHANNEL);
+			prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NOSUCHCHANNEL);
 			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, titles[i]));
 			break ;
 		}
@@ -123,12 +123,12 @@ void Command::join(Client& send_clnt, Server& serv)
 			send_clnt.joinChannel(*new_channel);
 			serv.addNewChnl(new_channel);
 			// channel에게 보낼 메시지
-			setMsgs(titles[i], serv.generatePrefix(_sender, 0) + " JOIN :" + titles[i]);
-			prefix = serv.generatePrefix(_sender, RPL_NAMREPLY);
+			setMsgs(titles[i], serv.genPrefix(_sender, 0) + " JOIN :" + titles[i]);
+			prefix = serv.genPrefix(_sender, RPL_NAMREPLY);
 			msg = prefix + "= " + titles[i] + ":@" + new_channel->printClientsList();
 			// client에게 보낼 메시지
 			setMsgs(_sender, msg);
-			prefix = serv.generatePrefix(_sender, RPL_ENDOFNAMES);
+			prefix = serv.genPrefix(_sender, RPL_ENDOFNAMES);
 			msg = prefix + titles[i] + ":End of /NAMES list.";
 			setMsgs(_sender, msg);
 		}
@@ -142,7 +142,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				// 인자로 입력받은 key 값이 없거나 비밀번호가 다름
 				if (i > password_size - 1 || passwords[i] != chan_it->second->getPasswd())
 				{
-					prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_BADCHANNELKEY);
+					prefix = serv.genPrefix(send_clnt.getNickname(), ERR_BADCHANNELKEY);
 					setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_BADCHANNELKEY, prefix, titles[i]));
 					break ;
 				}
@@ -150,14 +150,14 @@ void Command::join(Client& send_clnt, Server& serv)
 				{
 					chan_it->second->addClient(std::make_pair(false, &send_clnt));
 					send_clnt.joinChannel(*chan_it->second);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), 0);
+					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.generatePrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_NAMREPLY);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
 					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
 					msg = prefix + chan_it->first + ":End of /NAMES list.";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
@@ -169,7 +169,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				// invited_list에 send_clnt의 username이 존재하지 않음
 				if (std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()) == invited_list.end())
 				{
-					prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_INVITEONLYCHAN);
+					prefix = serv.genPrefix(send_clnt.getNickname(), ERR_INVITEONLYCHAN);
 					setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_INVITEONLYCHAN, prefix, titles[i]));
 					break ;
 				}
@@ -180,14 +180,14 @@ void Command::join(Client& send_clnt, Server& serv)
 					send_clnt.joinChannel(*chan_it->second);
 					// invited_list에서 username 삭제
 					invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()));
-					prefix = serv.generatePrefix(send_clnt.getNickname(), 0);
+					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.generatePrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_NAMREPLY);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
 					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
 					msg = prefix + chan_it->first + ":End of /NAMES list.";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
@@ -198,7 +198,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				// 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼(초대 채널 상태였다가 해제된 경우)
 				if (static_cast<int>(chan_it->second->getClients().size()) >= chan_it->second->getMaxClients())
 				{
-					prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_CHANNELISFULL);
+					prefix = serv.genPrefix(send_clnt.getNickname(), ERR_CHANNELISFULL);
 					setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_CHANNELISFULL, prefix, titles[i]));
 					break ;
 				}
@@ -207,14 +207,14 @@ void Command::join(Client& send_clnt, Server& serv)
 					chan_it->second->addClient(std::make_pair(false, &send_clnt));
 					send_clnt.joinChannel(*chan_it->second);
 					
-					prefix = serv.generatePrefix(send_clnt.getNickname(), 0);
+					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.generatePrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_NAMREPLY);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
 					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
-					prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
+					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
 					msg = prefix + chan_it->first + ":End of /NAMES list.";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
@@ -224,14 +224,14 @@ void Command::join(Client& send_clnt, Server& serv)
 			{
 				chan_it->second->addClient(std::make_pair(false, &send_clnt));
 				send_clnt.joinChannel(*chan_it->second);
-				prefix = serv.generatePrefix(send_clnt.getNickname(), 0);
+				prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 				// channel에게 보낼 메시지
-				setMsgs(chan_it->first, serv.generatePrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
-				prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_NAMREPLY);
+				setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+				prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
 				msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
 				// client에게 보낼 메시지
 				setMsgs(send_clnt.getNickname(), msg);
-				prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
+				prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
 				msg = prefix + chan_it->first + ":End of /NAMES list.";
 				setMsgs(send_clnt.getNickname(), msg);
 			}

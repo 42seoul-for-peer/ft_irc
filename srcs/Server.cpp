@@ -193,7 +193,7 @@ void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 		disconnectClnt(dest_fd);
 }
 
-std::string Server::generatePrefix(const std::string& sender, int rpl) {
+std::string Server::genPrefix(const std::string& sender, int rpl) {
 	std::string outBuf = ":";
 	std::stringstream ss;
 	ss << std::setw(3) << std::setfill('0') << rpl;

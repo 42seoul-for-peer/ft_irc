@@ -70,7 +70,7 @@ void Command::_kMode(bool flag, Server& serv, Channel* chan)
 	// 이 에러는 원래 696 error code인데, rfc에 존재하지 않아서 임의로 지정한 메시지를 보냄
 	if (_args.empty())
 	{
-		pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+		pref = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 		// overriding 필요
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "k *"));
 		return ;
@@ -81,7 +81,7 @@ void Command::_kMode(bool flag, Server& serv, Channel* chan)
 	{
 		chan->setMode(flag, MODE_K);
 		chan->setPasswd(pw_str);
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
 		setMsgs(chan->getTitle(), msg);
 	}
@@ -92,14 +92,14 @@ void Command::_kMode(bool flag, Server& serv, Channel* chan)
 		if (chan->getPasswd() == pw_str)
 		{
 			chan->setMode(false, MODE_K);
-			pref = serv.generatePrefix(_sender, 0);
+			pref = serv.genPrefix(_sender, 0);
 			msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
 			setMsgs(chan->getTitle(), msg);
 		}
 		// 인자의 string과 설정된 비밀번호가 다를 때
 		else
 		{
-			pref = serv.generatePrefix(_sender, ERR_KEYSET);
+			pref = serv.genPrefix(_sender, ERR_KEYSET);
 			setMsgs(_sender, _genProtoMsg(ERR_KEYSET, pref, chan->getTitle()));
 		}
 	}
@@ -116,7 +116,7 @@ void Command::_iMode(bool flag, Server& serv, Channel* chan)
 			(flag == false && (chan->getMode() & MODE_I)))
 	{
 		chan->setMode(flag, MODE_I);
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		if (flag == true)
 			msg = pref + " MODE " + chan->getTitle() + " :+i";
 		else
@@ -134,7 +134,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 	if (flag == false && (chan->getMode() & MODE_L))
 	{
 		chan->setMode(flag, MODE_L);
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		msg = pref + " MODE " + chan->getTitle() + " :-l";
 		setMsgs(chan->getTitle(), msg);
 	}
@@ -143,7 +143,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 		// 인자가 없음
 		if (_args.empty())
 		{
-			pref = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+			pref = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 			// overriding 필요
 			setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, pref, chan->getTitle(), "l *"));
 			return ;
@@ -152,7 +152,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 		if (limit_str < 0)
 		{
 			// 특수한 케이스
-			pref = serv.generatePrefix(_sender, 696);
+			pref = serv.genPrefix(_sender, 696);
 			msg = pref + " " + chan->getTitle() + " l " + _args.front() + " :Invalid limit mode parameter. Syntax: <limit>.";
 			setMsgs(_sender, msg);
 		}
@@ -162,7 +162,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 		{
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
-			pref = serv.generatePrefix(_sender, 0);
+			pref = serv.genPrefix(_sender, 0);
 			msg = pref + " MODE " + chan->getTitle() + " +l :" + _args.front();
 			setMsgs(chan->getTitle(), msg);
 		}
@@ -179,7 +179,7 @@ void Command::_tMode(bool flag, Server& serv, Channel* chan)
 				(flag == false && (chan->getMode() & MODE_T)))
 	{
 		chan->setMode(flag, MODE_T);
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		if (flag == true)
 			msg = pref + " MODE " + chan->getTitle() + " :+t";
 		else
@@ -197,7 +197,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	// 전달받을 인자가 없음
 	if (_args.empty())
 	{
-		pref = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
+		pref = serv.genPrefix(_sender, ERR_CHANOPRIVSNEEDED);
 		setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, pref, chan->getTitle(), "k"));
 		return ;
 	}
@@ -211,7 +211,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	//! target이 없음
 	if (clnt_list == chan->getClients().end())
 	{
-		pref = serv.generatePrefix(_sender, ERR_NOSUCHNICK);
+		pref = serv.genPrefix(_sender, ERR_NOSUCHNICK);
 		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHNICK, pref, _args.front()));
 		return ;
 	}
@@ -219,7 +219,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	if (flag == true && clnt_list->first == false)
 	{   
 		chan->setOperator(true, _args.front());
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
 		setMsgs(chan->getTitle(), msg);
 	}
@@ -227,7 +227,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	else if (flag == false && clnt_list->first == true)
 	{
 		chan->setOperator(false, _args.front());
-		pref = serv.generatePrefix(_sender, 0);
+		pref = serv.genPrefix(_sender, 0);
 		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
 		setMsgs(chan->getTitle(), msg);
 	}
@@ -239,7 +239,7 @@ void Command::mode(Server& serv)
 	// 인자가 부족함 (최소 1개의 인자 필요 <channel>)
 	if (_args.size() < 1)
 	{
-		prefix = serv.generatePrefix(_sender, ERR_NEEDMOREPARAMS);
+		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix, "MODE"));
 		return ;
 	}
@@ -248,7 +248,7 @@ void Command::mode(Server& serv)
 	// channel이 존재하지 않음
 	if (chan_it == serv.getChannels().end())
 	{
-		prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
+		prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
 		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_it->first));
 		return ;
 	}
@@ -259,7 +259,7 @@ void Command::mode(Server& serv)
 		// channel에 속해있지 않음
 		if (chan_clnt_it == chan_it->second->getClients().end())
 		{
-			prefix = serv.generatePrefix(_sender, ERR_NOTONCHANNEL);
+			prefix = serv.genPrefix(_sender, ERR_NOTONCHANNEL);
 			setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix, chan_it->first));
 			return ;
 		}
@@ -268,7 +268,7 @@ void Command::mode(Server& serv)
 			// channel에 존재하지만, operator가 아님
 			if (chan_clnt_it->first != true)
 			{
-				prefix = serv.generatePrefix(_sender, ERR_CHANOPRIVSNEEDED);
+				prefix = serv.genPrefix(_sender, ERR_CHANOPRIVSNEEDED);
 				setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix, chan_it->first));
 				return ;
 			}
@@ -300,7 +300,7 @@ void Command::mode(Server& serv)
 				_tMode(flag.first, serv, chan_it->second);
 				break ;
 			default:
-				prefix = serv.generatePrefix(_sender, ERR_UNKNOWNMODE);
+				prefix = serv.genPrefix(_sender, ERR_UNKNOWNMODE);
 				std::string token;
 				token += flag.second;
 				setMsgs(_sender, _genProtoMsg(ERR_UNKNOWNMODE, prefix, token));
