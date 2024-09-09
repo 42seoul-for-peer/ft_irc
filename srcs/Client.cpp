@@ -9,7 +9,7 @@ Client::~Client() {
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock), _is_registered(false) {}
+: _sock_fd(clientSock), _is_registered(false), _nickname("*") {}
 
 const int& Client::getSockFd(void) const {
 	return (_sock_fd);
