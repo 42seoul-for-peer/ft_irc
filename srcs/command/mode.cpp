@@ -62,7 +62,7 @@ std::queue< std::pair< bool, char > > getFlag(const std::string& string)
     return (flag_queue);
 }
 
-void Command::kMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
+void Command::_kMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
 {
     std::string pref;
     std::string msg;
@@ -113,7 +113,7 @@ void Command::kMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
     _args.pop();
 }
 
-void Command::iMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
+void Command::_iMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
 {
     std::string pref;
     std::string msg;
@@ -133,7 +133,7 @@ void Command::iMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
     }
 }
 
-void Command::lMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
+void Command::_lMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
 {
     std::string pref;
     std::string msg;
@@ -174,7 +174,7 @@ void Command::lMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
     }
 }
 
-void Command::tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
+void Command::_tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
 {
     std::string pref;
     std::string msg;
@@ -193,7 +193,7 @@ void Command::tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
     }
 }
 
-void Command::oMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
+void Command::_oMode(bool flag, Client& send_clnt, Server& serv, Channel* chan)
 {
     std::vector< std::pair< bool, Client* > >::const_iterator clnt_list = chan->getClients().begin();
     Client*     target;
