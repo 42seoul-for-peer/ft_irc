@@ -74,11 +74,11 @@ class Command {
 	void	unknownCommand(Client& send_clnt, Server& serv);
 
  private:
-	void	_kMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
-	void	_iMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
-	void	_lMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
-	void	_tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
-	void	_oMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+	void	_kMode(bool flag, Server& serv, Channel* chan);
+	void	_iMode(bool flag, Server& serv, Channel* chan);
+	void	_lMode(bool flag, Server& serv, Channel* chan);
+	void	_tMode(bool flag, Server& serv, Channel* chan);
+	void	_oMode(bool flag, Server& serv, Channel* chan);
 
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
