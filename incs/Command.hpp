@@ -83,6 +83,8 @@ class Command {
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
+
+	std::vector<std::string> _parsebyComma(std::queue<std::string>& _args);
 };
 
 #endif
