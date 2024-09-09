@@ -173,7 +173,6 @@ void Server::sendMsgToClnt(Command& cmd)
 	_commandQueue.pop();
 }
 
-//일단 getProtoMsg 완성전까지 임시로,, 이후 리팩토링 필요
 void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 	int			dest_fd;
 	int			result;
@@ -188,6 +187,10 @@ void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 			std::cout << ">> Send msg to " << recv << ":\n\t" << msg << "\n\n";
 		}
 	}
+
+	Client* clnt = getClient(dest_fd);
+	if (!clnt->getConnected)
+		disconnectClnt(dest_fd);
 }
 
 std::string Server::generatePrefix(const std::string& sender, int rpl) {
