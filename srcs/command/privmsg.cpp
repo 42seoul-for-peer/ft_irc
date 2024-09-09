@@ -42,7 +42,7 @@ void Command::privmsg(Server& serv) {
 				if (chnl->first == target) {
 					if (chnl->second->isChannelMember(_sender)) {
 						prefix = serv.generatePrefix(_sender, 0);
-						msg = prefix + " " + _cmd + " " + target + " :" + msg_content;
+						msg = prefix + " " + _cmd + " " + target + " :" + msg_content + "\n";
 						setMsgs(target, msg);
 					} else {
 						prefix = serv.generatePrefix(_sender, ERR_CANNOTSENDTOCHAN);
@@ -60,7 +60,7 @@ void Command::privmsg(Server& serv) {
 			while (clnt != serv.getClients().end()) {
 				if (clnt->second->getNickname() == target) {
 					prefix = serv.generatePrefix(target, 0);
-					msg = prefix + " " + _cmd + " " + target + " :" + msg_content;
+					msg = prefix + " " + _cmd + " " + target + " :" + msg_content + "\n";
 					setMsgs(target, msg);
 					break;
 				}
