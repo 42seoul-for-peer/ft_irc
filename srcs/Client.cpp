@@ -9,7 +9,7 @@ Client::~Client() {
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock), _is_registered(false), _is_passwd_correct(false),
+: _sock_fd(clientSock), _is_registered(false), _connected(false),
 _username("*"), _nickname("*") {}
 
 int   Client::getSockFd(void) const {
@@ -20,8 +20,8 @@ bool	Client::getIsRegistered(void) const {
     return (_is_registered);
 }
 
-bool	Client::getIsPasswdCorrect(void) const {
-    return (_is_passwd_correct);
+bool	Client::getConnected(void) const {
+    return (_connected);
 }
 
 const std::vector< std::string >&   Client::getCurrChannel(void) const {
@@ -40,8 +40,8 @@ void	Client::setIsRegistered(void) {
     _is_registered = true;
 }
 
-void    Client::setIsPasswdCorrect(void) {
-    _is_passwd_correct = true;
+void    Client::setConnected(bool flag) {
+    _connected = flag;
 }
 
 void	Client::setUsername(std::string& str) {

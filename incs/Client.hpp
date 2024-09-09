@@ -22,7 +22,7 @@ class Client {
  private:
 	int 		_sock_fd;
 	bool		_is_registered;
-	bool		_is_passwd_correct;
+	bool		_connected;
 	std::string _username;
 	std::string _nickname;
 	std::vector< std::string > _curr_channel;
@@ -32,14 +32,14 @@ class Client {
 	// GETTER
 	int 			getSockFd(void) const;
 	bool			getIsRegistered(void) const;
-	bool			getIsPasswdCorrect(void) const;
+	bool			getConnected(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
 	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
 	void	setIsRegistered(void);
-	void	setIsPasswdCorrect(void);
+	void	setConnected(bool flag);
 	void	setUsername(std::string& str);
 	void	setNickname(std::string& str);
 
