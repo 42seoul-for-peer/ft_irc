@@ -1,8 +1,7 @@
 #include "Command.hpp"
 #include <string>
 
-void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아도 됨 여기는 ..
-	(void) send_clnt;
+void Command::privmsg(Server& serv) {
 
 	std::string prefix;
 	std::string msg;
