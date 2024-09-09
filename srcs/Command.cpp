@@ -131,7 +131,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "JOIN")
 		join(send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
-		privmsg(send_clnt, serv);
+		privmsg(serv);
 	else if (_cmd == "MODE")
 		mode(send_clnt, serv);
 	else if (_cmd != "")
@@ -145,7 +145,7 @@ std::string	Command::execute() {
 std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args)
 {
     std::vector<std::string>    token_vec;
-	
+
 	if (_args.empty())
 		return (std::vector< std::string >(0));
     std::stringstream           stream(_args.front());

@@ -54,13 +54,13 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 						msg = prefix + " " + _cmd + " " + target + " :" + msg_content;
 						setMsgs(target, msg);
 					} else {
-						prefix = serv.generatePrefix(_sender, ERR_CANNOTSENDTOCHAN, 0);
-						msg = getErrMsg(ERR_CANNOTSENDTOCHAN, prefix, target);
+						prefix = serv.generatePrefix(_sender, ERR_CANNOTSENDTOCHAN);
+						msg = _genProtoMsg(ERR_CANNOTSENDTOCHAN, prefix, target);
 						setMsgs(_sender, msg);
 					}
 				}
 			} else {
-				prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL, 0);
+				prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL);
 				msg = _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, target);
 				setMsgs(_sender, msg);
 			}
@@ -76,7 +76,7 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 				clnt++;
 			}
 			if (clnt == serv.getClients().end()) {
-				prefix = serv.generatePrefix(_sender, ERR_NOSUCHNICK, 0);
+				prefix = serv.generatePrefix(_sender, ERR_NOSUCHNICK);
 				msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
 				setMsgs(_sender, msg);
 			}
