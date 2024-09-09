@@ -66,9 +66,9 @@ class Command {
 	void	privmsg(Server& serv);
 	void	mode(Server& serv);
 	void	kick(Client& send_clnt, Server& serv);
+	void	part(Server& serv);
 	// void	invite();
 	// void	topic();
-	// void	part();
 	// void	quit();
 	// void	ping();
 	void	unknownCommand(Client& send_clnt, Server& serv);
