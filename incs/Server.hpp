@@ -66,6 +66,7 @@ class Server {
 	void	addNewClnt(int clnt_fd, Client* clnt);
 	void	deleteClnt(int clnt_fd);
 	void	addNewChnl(Channel* chnl);
+	void	deleteChnl(Channel* chnl);
 
 	// getter
 	int											getPort() const;

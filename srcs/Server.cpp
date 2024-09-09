@@ -189,7 +189,7 @@ void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 	}
 
 	Client* clnt = getClient(dest_fd);
-	if (!clnt->getConnected)
+	if (!clnt->getConnected())
 		disconnectClnt(dest_fd);
 }
 
@@ -247,6 +247,12 @@ void	Server::deleteClnt(int clnt_fd) {
 
 void	Server::addNewChnl(Channel* chnl) {
 	_channels.insert(std::make_pair(chnl->getTitle(), chnl));
+}
+
+void	Server::deleteChnl(Channel* chnl) {
+	std::string chnl_name = chnl->getTitle();
+	delete chnl;
+	_channels.erase(_channels.find(chnl_name));
 }
 
 // getter
