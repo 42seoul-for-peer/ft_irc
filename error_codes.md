@@ -3,7 +3,7 @@
 
 | Error Number | Error Name             | Error Message                                   |
 |:------------:|------------------------|-------------------------------------------------|
-| 401          | ERR_NOSUCHNICK         | "<nickname> :No such nick/channel"             |X(mode) O(privmsg)
+| 401          | ERR_NOSUCHNICK         | "<nickname> :No such nick/channel"             |O(mode) O(privmsg)
 | 403          | ERR_NOSUCHCHANNEL      | "<channel name> :No such channel"              |O	O(privmsg)
 | 404          | ERR_CANNOTSENDTOCHAN   | "<channel name> :Cannot send to channel"       |O(privmsg)
 | 405          | ERR_TOOMANYCHANNELS    | "<channel name> :You have joined too many channels" |O
