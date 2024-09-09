@@ -90,13 +90,14 @@ std::vector<std::string> parsebyComma(std::queue< std::string >& _args)
 
 void Command::join(Client& send_clnt, Server& serv)
 {
+	std::string	prefix;
+	std::string	msg;
     if (_args.size() < 1)
     {
-        //! ERR_NEEDMOREPARAMS<461>   -> "<command> :Not enough parameters"
-		std::string pref = serv.generatePrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
-		std::string msg = _genProtoMsg(ERR_NEEDMOREPARAMS, pref);
-		// setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, pref, send_clnt.getNickname()));
-		// _receiver.insert(make_pair(send_clnt.getNickname(), ERR_NEEDMOREPARAMS));
+		prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
+		msg = _genProtoMsg(ERR_NEEDMOREPARAMS, prefix);
+		std::string msg(_genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
+		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
     }
 
