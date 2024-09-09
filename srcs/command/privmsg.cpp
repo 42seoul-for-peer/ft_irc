@@ -10,12 +10,12 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 
 	if (_args.empty()) {
 		prefix = serv.generatePrefix(_sender, ERR_NORECIPIENT);
-		msg = _genProtoMsg(ERR_NORECIPIENT, prefix, _sender);
+		msg = _genProtoMsg(ERR_NORECIPIENT, prefix);
 		setMsgs(_sender, msg);
 		return ;
 	} else if (_args.size() < 2) {
 		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
-		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix, _sender);
+		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
 		setMsgs(_sender, msg);
 		return ;
 	}
@@ -38,7 +38,7 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 		msg_content = msg_content.substr(1);
 	} else if (msg_content[0] == ':' && msg_content.size() == 0) {
 		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
-		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix, _sender);
+		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
 		setMsgs(_sender, msg);
 		return ;
 	}
@@ -55,13 +55,13 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 						setMsgs(target, msg);
 					} else {
 						prefix = serv.generatePrefix(_sender, ERR_CANNOTSENDTOCHAN, 0);
-						msg = getErrMsg(ERR_CANNOTSENDTOCHAN, prefix, _sender, target);
+						msg = getErrMsg(ERR_CANNOTSENDTOCHAN, prefix, target);
 						setMsgs(_sender, msg);
 					}
 				}
 			} else {
 				prefix = serv.generatePrefix(_sender, ERR_NOSUCHCHANNEL, 0);
-				msg = _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, _sender, target);
+				msg = _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, target);
 				setMsgs(_sender, msg);
 			}
 		} else {
@@ -69,7 +69,7 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 			while (clnt != serv.getClients().end()) {
 				if (clnt->second->getNickname() == target) {
 					prefix = serv.generatePrefix(target, 0);
-					msg = _genProtoMsg(0, prefix, target, msg_content);
+					msg = prefix + " " + _cmd + " " + target + " :" + msg_content;
 					setMsgs(target, msg);
 					break;
 				}
@@ -77,7 +77,7 @@ void Command::privmsg(Client& send_clnt, Server& serv) {  // send clnt 안받아
 			}
 			if (clnt == serv.getClients().end()) {
 				prefix = serv.generatePrefix(_sender, ERR_NOSUCHNICK, 0);
-				msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, _sender, target);
+				msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
 				setMsgs(_sender, msg);
 			}
 		}
