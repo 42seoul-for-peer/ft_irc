@@ -9,44 +9,53 @@ Client::~Client() {
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock), _is_registered(false), _nickname("*") {}
+: _sock_fd(clientSock), _is_registered(false), _nickname("*"),
+_is_passwd_correct(false), _username("*") {}
 
-const int& Client::getSockFd(void) const {
+const int   Client::getSockFd(void) const {
 	return (_sock_fd);
 }
 
-const std::vector< std::string > Client::getCurrChannel(void) const {
+const std::vector< std::string >&   Client::getCurrChannel(void) const {
     return (_curr_channel);
 }
 
-const std::string& Client::getUsername(void) const {
+const std::string&	Client::getUsername(void) const {
     return (_username);
 }
 
-const std::string& Client::getNickname(void) const {
+const std::string&	Client::getNickname(void) const {
     return (_nickname);
 }
 
-const bool& Client::getIsRegistered(void) const {
+const bool	Client::getIsRegistered(void) const {
     return (_is_registered);
 }
 
-void Client::setUsername(std::string& str) {
+const bool	Client::getIsPasswdCorrect(void) const {
+    return (_is_passwd_correct);
+}
+
+void	Client::setUsername(std::string& str) {
     _username = str;
 }
 
-void Client::setNickname(std::string& str) {
+void	Client::setNickname(std::string& str) {
     _nickname = str;
 }
 
-void Client::setRegistered(void) {
+void	Client::setIsRegistered(void) {
     _is_registered = true;
 }
 
-void Client::joinChannel(const Channel& channel) {
+void    Client::setIsPasswdCorrect(void) {
+    _is_passwd_correct = true;
+}
+
+void	Client::joinChannel(const Channel& channel) {
 	_curr_channel.push_back(channel.getTitle());
 }
 
-void Client::leaveChannel(const Channel& channel) {
+void	Client::leaveChannel(const Channel& channel) {
 	_curr_channel.erase(std::find(_curr_channel.begin(), _curr_channel.end(), channel.getTitle()));
 }
