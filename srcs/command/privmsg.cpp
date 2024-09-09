@@ -26,16 +26,8 @@ void Command::privmsg(Server& serv) {
 	std::map< std::string, Channel* >::const_iterator chnl;
 
 	_args.pop();
-	while (!_args.empty()) {
-		msg_content += _args.front();
-		if (_args.size() > 1)
-			msg_content += " ";
-		_args.pop();
-	}
-
-	if (msg_content[0] == ':' && msg_content.size() > 1) {
-		msg_content = msg_content.substr(1);
-	} else if (msg_content[0] == ':' && msg_content.size() == 0) {
+	msg_content = appendRemaining();
+	if (msg_content.size() == 0) {
 		prefix = serv.generatePrefix(_sender, ERR_NOTEXTTOSEND);
 		msg = _genProtoMsg(ERR_NOTEXTTOSEND, prefix);
 		setMsgs(_sender, msg);
