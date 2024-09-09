@@ -21,12 +21,12 @@ TODO
 todo 해야 하는 것
 ? * 성공
 * 채널이 존재하지 않음
-    - 채널이 새로 생김
-    - client가 채널에 속하게 됨
-    - client가 채널의 operator가 됨
+	- 채널이 새로 생김
+	- client가 채널에 속하게 됨
+	- client가 채널의 operator가 됨
 * 채널이 존재했음
-    - 채널에 접속함(새로 생성된 것은 아님)
-    - client가 채널에 속하게 됨
+	- 채널에 접속함(새로 생성된 것은 아님)
+	- client가 채널에 속하게 됨
 
 ! * 실패/오류
 * asdf
@@ -46,14 +46,14 @@ O (8) ERR_TOOMANYCHANNELS<405>  -> "<channel name> :You have joined too many cha
 * (11) RPL_NAMREPLY<353>		-> "<channel> :[[@|+]<nick> [[@|+]<nick> [...]]]"
 * (12) RPL_ENDOFNAMES<366>		-> "<channel> :End of /NAMES list"
 To reply to a NAMES message, a reply pair consisting
-                  of RPL_NAMREPLY and RPL_ENDOFNAMES is sent by the
-                  server back to the client.  If there is no channel
-                  found as in the query, then only RPL_ENDOFNAMES is
-                  returned.  The exception to this is when a NAMES
-                  message is sent with no parameters and all visible
-                  channels and contents are sent back in a series of
-                  RPL_NAMEREPLY messages with a RPL_ENDOFNAMES to mark
-                  the end.
+				  of RPL_NAMREPLY and RPL_ENDOFNAMES is sent by the
+				  server back to the client.  If there is no channel
+				  found as in the query, then only RPL_ENDOFNAMES is
+				  returned.  The exception to this is when a NAMES
+				  message is sent with no parameters and all visible
+				  channels and contents are sent back in a series of
+				  RPL_NAMEREPLY messages with a RPL_ENDOFNAMES to mark
+				  the end.
 
 * 채널의 이름은 '&' 또는 '#'로 시작하는 200자 이하의 string입니다.
 * 첫 번째 문자가 '&' 또는 '#' 이어야 한다는 것 외의 요구사항은
@@ -79,24 +79,24 @@ void Command::join(Client& send_clnt, Server& serv)
 	std::string	prefix;
 	std::string msg;
 
-    if (_args.size() < 1)
-    {
+	if (_args.size() < 1)
+	{
 		prefix = serv.generatePrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
 		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
-    }
+	}
 
-    std::vector<std::string> titles = _parsebyComma(_args);
+	std::vector<std::string> titles = _parsebyComma(_args);
 	_args.pop();
-    std::vector<std::string> passwords = _parsebyComma(_args);
-    const int title_size = titles.size();
-    const int password_size = passwords.size();
+	std::vector<std::string> passwords = _parsebyComma(_args);
+	const int title_size = titles.size();
+	const int password_size = passwords.size();
 
-    std::map< std::string, Channel* > chan_list = serv.getChannels();
-    std::map< std::string, Channel* >::iterator chan_it;
+	std::map< std::string, Channel* > chan_list = serv.getChannels();
+	std::map< std::string, Channel* >::iterator chan_it;
 
-    for (int i = 0; i < title_size; i++)
-    {
+	for (int i = 0; i < title_size; i++)
+	{
 		// 클라이언트가 현재 접속한 채널의 수가 10개 이상임
 		if (send_clnt.getCurrChannel().size() >= 10)
 		{
@@ -114,27 +114,27 @@ void Command::join(Client& send_clnt, Server& serv)
 			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, titles[i]));
 			break ;
 		}
-        // titles[i]이 channel list에 있는지 찾음
-        chan_it = chan_list.find(titles[i]);
-        // 채널이 존재하지 않음 (신규 생성)
-        if (chan_it == chan_list.end())
-        {
-            Channel* new_channel = new Channel(titles[i], &send_clnt);
+		// titles[i]이 channel list에 있는지 찾음
+		chan_it = chan_list.find(titles[i]);
+		// 채널이 존재하지 않음 (신규 생성)
+		if (chan_it == chan_list.end())
+		{
+			Channel* new_channel = new Channel(titles[i], &send_clnt);
 			send_clnt.joinChannel(*new_channel);
 			serv.addNewChnl(new_channel);
 			// channel에게 보낼 메시지
-			setMsgs(chan_it->first, serv.generatePrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
-			prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_NAMREPLY);
-			msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
+			setMsgs(titles[i], serv.generatePrefix(_sender, 0) + " JOIN :" + titles[i]);
+			prefix = serv.generatePrefix(_sender, RPL_NAMREPLY);
+			msg = prefix + "= " + titles[i] + ":@" + new_channel->printClientsList();
 			// client에게 보낼 메시지
-			setMsgs(send_clnt.getNickname(), msg);
-			prefix = serv.generatePrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
-			msg = prefix + chan_it->first + ":End of /NAMES list.";
-			setMsgs(send_clnt.getNickname(), msg);
-        }
-        // 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
-        else
-        {
+			setMsgs(_sender, msg);
+			prefix = serv.generatePrefix(_sender, RPL_ENDOFNAMES);
+			msg = prefix + titles[i] + ":End of /NAMES list.";
+			setMsgs(_sender, msg);
+		}
+		// 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
+		else
+		{
 			const int chan_mode = chan_it->second->getMode();
 			// key가 필요한 채널
 			if (chan_mode & MODE_K)
@@ -235,6 +235,6 @@ void Command::join(Client& send_clnt, Server& serv)
 				msg = prefix + chan_it->first + ":End of /NAMES list.";
 				setMsgs(send_clnt.getNickname(), msg);
 			}
-        }
-    }    
+		}
+	}    
 }

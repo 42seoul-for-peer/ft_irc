@@ -74,10 +74,10 @@ const std::vector< std::pair< bool, Client* > >& Channel::getClients() const {
 }
 
 const std::string Channel::printClientsList(void) const {
-    std::string clients_list(0);
+    std::string clients_list;
 
     if (_clients.empty())
-        return (clients_list);
+        return ("");
     int size = _clients.size();
     for (int i = 0; i < size; i++)
     {
