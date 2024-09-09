@@ -23,25 +23,25 @@ class Client {
 	int 		_sock_fd;
 	bool		_is_registered;
 	bool		_is_passwd_correct;
-	std::string	_username;
+	std::string _username;
 	std::string _nickname;
 	std::vector< std::string > _curr_channel;
 
 // MEMBER FUNCTION
  public:
 	// GETTER
-	const int 			getSockFd(void) const;
-	const bool			getIsRegistered(void) const;
-	const bool			getIsPasswdCorrect(void) const;
+	int 			getSockFd(void) const;
+	bool			getIsRegistered(void) const;
+	bool			getIsPasswdCorrect(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
 	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
-	void	setUsername(std::string& str);
-	void	setNickname(std::string& str);
 	void	setIsRegistered(void);
 	void	setIsPasswdCorrect(void);
+	void	setUsername(std::string& str);
+	void	setNickname(std::string& str);
 
 	// HANDLING CHANNEL
 	void	joinChannel(const Channel& channel);
