@@ -22,7 +22,7 @@ void	Command::pass(Client& send_clnt, Server& serv) {
 			setMsgs(send_nick, _genProtoMsg(ERR_PASSWDMISMATCH, prefix));
 			return ;
 		}
-		send_clnt.setRegistered();
+		send_clnt.setIsRegistered();
 	}
 	else {
 		prefix = serv.generatePrefix(send_nick, ERR_ALREADYREGISTRED);

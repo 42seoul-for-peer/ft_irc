@@ -134,8 +134,10 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		privmsg(serv);
 	else if (_cmd == "MODE")
 		mode(serv);
+	else if (_cmd == "PART")
+		part(serv);
 	else if (_cmd != "")
-		unknownCommand(send_clnt, serv);
+		unknownCommand(serv);
 }
 
 std::string	Command::execute() {

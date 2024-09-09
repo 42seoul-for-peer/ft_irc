@@ -71,7 +71,7 @@ class Command {
 	// void	topic();
 	// void	quit();
 	// void	ping();
-	void	unknownCommand(Client& send_clnt, Server& serv);
+	void	unknownCommand(Server& serv);
 
  private:
 	void	_kMode(bool flag, Server& serv, Channel* chan);
