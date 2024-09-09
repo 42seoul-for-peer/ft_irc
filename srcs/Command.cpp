@@ -31,7 +31,7 @@ const std::map< std::string, std::string >& Command::getMsgs() const {
 	return (_msgs);
 }
 
-void	Command::setMsgs(std::string& name, std::string& msg) {
+void	Command::setMsgs(const std::string& name, const std::string& msg) {
 	std::map< std::string, std::string >::iterator it = _msgs.find(name);
 	if (it == _msgs.end()) {
 		_msgs.insert(make_pair(name, msg));

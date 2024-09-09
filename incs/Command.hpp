@@ -54,7 +54,7 @@ class Command {
 	// <rpl_no, actual msg>
 
 // setter etMsg(str& name, str& msg)
-	void	setMsgs(std::string& name, std::string& msg); // msgs 변수에 새 메세지 연장/추가 하는 함수
+	void	setMsgs(const std::string& name, const std::string& msg); // msgs 변수에 새 메세지 연장/추가 하는 함수
 // usable function
 	void		parse(int clnt_fd, Server& serv);
 	std::string	execute();
@@ -74,9 +74,9 @@ class Command {
 	void	unknownCommand(Client& send_clnt, Server& serv);
 
  private:
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
-	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
+	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
 };
 
 #endif
