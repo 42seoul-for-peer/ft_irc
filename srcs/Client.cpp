@@ -10,7 +10,7 @@ Client::~Client() {
 // MEMBER FUNCTION
 Client::Client(int clientSock)
 : _sock_fd(clientSock), _is_registered(false), _is_passwd_correct(false),
-_nickname("*"), _username("*") {}
+_username("*"), _nickname("*") {}
 
 int   Client::getSockFd(void) const {
 	return (_sock_fd);
