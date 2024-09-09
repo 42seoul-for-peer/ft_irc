@@ -46,7 +46,7 @@ class Command {
 	// getReceiver의 경우 const 키워드를 걸어야 하는 getter의 한계 때문에 execute 호출해서 메세지 받는 것으로 대신 하기
 
 
-	const std::string getMsg() const; // test 용으로 임시로 추가함
+	// const std::string getMsg() const; // test 용으로 임시로 추가함
 
 	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
 	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
@@ -74,9 +74,15 @@ class Command {
 	void	unknownCommand(Client& send_clnt, Server& serv);
 
  private:
-	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
-	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
-	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
+	void	_kMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+	void	_iMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+	void	_lMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+	void	_tMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+	void	_oMode(bool flag, Client& send_clnt, Server& serv, Channel* chan);
+
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix) const;
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1) const;
+	const std::string	_genProtoMsg(int rpl_no, std::string& prefix, std::string& target1, std::string& target2) const;
 };
 
 #endif
