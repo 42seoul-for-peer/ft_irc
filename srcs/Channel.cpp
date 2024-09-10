@@ -100,12 +100,12 @@ void Channel::addClient(std::pair< bool, Client* > new_client) {
     _clients.push_back(new_client);
 }
 
-void Channel::leaveClient(const Client& client) {
+void Channel::deleteClient(const Client& client) {
     std::vector< std::pair< bool, Client* > >::iterator it = _clients.begin();
 
     while (it != _clients.end())
     {
-        if (it->second->getUsername() == client.getUsername())
+        if (it->second->getNickname() == client.getNickname())
             break;
         it++;
     }
