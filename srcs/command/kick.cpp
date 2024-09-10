@@ -130,7 +130,7 @@ void Command::kick(Server& serv) {
 	}
 
 	if (channel_addr->getClients().size() == 0) {
-		serv.deleteChnl(*channel_addr);
+		serv.deleteChnl(channel_addr);
 	}
 	return ;
 	
