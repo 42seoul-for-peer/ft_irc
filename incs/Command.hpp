@@ -80,6 +80,8 @@ class Command {
 	void	_tMode(bool flag, Server& serv, Channel* chan);
 	void	_oMode(bool flag, Server& serv, Channel* chan);
 
+	bool	_valid_nick(std::string& new_nick) const;
+
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;
