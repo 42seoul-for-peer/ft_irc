@@ -136,6 +136,8 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		mode(serv);
 	else if (_cmd == "PART")
 		part(send_clnt, serv);
+	else if (_cmd == "KICK")
+		kick(serv);
 	else if (_cmd != "")
 		unknownCommand(serv);
 }

@@ -11,8 +11,7 @@ std::vector<std::string> parsebyComma(std::string& line) { // 이거 Command 멤
     return (token_vec);
 }
 
-void Command::kick(Client& send_clnt, Server& serv) {
-	(void) send_clnt;
+void Command::kick(Server& serv) {
 
 	std::string prefix;
 	std::string msg;
@@ -24,7 +23,7 @@ void Command::kick(Client& send_clnt, Server& serv) {
 	Client* kicked_client;
 	
 	if (_args.size() < 2) {
-		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS)
+		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 		msg = _genProtoMsg(ERR_NEEDMOREPARAMS, prefix);
 		setMsgs(_sender, msg);
 		return ;
@@ -34,7 +33,7 @@ void Command::kick(Client& send_clnt, Server& serv) {
 	_args.pop();
 	targets = parsebyComma(_args.front());
 	_args.pop();
-	comment = appendRemaining();
+	comment = _appendRemaining();
 
 	//첫 인자 채널 검색해보고 없으면 ERR_nosuchchan
 	// KICK #hihi nick
@@ -92,7 +91,7 @@ void Command::kick(Client& send_clnt, Server& serv) {
 		target = *targets_it;
 		targets_it++;
 
-		std::map< int, Client* >::iterator serv_clnt_it = serv.getClients().begin();
+		std::map< int, Client* >::const_iterator serv_clnt_it = serv.getClients().begin();
 		while (serv_clnt_it != serv.getClients().end()) {
 			if (target == serv_clnt_it->second->getNickname()) {
 				kicked_client = serv_clnt_it->second;
@@ -118,9 +117,8 @@ void Command::kick(Client& send_clnt, Server& serv) {
 		}
 
 		//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
-
 		prefix = serv.genPrefix(_sender, 0);
-		msg = prefix + " " + _cmd + " " + channel + " " + targets;
+		msg = prefix + " " + _cmd + " " + channel + " " + target;
 		if (comment.size() != 0)
 			msg += " :" + comment + "\n";
 		else
