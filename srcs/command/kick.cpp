@@ -13,13 +13,15 @@ std::vector<std::string> parsebyComma(std::string& line) { // 이거 Command 멤
 
 void Command::kick(Client& send_clnt, Server& serv) {
 	(void) send_clnt;
-	(void) serv;
 
 	std::string prefix;
 	std::string msg;
-	std::vector< std::string > channel;
-	std::vector< std::string > target;
+	std::string channel;
+	std::vector< std::string > targets;
+	std::string target;
 	std::string comment;
+
+	Client* kicked_client;
 	
 	if (_args.size() < 2) {
 		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS)
@@ -28,13 +30,12 @@ void Command::kick(Client& send_clnt, Server& serv) {
 		return ;
 	}
 
-	channel = parsebyComma(_args.front());
+	channel = _args.front();
 	_args.pop();
-	target = parsebyComma(_args.front());
+	targets = parsebyComma(_args.front());
 	_args.pop();
 	comment = appendRemaining();
 
-	/*
 	//첫 인자 채널 검색해보고 없으면 ERR_nosuchchan
 	// KICK #hihi nick
 	// :irc.local 403 cat #hihi :No such channel
@@ -86,41 +87,50 @@ void Command::kick(Client& send_clnt, Server& serv) {
 	}
 
 	//두번째 인자 유저 서버에서 검색해보고 없으면 nosuch nick
-	std::map< int, Client* >::iterator serv_clnt_it = serv.getClients().begin();
-	while (serv_clnt_it != serv.getClients().end()) {
-		if (target == serv_clnt_it->second->getNickname())
-			break ;
-		serv_clnt_it++;
+	std::vector< std::string >::iterator targets_it = targets.begin();
+	while (targets_it != targets.end()) {
+		target = *targets_it;
+		targets_it++;
+
+		std::map< int, Client* >::iterator serv_clnt_it = serv.getClients().begin();
+		while (serv_clnt_it != serv.getClients().end()) {
+			if (target == serv_clnt_it->second->getNickname()) {
+				kicked_client = serv_clnt_it->second;
+				break ;
+			}
+			serv_clnt_it++;
+		}
+		if (serv_clnt_it == serv.getClients().end()) {
+			prefix = serv.genPrefix(_sender, ERR_NOSUCHNICK);
+			msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
+			setMsgs(_sender, msg);
+			continue ;
+		}
+
+		//두번째 인자 유저를 위 채널에서 검색해보고 없으면 ERR_USERNOTINCHANNEL
+		std::vector< std::string > curr_channel = serv_clnt_it->second->getCurrChannel();
+		std::vector< std::string >::iterator it = find(curr_channel.begin(), curr_channel.end(), channel);
+		if (it == curr_channel.end()) {
+			prefix = serv.genPrefix(_sender, ERR_USERNOTINCHANNEL);
+			msg = _genProtoMsg(ERR_USERNOTINCHANNEL, prefix, target, channel);
+			setMsgs(_sender, msg);
+			continue ;
+		}
+
+		//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
+
+		prefix = serv.genPrefix(_sender, 0);
+		msg = prefix + " " + _cmd + " " + channel + " " + targets;
+		if (comment.size() != 0)
+			msg += " :" + comment + "\n";
+		else
+			msg += "\n";
+		setMsgs(target, msg);
+
+		kicked_client->leaveChannel(*channel_addr);
+		channel_addr->deleteClient(*kicked_client);
 	}
-	if (serv_clnt_it == serv.getClients().end()) {
-		prefix = serv.genPrefix(_sender, ERR_NOSUCHNICK);
-		msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
-		setMsgs(_sender, msg);
-		return ;
-	}
 
-	//두번째 인자 유저를 위 채널에서 검색해보고 없으면 ERR_USERNOTINCHANNEL
-	std::vector< std::string > curr_channel = serv_clnt_it->second->getCurrChannel();
-	std::vector< std::string >::iterator it = find(curr_channel.begin(), curr_channel.end(), channel);
-	if (it == curr_channel.end()) {
-		prefix = serv.genPrefix(_sender, ERR_USERNOTINCHANNEL);
-		msg = _genProtoMsg(ERR_USERNOTINCHANNEL, prefix, target);
-		setMsgs(_sender, msg);
-		return ;
-	}
-
-	//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
-	
-	//
-
-	prefix = serv.genPrefix(_sender, 0);
-	msg = prefix + " " + _cmd + " " + channel + " " + target;
-	if (comment.size() != 0)
-		msg += " :" + comment + "\n";
-	else
-		msg += "\n";
-
-	setMsgs(_sender, msg);
 	return ;
-	*/
+	
 }
