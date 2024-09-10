@@ -66,11 +66,13 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 			setMsgs(_sender, msg);
 		}
 		else {
+			send_clnt.setRegistered();
 			send_clnt.setNickname(new_nick);
 		}
 	}
 	// 기존 사용자
 	else {
+		send_clnt.getRegistered();
 		send_clnt.setNickname(new_nick);
 	}
 }
