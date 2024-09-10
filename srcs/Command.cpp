@@ -11,6 +11,8 @@ Command::Command(std::stringstream& input_cmd) {
 	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string token;
 
+	std::getline(input_cmd, token, ' ');
+	_cmd = token;
 	while (std::getline(input_cmd, token, ' ')){
 		_args.push(token);
 	}
