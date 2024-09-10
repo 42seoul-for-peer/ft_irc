@@ -39,9 +39,6 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 		return ;
 	}
 	new_nick = _args.front();
-	while (_args.size()) {
-		_args.pop();
-	}
 	// nickname 유효성 검증
 	if (_valid_nick(new_nick) == false) {
 		prefix = serv.genPrefix(_sender, ERR_ERRONEUSNICKNAME);
