@@ -95,12 +95,18 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	std::vector<char> rBuf(1024);
 	std::string cmdToken;
 
+	std::map< int, std::string >::iterator	it = _readString.find(clnt_fd);
+	if (it == _readString.end()) {
+		_readString.insert(std::make_pair(clnt_fd, ""));
+		it = _readString.find(clnt_fd);
+	}
+
 	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	std::cout << "recv num: " << n << std::endl;
 	if (n > 0) {
-		_readString += std::string(rBuf.begin(), rBuf.begin() + n);
-		if (*(_readString.end() - 1) != '\n')
+		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
+		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
 			return ;
 	} else {
 		if (n < 0)
@@ -109,9 +115,9 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		disconnectClnt(clnt_fd);
 		return ;
 	}
-	std::cout << "Received msg: \n\t" << _readString << std::endl;
-	std::stringstream stream(_readString);
-	_readString = "";
+	std::cout << "Received msg: \n\t" << it->second << std::endl;
+	std::stringstream stream(it->second);
+	it->second = "";
 	changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 
 	std::vector<std::string> tokens;
@@ -121,6 +127,9 @@ void Server::recvMsgFromClnt(int clnt_fd)
     }
 
 	std::vector<std::string>::iterator token_it = tokens.begin();
+	std::size_t carriage = (*token_it).find('\r');
+	if (carriage != std::string::npos)
+		(*token_it).erase(carriage);
 	while (token_it != tokens.end()) {
 		std::stringstream tmpstream(*token_it);
 
@@ -232,6 +241,7 @@ void	Server::disconnectClnt(int clnt_fd) {
 		close(clnt_fd);
 		delete _clients.find(clnt_fd)->second;
 		_clients.erase(clnt_fd);
+		_readString.erase(clnt_fd);
 	}
 }
 
