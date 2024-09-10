@@ -46,7 +46,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		// (2) channel의 client list에서 삭제
 		// (3) channel이 비게 될 경우, server에서 channel 삭제
 		send_clnt.leaveChannel(*(chan_it->second));
-		chan_it->second->leaveClient(send_clnt);
+		chan_it->second->deleteClient(send_clnt);
 		if (chan_it->second->getClients().size() == 0)
 		{
 			serv.deleteChnl(chan_it->second);
