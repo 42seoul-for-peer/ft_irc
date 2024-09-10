@@ -9,11 +9,10 @@ Command::~Command() {
 // parameterized constructor
 Command::Command(std::stringstream& input_cmd) {
 	// std::cout << "Parameterized constructor called for Command.\n";
-	std::string tmp;
+	std::string token;
 
-	input_cmd >> _cmd;
-	while (input_cmd >> tmp) {
-		_args.push(tmp);
+	while (std::getline(input_cmd, token, ',')){
+		_args.push(token);
 	}
 }
 
