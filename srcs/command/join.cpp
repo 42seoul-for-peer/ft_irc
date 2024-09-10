@@ -123,13 +123,13 @@ void Command::join(Client& send_clnt, Server& serv)
 			send_clnt.joinChannel(*new_channel);
 			serv.addNewChnl(new_channel);
 			// channel에게 보낼 메시지
-			setMsgs(titles[i], serv.genPrefix(_sender, 0) + " JOIN :" + titles[i]);
+			setMsgs(titles[i], serv.genPrefix(_sender, 0) + "JOIN :" + titles[i] + "\n");
 			prefix = serv.genPrefix(_sender, RPL_NAMREPLY);
-			msg = prefix + "= " + titles[i] + ":@" + new_channel->printClientsList();
+			msg = prefix + "= " + titles[i] + " :@" + new_channel->printClientsList() + "\n";
 			// client에게 보낼 메시지
 			setMsgs(_sender, msg);
 			prefix = serv.genPrefix(_sender, RPL_ENDOFNAMES);
-			msg = prefix + titles[i] + ":End of /NAMES list.";
+			msg = prefix + titles[i] + " :End of /NAMES list." + "\n";
 			setMsgs(_sender, msg);
 		}
 		// 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
@@ -152,13 +152,13 @@ void Command::join(Client& send_clnt, Server& serv)
 					send_clnt.joinChannel(*chan_it->second);
 					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + "JOIN :" + chan_it->first + "\n");
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
-					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
+					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList() + "\n";
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
-					msg = prefix + chan_it->first + ":End of /NAMES list.";
+					msg = prefix + chan_it->first + ":End of /NAMES list." + "\n";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
 			}
@@ -182,13 +182,13 @@ void Command::join(Client& send_clnt, Server& serv)
 					invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()));
 					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first + "\n");
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
-					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
+					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList() + "\n";
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
-					msg = prefix + chan_it->first + ":End of /NAMES list.";
+					msg = prefix + chan_it->first + ":End of /NAMES list." + "\n";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
 			}
@@ -209,13 +209,13 @@ void Command::join(Client& send_clnt, Server& serv)
 					
 					prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 					// channel에게 보낼 메시지
-					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+					setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + "JOIN :" + chan_it->first + "\n");
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
-					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
+					msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList() + "\n";
 					// client에게 보낼 메시지
 					setMsgs(send_clnt.getNickname(), msg);
 					prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
-					msg = prefix + chan_it->first + ":End of /NAMES list.";
+					msg = prefix + chan_it->first + ":End of /NAMES list." + "\n";
 					setMsgs(send_clnt.getNickname(), msg);
 				}
 			}
@@ -226,13 +226,13 @@ void Command::join(Client& send_clnt, Server& serv)
 				send_clnt.joinChannel(*chan_it->second);
 				prefix = serv.genPrefix(send_clnt.getNickname(), 0);
 				// channel에게 보낼 메시지
-				setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first);
+				setMsgs(chan_it->first, serv.genPrefix(send_clnt.getNickname(), 0) + " JOIN :" + chan_it->first + "\n");
 				prefix = serv.genPrefix(send_clnt.getNickname(), RPL_NAMREPLY);
-				msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList();
+				msg = prefix + "= " + chan_it->first + ":@" + chan_it->second->printClientsList() + "\n";
 				// client에게 보낼 메시지
 				setMsgs(send_clnt.getNickname(), msg);
 				prefix = serv.genPrefix(send_clnt.getNickname(), RPL_ENDOFNAMES);
-				msg = prefix + chan_it->first + ":End of /NAMES list.";
+				msg = prefix + chan_it->first + ":End of /NAMES list." + "\n";
 				setMsgs(send_clnt.getNickname(), msg);
 			}
 		}
