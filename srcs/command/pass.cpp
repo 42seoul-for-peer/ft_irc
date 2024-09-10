@@ -19,6 +19,7 @@ void	Command::pass(Client& send_clnt, Server& serv) {
 		return ;
 	}
 	// passwd 문자열 형태로 복원
+	// 비밀번호가 "p(공백)(공백)(공백)wd"인 경우 복원 결과가 p(공백)wd가 되는 문제가 있음
 	while (_args.size()){
 		passwd += _args.front();
 		_args.pop();
