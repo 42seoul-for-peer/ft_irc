@@ -129,6 +129,9 @@ void Command::kick(Server& serv) {
 		channel_addr->deleteClient(*kicked_client);
 	}
 
+	if (channel_addr->getClients().size() == 0) {
+		serv.deleteChnl(*channel_addr);
+	}
 	return ;
 	
 }
