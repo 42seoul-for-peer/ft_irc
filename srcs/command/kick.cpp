@@ -124,6 +124,7 @@ void Command::kick(Server& serv) {
 		else
 			msg += "\n";
 		setMsgs(target, msg);
+		setMsgs(channel, msg);
 
 		kicked_client->leaveChannel(*channel_addr);
 		channel_addr->deleteClient(*kicked_client);
