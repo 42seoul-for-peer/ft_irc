@@ -39,9 +39,6 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 		return ;
 	}
 	new_nick = _args.front();
-	while (_args.size()) {
-		_args.pop();
-	}
 	// nickname 유효성 검증
 	if (_valid_nick(new_nick) == false) {
 		prefix = serv.genPrefix(_sender, ERR_ERRONEUSNICKNAME);
@@ -69,11 +66,13 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 			setMsgs(_sender, msg);
 		}
 		else {
+			send_clnt.setRegistered();
 			send_clnt.setNickname(new_nick);
 		}
 	}
 	// 기존 사용자
 	else {
+		send_clnt.getRegistered();
 		send_clnt.setNickname(new_nick);
 	}
 }
