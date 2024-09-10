@@ -40,7 +40,7 @@ class Server {
 
 	std::vector<struct kevent>	_kq_events;
 	struct kevent       		_event[8];
-	std::string 				_readString;
+	std::map< int, std::string >	_readString;
 
 	std::map< int, Client* >			_clients; // <fd : buffer>
 	std::map< std::string, Channel* >	_channels;
