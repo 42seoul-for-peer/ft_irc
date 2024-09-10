@@ -11,26 +11,26 @@
 // passwd의 경우는 띄어쓰기를 포함할 수 있으니까 다 받아서 처리해야함
 
 void	Command::pass(Client& send_clnt, Server& serv) {
-	std::string			prefix;
-	const std::string	send_nick = send_clnt.getNickname();
+	std::string	prefix;
+	std::string	passwd;
 	if (_args.size() != 1) {
 		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
-	// 등록되지 않은 사용자인 경우
-	if (send_clnt.getIsRegistered() == false) {
-		if (serv.getPassword() != _args.front()) {
-			prefix = serv.genPrefix(_sender, 0);
-			setMsgs(_sender, "Wrong Password for this server.\nCONNECTION ENDED BY SERVER\n");
-			send_clnt.setConnected(false);
-			return ;
+	// passwd 문자열 형태로 복원
+	while (_args.size()){
+		passwd += _args.front();
+		_args.pop();
+		if (!_args.empty()) {
+			passwd += ' ';
 		}
-		send_clnt.setIsRegistered();
 	}
-	// 재등록하려는 경우
+	// 잘못된 비밀번호
+	if (passwd != serv.getPassword()){
+		send_clnt.setPassValidity(0);
+	}
 	else {
-		prefix = serv.genPrefix(_sender, ERR_ALREADYREGISTRED);
-		setMsgs(_sender, _genProtoMsg(ERR_ALREADYREGISTRED, prefix));
+		send_clnt.setPassValidity(1);
 	}
 }
