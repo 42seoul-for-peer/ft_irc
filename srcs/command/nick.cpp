@@ -19,7 +19,10 @@
 
 bool	Command::_valid_nick(std::string& new_nick) const {
 	const std::string	special = "-[]\\`^{}";
-	for (int i = 0; i < new_nick.length(); i++){
+	int len = new_nick.length();
+	if (len < 1) // int max 길이 초과해서 overflow 발생했거나 0글자 문자열인 경우
+		return (false);
+	for (int i = 0; i < len; i++){
 		if (!isalnum(new_nick[i]) && special.find(new_nick[i]) != std::string::npos)
 			return (false);
 	}
