@@ -38,7 +38,7 @@ class Client {
 	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
-	int		setPassValidity(int flag);
+	void	setPassValidity(int flag);
 	void	setConnected(bool flag);
 	void	setUsername(std::string& str);
 	void	setNickname(std::string& str);

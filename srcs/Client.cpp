@@ -36,7 +36,7 @@ const std::string&	Client::getNickname(void) const {
 	return (_nickname);
 }
 
-int	Client::setPassValidity(int flag) {
+void	Client::setPassValidity(int flag) {
 	_pass_validity = flag;
 }
 
