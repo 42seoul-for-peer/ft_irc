@@ -198,10 +198,10 @@ std::string Server::genPrefix(const std::string& sender, int rpl) {
 	ss << std::setw(3) << std::setfill('0') << rpl;
 
 	if (rpl != 0) {
-		outBuf += _serv_name + " " + ss.str() + " " + sender;
+		outBuf += _serv_name + " " + ss.str() + " " + sender + " ";
 		return outBuf;
 	} else
-		outBuf += sender + "!" + getClient(getClient(sender))->getUsername() + "@localhost";
+		outBuf += sender + "!" + getClient(getClient(sender))->getUsername() + "@localhost"+ " ";
 	return outBuf;
 }
 
