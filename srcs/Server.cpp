@@ -93,14 +93,15 @@ void Server::acceptClnt()
 void Server::recvMsgFromClnt(int clnt_fd)
 {
 	std::vector<char> rBuf(1024);
-	std::string readString;
 	std::string cmdToken;
 
 	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
-	// std::cout << "recv num: " << n << std::endl;
+	std::cout << "recv num: " << n << std::endl;
 	if (n > 0) {
-		rBuf.erase(rBuf.begin() + n, rBuf.end());
+		_readString += std::string(rBuf.begin(), rBuf.begin() + n);
+		if (*(_readString.end() - 1) != '\n')
+			return ;
 	} else {
 		if (n < 0)
 			throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
@@ -108,12 +109,10 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		disconnectClnt(clnt_fd);
 		return ;
 	}
-	readString = std::string(rBuf.begin(), rBuf.end());
-	std::cout << "Received msg: \n\t" << readString << std::endl;
-	std::stringstream stream(readString);
+	std::cout << "Received msg: \n\t" << _readString << std::endl;
+	std::stringstream stream(_readString);
+	_readString = "";
 	changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-
-
 
 	std::vector<std::string> tokens;
     std::string token;
