@@ -4,8 +4,6 @@
 // NICK <nickname> [ <hopcount> ]
 // hopcount는 server에서만 의미 있는 인자라서 ft_irc에서는 처리 안 함
 
-// ERR_NOTREGISTERED: 451 PASS 없이 온 경우
-
 // ERR_NONICKNAMEGIVEN: 431
 // ERR_ERRONEUSNICKNAME: 432비허용 문자 포함된 겨우
 // ERR_NICNAMEINUSE 433
@@ -13,45 +11,66 @@
 // 우린 멀티 서버 아니라 불필요
 // ERR_NICKCOLLISION: 서버를 타고 갔을 때 다른 client와 겹치는 경우
 
-// invalid character
-// ~!@#$%&*()_+-=
+// username이 있는 경우
+	// pass correct-> 연결을 허용하면서 001을 보니거나
+	// pass incorrect-> 연결을 허용하지 않는다
+// username이 없는 경우
+	// -> update만 함 (validity 확인하고)
+
+bool	Command::_valid_nick(std::string& new_nick) const {
+	const std::string	special = "-[]\\`^{}";
+	for (int i = 0; i < new_nick.length(); i++){
+		if (!isalnum(new_nick[i]) && special.find(new_nick[i]) != std::string::npos)
+			return (false);
+	}
+	return (true);
+}
 
 void	Command::nick(Client& send_clnt, Server& serv) {
-	// 비밀번호 있는지 확인해야함
-	std::string prefix;
-	if (send_clnt.getIsRegistered() == false) {
-		prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NOTREGISTERED);
-		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NOTREGISTERED, prefix));
-		return ;
-	}
-	// 비밀번호가 같이 안 들어온 경우
+	std::string	prefix;
+	std::string msg;
+	std::string	new_nick;
 	if (_args.size() < 1) {
-		prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NONICKNAMEGIVEN);
-		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NONICKNAMEGIVEN, prefix));
+		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
+		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
-	// nickname으로 쓸 수 없는 문자 들어있는지 검사
-	std::string invalid_chars("~!@#$%&*()_+-=");
-	std::string	newNick =_args.front();
-	_args.pop();
-	int	new_nick_len = newNick.length();
-	for (int i = 0; i < new_nick_len; i++) {
-		if (invalid_chars.find(newNick[i]) < invalid_chars.length()) {
-			// std::cout << invalid_chars.find(newNick[i]) << ": " << newNick[i] << std::endl;
-			prefix = serv.genPrefix(send_clnt.getNickname(), ERR_ERRONEUSNICKNAME);
-			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_ERRONEUSNICKNAME, prefix));
-			return ;
+	new_nick = _args.front();
+	while (_args.size()) {
+		_args.pop();
+	}
+	// nickname 유효성 검증
+	if (_valid_nick(new_nick) == false) {
+		prefix = serv.genPrefix(_sender, ERR_ERRONEUSNICKNAME);
+		msg = _genProtoMsg(ERR_ERRONEUSNICKNAME, prefix);
+		setMsgs	(_sender, msg);
+		return ;
+	}
+	if (serv.getClient(new_nick)) {
+		prefix = serv.genPrefix(_sender, ERR_NICKNAMEINUSE);
+		msg = _genProtoMsg(ERR_NICKNAMEINUSE, prefix);
+		setMsgs	(_sender, msg);
+		return ;
+	}
+	// 새로 등록
+	if (send_clnt.getRegistered() == false){
+		if (send_clnt.getUsername() != "*") {
+			if (send_clnt.getPassValidity() == true) {
+				send_clnt.setNickname(new_nick);
+				prefix = serv.genPrefix(_sender, RPL_WELCOME);
+				msg = _genProtoMsg(RPL_WELCOME, prefix);
+			}
+			else {
+				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
+			}
+			setMsgs(_sender, msg);
+		}
+		else {
+			send_clnt.setNickname(new_nick);
 		}
 	}
-	// 중복되지 않는지 확인하는 상황
-	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
-	while (it != serv.getClients().end()) {
-		if (it->second->getNickname() == newNick) {
-			prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NICKNAMEINUSE);
-			setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NICKNAMEINUSE, prefix));
-			return ;
-		}
-		it++;
+	// 기존 사용자
+	else {
+		send_clnt.setNickname(new_nick);
 	}
-	send_clnt.setNickname(newNick);
 }
