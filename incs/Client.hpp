@@ -21,8 +21,8 @@ class Client {
 // MEMBER VARIABLE
  private:
 	int 		_sock_fd;
-	bool		_is_registered;
-	bool		_connected;
+	int			_pass_validity; // input 없음: -1, 틀림: 0, 맞음: 1
+	bool		_connected; // 연결 유지: true, 연결 해제해야함: false
 	std::string _username;
 	std::string _nickname;
 	std::vector< std::string > _curr_channel;
@@ -31,14 +31,14 @@ class Client {
  public:
 	// GETTER
 	int 			getSockFd(void) const;
-	bool			getIsRegistered(void) const;
+	int				getPassValidity(void) const;
 	bool			getConnected(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
 	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
-	void	setIsRegistered(void);
+	int		setPassValidity(int flag);
 	void	setConnected(bool flag);
 	void	setUsername(std::string& str);
 	void	setNickname(std::string& str);

@@ -3,53 +3,53 @@
 #include "../incs/Client.hpp"
 
 // OCCF
-Client::~Client() {
+Client::~Client()	{
 	// std::cout << "Default destructor called for Client.\n";
 }
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock), _is_registered(false), _connected(true),
+: _sock_fd(clientSock), _pass_validity(-1), _connected(true),
 _username("*"), _nickname("*") {}
 
-int   Client::getSockFd(void) const {
+int	Client::getSockFd(void) const {
 	return (_sock_fd);
 }
 
-bool	Client::getIsRegistered(void) const {
-    return (_is_registered);
+int	Client::getPassValidity(void) const {
+	return (_pass_validity);
 }
 
 bool	Client::getConnected(void) const {
-    return (_connected);
+	return (_connected);
 }
 
-const std::vector< std::string >&   Client::getCurrChannel(void) const {
-    return (_curr_channel);
+const std::vector< std::string >&	Client::getCurrChannel(void) const {
+	return (_curr_channel);
 }
 
 const std::string&	Client::getUsername(void) const {
-    return (_username);
+	return (_username);
 }
 
 const std::string&	Client::getNickname(void) const {
-    return (_nickname);
+	return (_nickname);
 }
 
-void	Client::setIsRegistered(void) {
-    _is_registered = true;
+int	Client::setPassValidity(int flag) {
+	_pass_validity = flag;
 }
 
-void    Client::setConnected(bool flag) {
-    _connected = flag;
+void	Client::setConnected(bool flag) {
+	_connected = flag;
 }
 
 void	Client::setUsername(std::string& str) {
-    _username = str;
+	_username = str;
 }
 
 void	Client::setNickname(std::string& str) {
-    _nickname = str;
+	_nickname = str;
 }
 
 void	Client::joinChannel(const Channel& channel) {
