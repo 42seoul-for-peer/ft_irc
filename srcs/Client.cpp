@@ -9,7 +9,7 @@ Client::~Client()	{
 
 // MEMBER FUNCTION
 Client::Client(int clientSock)
-: _sock_fd(clientSock), _pass_validity(-1), _connected(true),
+: _sock_fd(clientSock), _pass_validity(-1), _registered(false), _connected(true),
 _username("*"), _nickname("*") {}
 
 int	Client::getSockFd(void) const {
@@ -22,6 +22,10 @@ int	Client::getPassValidity(void) const {
 
 bool	Client::getConnected(void) const {
 	return (_connected);
+}
+
+bool	Client::getRegistered(void) const {
+	return (_registered);
 }
 
 const std::vector< std::string >&	Client::getCurrChannel(void) const {
@@ -42,6 +46,10 @@ void	Client::setPassValidity(int flag) {
 
 void	Client::setConnected(bool flag) {
 	_connected = flag;
+}
+
+void	Client::setRegistered(void) {
+	_registered = true;
 }
 
 void	Client::setUsername(std::string& str) {
