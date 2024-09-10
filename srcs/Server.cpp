@@ -121,6 +121,9 @@ void Server::recvMsgFromClnt(int clnt_fd)
     }
 
 	std::vector<std::string>::iterator token_it = tokens.begin();
+	std::size_t carriage = (*token_it).find('\r');
+	if (carriage != std::string::npos)
+		(*token_it).erase(carriage);
 	while (token_it != tokens.end()) {
 		std::stringstream tmpstream(*token_it);
 
