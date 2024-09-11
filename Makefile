@@ -33,17 +33,17 @@ serv_srcs = main.cpp\
 			Command.cpp\
 			Server.cpp\
 
-cmd_srcs = pass.cpp\
-			nick.cpp\
-			user.cpp\
-			protocolMsg.cpp\
-			join.cpp\
-			privmsg.cpp\
-			mode.cpp\
-			part.cpp\
+cmd_srcs = join.cpp\
 			kick.cpp\
+			mode.cpp\
+			nick.cpp\
+			part.cpp\
+			pass.cpp\
+			privmsg.cpp\
+			protocolMsg.cpp\
 			topic.cpp\
 			unknownCommand.cpp\
+			user.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
