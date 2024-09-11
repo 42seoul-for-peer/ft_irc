@@ -24,6 +24,7 @@ void Command::privmsg(Server& serv) {
 
 	std::map< int, Client* >::const_iterator clnt;
 	std::map< std::string, Channel* >::const_iterator chnl;
+	std::vector< std::pair< bool, Client* > >::const_iterator clnt_in_chnl;
 
 	_args.pop();
 	msg_content = _appendRemaining();
@@ -34,6 +35,8 @@ void Command::privmsg(Server& serv) {
 		return ;
 	}
 
+
+
 	while(std::getline(recv_list, target, ',')) {
 
 		if (target[0] == '#') {
@@ -43,7 +46,13 @@ void Command::privmsg(Server& serv) {
 					if (chnl->second->isChannelMember(_sender)) {
 						prefix = serv.genPrefix(_sender, 0);
 						msg = prefix + " " + _cmd + " " + target + " :" + msg_content + "\n";
-						setMsgs(target, msg);
+
+						clnt_in_chnl = chnl->second->getClients().begin();
+						while (clnt_in_chnl != chnl->second->getClients().end()) {
+							if (clnt_in_chnl->second->getNickname() != _sender)
+								setMsgs(clnt_in_chnl->second->getNickname(), msg);
+							clnt_in_chnl++;
+						}
 					} else {
 						prefix = serv.genPrefix(_sender, ERR_CANNOTSENDTOCHAN);
 						msg = _genProtoMsg(ERR_CANNOTSENDTOCHAN, prefix, target);

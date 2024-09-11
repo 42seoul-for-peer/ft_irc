@@ -162,8 +162,7 @@ void Server::sendMsgToClnt(Command& cmd)
 			channel_member_it = it->second->getClients().begin();
 			while (channel_member_it != it->second->getClients().end()) {
 				std::string nickname = channel_member_it->second->getNickname();
-				if (nickname != cmd.getSender())
-					channel_receiver.push_back(nickname);
+				channel_receiver.push_back(nickname);
 				channel_member_it++;
 			}
 
