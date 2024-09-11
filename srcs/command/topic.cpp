@@ -29,37 +29,38 @@ void Command::topic(Server& serv)
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
+	std::string chan_name = _args.front();
+	_args.pop();
 	std::map< std::string, Channel* > chan_list = serv.getChannels();
-	std::map< std::string, Channel* >::iterator chan_target = chan_list.find(_args.front());
+	std::map< std::string, Channel* >::iterator chan_target = chan_list.find(chan_name);
 	//! 존재하지 않는 채널
 	if (chan_target == chan_list.end())
 	{
 		prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
-		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, _args.front()));
+		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_name));
 		return ;
 	}
-	//todo 현재 channel의 topic 출력 (Case; _args.size() == 1)
-	if (_args.size() == 1)
+	//todo 현재 channel의 topic 출력 (Case; _args.size() == 0)
+	if (_args.size() == 0)
 	{
 		std::string chan_topic = chan_target->second->getTopic();
 		//? 지정된 topic이 존재
 		if (chan_topic.empty())
 		{
 			prefix = serv.genPrefix(_sender, RPL_NOTOPIC);
-			msg = prefix + _args.front() + ":" + chan_target->second->getTopic() + "\n";
+			msg = prefix + chan_name + ":" + chan_target->second->getTopic() + "\n";
 		}
 		//? 지정된 topic이 없음
 		else
 		{
 			prefix = serv.genPrefix(_sender, RPL_TOPIC);
-			msg = prefix + _args.front() + ":No topic is set.\n";
+			msg = prefix + chan_name + ":No topic is set.\n";
 		}
 		setMsgs(_sender, msg);
 	}
-	//todo 현재 channel의 topic 설정 (Case; _args.size() > 1)
+	//todo 현재 channel의 topic 설정 (Case; _args.size() > 0)
 	else
 	{
-		_args.pop();
 		std::vector< std::pair< bool, Client* > > client_list = chan_target->second->getClients();
 		const int number_of_clients = client_list.size();
 		int client_idx = 0;
