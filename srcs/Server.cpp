@@ -47,7 +47,9 @@ void Server::serverProcess()
 		newEvent = checkNewEvents();
 		// // std::cout << "event count: " << newEvent << std::endl;
 		for (int i = 0; i < newEvent; i++) {
-			if (_event[i].flags & EV_ERROR) {
+			if (_event[i].flags & EV_EOF) {
+				disconnectClnt(_event[i].ident);
+			} else if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 				else
@@ -71,7 +73,7 @@ void Server::serverProcess()
 			}
 			// // std::cout << "for end" << std::endl;
 		}
-		if (!_commandQueue.empty())
+		while (!_commandQueue.empty())
 			sendMsgToClnt(*_commandQueue.front());
     }
 	// std::cout << "out of while" << std::endl;
@@ -108,14 +110,23 @@ void Server::recvMsgFromClnt(int clnt_fd)
 		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
 		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
 			return ;
+	} else if (n < 0) {
+		throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
 	} else {
-		if (n < 0)
-			throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
-		std::cout << "\tRead nothing from client." << std::endl;
-		disconnectClnt(clnt_fd);
+		if (it->second == "") {
+			std::cout << "\tRead nothing from client." << std::endl;
+			disconnectClnt(clnt_fd);
+		}
 		return ;
 	}
+
 	std::cout << "Received msg: \n\t" << it->second << std::endl;
+	std::size_t carriage = it->second.find('\r');
+	while (carriage != std::string::npos) {
+		it->second.erase(carriage, 1);
+		carriage = it->second.find('\r');
+	}
+
 	std::stringstream stream(it->second);
 	it->second = "";
 	changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
@@ -127,9 +138,6 @@ void Server::recvMsgFromClnt(int clnt_fd)
     }
 
 	std::vector<std::string>::iterator token_it = tokens.begin();
-	std::size_t carriage = (*token_it).find('\r');
-	if (carriage != std::string::npos)
-		(*token_it).erase(carriage);
 	while (token_it != tokens.end()) {
 		std::stringstream tmpstream(*token_it);
 
