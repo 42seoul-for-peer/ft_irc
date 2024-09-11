@@ -1,4 +1,19 @@
 #include "Command.hpp"
+#include <iomanip>
+
+const std::string	Command::_genMsg(int rpl_no) const {
+	std::string 		prefix = ":";
+	std::stringstream	ss;
+
+	ss << std::setw(3) << std::setfill('0') << rpl_no;
+	if (rpl_no) {
+		prefix += "irc.local " + ss.str() + " " + _sender + " ";
+	}
+	else {
+		prefix += _sender + "!" + "@127.0.0.1 ";
+	}
+	return (prefix);
+}
 
 const std::string	Command::_genRplMsg(int rpl_no) const {
 	switch(rpl_no) {

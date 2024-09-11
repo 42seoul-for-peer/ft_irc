@@ -7,13 +7,17 @@ Command::~Command() {
 }
 
 // parameterized constructor
-Command::Command(std::stringstream& input_cmd, std::string& serv_name)
-: _serv_name(serv_name) {
+Command::Command(std::stringstream& input_cmd) {
 	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string token;
+	const int	len = _cmd.length();
 
 	std::getline(input_cmd, token, ' ');
 	_cmd = token;
+	for (int i = 0; i < len; i++) {
+		if (islower(_cmd[i]))
+			_cmd[i] = toupper(_cmd[i]);
+	}
 	while (std::getline(input_cmd, token, ' ')){
 		_args.push(token);
 	}
@@ -48,6 +52,8 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
 	Client&	send_clnt = *(serv.getClients().find(clnt_fd)->second);
 	_sender = send_clnt.getNickname();
+	_send_nick = send_clnt.getNickname();
+	_send_user = send_clnt.getUsername();
 
 	if (_cmd == "PASS")
 		pass(send_clnt, serv);
@@ -65,6 +71,10 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		part(send_clnt, serv);
 	else if (_cmd == "KICK")
 		kick(serv);
+	else if (_cmd == "INVITE")
+		invite(serv);
+	else if (_cmd == "QUIT")
+		quit(serv);
 	else if (_cmd != "")
 		unknownCommand(serv);
 }

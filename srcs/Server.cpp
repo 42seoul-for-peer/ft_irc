@@ -141,7 +141,7 @@ void Server::recvMsgFromClnt(int clnt_fd)
 	while (token_it != tokens.end()) {
 		std::stringstream tmpstream(*token_it);
 
-		Command* cmd = new Command(tmpstream, _serv_name);
+		Command* cmd = new Command(tmpstream);
 		cmd->parse(clnt_fd, *this);
 		cmd->execute();
 

@@ -20,18 +20,19 @@ class Command {
  public:
 	~Command();
 // parameterized constructor
-	Command(std::stringstream& input_cmd, std::string& serv_name);
+	Command(std::stringstream& input_cmd);
  private:
 	Command(const Command& copy);
 	Command& operator = (const Command& copy);
 	Command();
 // MEMBER VARIABLE
  protected:
-	std::string					_serv_name;
 	std::string					_cmd;
 	std::queue< std::string >	_args;
 
 	std::string					_sender;
+	std::string					_send_nick;
+	std::string					_send_user;
 	std::map< std::string, std::string > _msgs;
 	// <clnt or chan name, msg>
 	// std::string					_msg;
@@ -88,6 +89,8 @@ class Command {
 	// const std::string	_genProtoMsg(int rpl_no, const std::string& serv_name) const;
 	const std::string	_genRplMsg(int rpl_no) const;
 	const std::string	_genErrMsg(int rpl_no) const;
+
+	const std::string	_genMsg(int rpl_no) const;
 
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
