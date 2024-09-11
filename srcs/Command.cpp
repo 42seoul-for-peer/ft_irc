@@ -10,13 +10,13 @@ Command::~Command() {
 Command::Command(std::stringstream& input_cmd) {
 	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string token;
-	const int	len = _cmd.length();
 
 	std::getline(input_cmd, token, ' ');
 	_cmd = token;
-	for (int i = 0; i < len; i++) {
-		if (islower(_cmd[i]))
+	for (size_t i = 0; i < _cmd.length(); i++) {
+		if (std::islower(_cmd[i])) {
 			_cmd[i] = toupper(_cmd[i]);
+		}
 	}
 	while (std::getline(input_cmd, token, ' ')){
 		_args.push(token);
