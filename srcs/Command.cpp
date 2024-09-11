@@ -7,7 +7,8 @@ Command::~Command() {
 }
 
 // parameterized constructor
-Command::Command(std::stringstream& input_cmd) {
+Command::Command(std::stringstream& input_cmd, std::string& serv_name)
+: _serv_name(serv_name) {
 	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string token;
 

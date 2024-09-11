@@ -33,7 +33,8 @@ serv_srcs = main.cpp\
 			Command.cpp\
 			Server.cpp\
 
-cmd_srcs = join.cpp\
+cmd_srcs = genmsg.cpp\
+			join.cpp\
 			kick.cpp\
 			mode.cpp\
 			nick.cpp\
