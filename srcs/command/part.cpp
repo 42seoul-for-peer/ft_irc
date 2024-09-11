@@ -55,7 +55,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		else
 		{
 			prefix = serv.genPrefix(_sender, 0);
-			std::string msg = prefix + " PART " + chan_it->first + " :" + leaveMessage;
+			std::string msg = prefix + " PART " + chan_it->first + " :" + leaveMessage + "\n";
 			setMsgs(chan_it->first, msg);
 		}
 	}
