@@ -43,6 +43,7 @@ cmd_srcs = genmsg.cpp\
 			privmsg.cpp\
 			protocolMsg.cpp\
 			topic.cpp\
+			invite.cpp\
 			unknownCommand.cpp\
 			user.cpp\
 
