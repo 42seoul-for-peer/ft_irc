@@ -86,11 +86,14 @@ class Command {
 
 	bool	_valid_user(std::string& new_user) const;
 
-	// const std::string	_genProtoMsg(int rpl_no, const std::string& serv_name) const;
+	const std::string	_genPrefix(int rpl_no) const;
+
 	const std::string	_genRplMsg(int rpl_no) const;
 	const std::string	_genErrMsg(int rpl_no) const;
 
 	const std::string	_genMsg(int rpl_no) const;
+	const std::string	_genMsg(int rpl_no, const std::string& param) const;
+	const std::string	_genMsg(int rpl_no, const std::string& param1, const std::string& param2) const;
 
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;

@@ -41,8 +41,5 @@
 # define RPL_YOUREOPER 381
 // v.2812
 # define RPL_WELCOME 1
-# define RPL_YOURHOST 2
-# define RPL_CREATED 3
-# define RPL_MYINFO 4
 
 #endif

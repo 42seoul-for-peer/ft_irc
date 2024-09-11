@@ -2,29 +2,53 @@
 #include <iomanip>
 
 const std::string	Command::_genMsg(int rpl_no) const {
-	std::string 		prefix = ":";
+	std::string msg = _genPrefix(rpl_no);
+
+	if (rpl_no < 400)
+		msg += _genRplMsg(rpl_no);
+	else
+		msg += _genErrMsg(rpl_no);
+	return (msg);
+}
+
+const std::string	Command::_genMsg(int rpl_no, const std::string& param) const {
+	std::string	msg = _genPrefix(rpl_no);
+
+	msg += param + " ";
+	if (rpl_no < 400)
+		msg += _genRplMsg(rpl_no);
+	else
+		msg += _genErrMsg(rpl_no);
+	return (msg);
+}
+
+const std::string	Command::_genMsg(int rpl_no, const std::string& param1, const std::string& param2) const {
+	std::string	msg = _genPrefix(rpl_no);
+
+	msg += param1 + " " + param2 + " ";
+	if (rpl_no < 400)
+		msg += _genRplMsg(rpl_no);
+	else
+		msg += _genErrMsg(rpl_no);
+	return (msg);
+}
+
+const std::string	Command::_genPrefix(int rpl_no) const {
+	std::string			prefix = ":";
 	std::stringstream	ss;
 
 	ss << std::setw(3) << std::setfill('0') << rpl_no;
-	if (rpl_no) {
-		prefix += "irc.local " + ss.str() + " " + _sender + " ";
-	}
-	else {
-		prefix += _sender + "!" + "@127.0.0.1 ";
-	}
+	if (rpl_no)
+		prefix += "irc.local " + ss.str() + " " + _send_nick + " ";
+	else
+		prefix += _send_nick + "!" + _send_user + "@127.0.0.1 ";
 	return (prefix);
 }
 
 const std::string	Command::_genRplMsg(int rpl_no) const {
 	switch(rpl_no) {
 		case RPL_WELCOME:
-			return (":Welcome to the Localnet Relay Network <nick>!<user>@<host>");
-		case RPL_YOURHOST:
-			return (":Your host is <servername>, running version <ver>");
-		case RPL_CREATED:
-			return (":This server was created <date>");
-		case RPL_MYINFO:
-			return ("<servername> <version> <available user modes> <available channel modes>");
+			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@127.0.0.1\n");
 		case RPL_NOTOPIC:
 			return (":No topic is set\n");
 		case RPL_ENDOFNAMES:
@@ -32,7 +56,7 @@ const std::string	Command::_genRplMsg(int rpl_no) const {
 		case RPL_YOUREOPER:
 			return (":You are now an IRC operator\n");
 		default:
-			return ("Dummy reply. Not used\n");
+			return ("\n");
 	}
 }
 

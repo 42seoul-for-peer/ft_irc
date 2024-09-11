@@ -31,15 +31,14 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	std::string new_user;
 
 	if (_args.size() < 4){
-		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
-		msg = _genProtoMsg(ERR_NEEDMOREPARAMS, prefix);
+		(void) serv;
+		msg = _genMsg(ERR_NEEDMOREPARAMS, _cmd);
 		setMsgs(_sender, msg);
 		return ;
 	}
 	// 중복 등록 방지
 	if (send_clnt.getUsername() != "*") {
-		prefix = serv.genPrefix(_sender, ERR_ALREADYREGISTRED);
-		msg = _genProtoMsg(ERR_ALREADYREGISTRED, prefix);
+		msg = _genMsg(ERR_ALREADYREGISTRED);
 		setMsgs(_sender, msg);
 		return ;
 	}
@@ -52,8 +51,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	if (send_clnt.getNickname() != "*") {
 		if (send_clnt.getPassValidity() == true) {
 			send_clnt.setUsername(new_user);
-			prefix = serv.genPrefix(_sender, RPL_WELCOME);
-			msg = _genProtoMsg(RPL_WELCOME, prefix);
+			msg = _genMsg(RPL_WELCOME);
 			send_clnt.setRegistered();
 		}
 		else {
@@ -62,6 +60,6 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		setMsgs(_sender, msg);
 	}
 	else {
-		send_clnt.setNickname(new_user);
+		send_clnt.setUsername(new_user);
 	}
 }
