@@ -69,7 +69,7 @@ class Command {
 	void	part(Client& send_clnt, Server& serv);
 	void	topic(Server& serv);
 	// void	invite();
-	
+
 	// void	quit();
 	// void	ping();
 	void	unknownCommand(Server& serv);
@@ -85,6 +85,9 @@ class Command {
 
 	bool	_valid_user(std::string& new_user) const;
 
+	// const std::string	_genProtoMsg(int rpl_no, const std::string& serv_name) const;
+	const std::string	_genRplMsg(int rpl_no) const;
+	const std::string	_genErrMsg(int rpl_no) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1) const;
 	const std::string	_genProtoMsg(int rpl_no, const std::string& prefix, const std::string& target1, const std::string& target2) const;

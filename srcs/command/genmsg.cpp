@@ -1,5 +1,26 @@
 #include "Command.hpp"
 
+const std::string	Command::_genRplMsg(int rpl_no) const {
+	switch(rpl_no) {
+		case RPL_WELCOME:
+			return (":Welcome to the Localnet Relay Network <nick>!<user>@<host>");
+		case RPL_YOURHOST:
+			return (":Your host is <servername>, running version <ver>");
+		case RPL_CREATED:
+			return (":This server was created <date>");
+		case RPL_MYINFO:
+			return ("<servername> <version> <available user modes> <available channel modes>");
+		case RPL_NOTOPIC:
+			return (":No topic is set\n");
+		case RPL_ENDOFNAMES:
+			return (":End of /NAMES list\n");
+		case RPL_YOUREOPER:
+			return (":You are now an IRC operator\n");
+		default:
+			return ("Dummy reply. Not used\n");
+	}
+}
+
 const std::string	Command::_genErrMsg(int rpl_no) const {
 	switch (rpl_no) {
 		case ERR_NOSUCHNICK:
