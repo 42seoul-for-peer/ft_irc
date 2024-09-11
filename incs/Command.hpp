@@ -70,8 +70,7 @@ class Command {
 	void	part(Client& send_clnt, Server& serv);
 	void	topic(Server& serv);
 	void	invite(Server& serv);
-
-	// void	quit();
+	void	quit(Server& serv);
 	// void	ping();
 	void	unknownCommand(Server& serv);
 

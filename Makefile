@@ -46,6 +46,7 @@ cmd_srcs = genmsg.cpp\
 			invite.cpp\
 			unknownCommand.cpp\
 			user.cpp\
+			quit.cpp\
 
 # INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
