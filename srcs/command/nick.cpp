@@ -42,16 +42,12 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	new_nick = _args.front();
 	// 유효성 검증1: 사용 가능한 문자로 구성되어 있는가
 	if (_valid_nick(new_nick) == false) {
-		prefix = serv.genPrefix(_sender, ERR_ERRONEUSNICKNAME);
-		msg = _genProtoMsg(ERR_ERRONEUSNICKNAME, prefix);
-		setMsgs	(_sender, msg);
+		setMsgs	(_sender, _genMsg(ERR_ERRONEUSNICKNAME));
 		return ;
 	}
 	// 유효성 검증2: 중복되지 않는가
 	if (serv.getClient(new_nick)) {
-		prefix = serv.genPrefix(_sender, ERR_NICKNAMEINUSE);
-		msg = _genProtoMsg(ERR_NICKNAMEINUSE, prefix);
-		setMsgs	(_sender, msg);
+		setMsgs	(_sender, _genMsg(ERR_NICKNAMEINUSE, new_nick));
 		return ;
 	}
 	// 닉네임 변경하는 경우
@@ -62,9 +58,8 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 		if (send_clnt.getUsername() != "*") { // user name 있는 경우
 			if (send_clnt.getPassValidity() == true) { // 비밀번호가 맞음
 				send_clnt.setNickname(new_nick);
-				prefix = serv.genPrefix(_sender, RPL_WELCOME);
-				msg = _genProtoMsg(RPL_WELCOME, prefix);
 				send_clnt.setRegistered();
+				msg = _genMsg(RPL_WELCOME, new_nick);
 			}
 			else { // 비밀번호가 틀려서 종료
 				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
