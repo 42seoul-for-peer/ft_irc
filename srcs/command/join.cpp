@@ -39,14 +39,13 @@ void Command::join(Client& send_clnt, Server& serv)
 
 	if (_args.size() < 1)
 	{
-		prefix = serv.genPrefix(send_clnt.getNickname(), ERR_NEEDMOREPARAMS);
-		setMsgs(send_clnt.getNickname(), _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
+		setMsgs(_sender, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
 
-	std::vector<std::string> titles = _parsebyComma(_args);
+	std::vector<std::string> titles = _parsebyComma();
 	_args.pop();
-	std::vector<std::string> passwords = _parsebyComma(_args);
+	std::vector<std::string> passwords = _parsebyComma();
 	const int title_size = titles.size();
 	const int password_size = passwords.size();
 

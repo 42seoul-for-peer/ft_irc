@@ -66,7 +66,7 @@ void Command::quit(Server& serv)
 		}
 		it_chan->second->deleteClient(*target);
 	}
-	//todo [Step3] server._clients에서 제거
+	// todo [Step3] server._clients에서 제거 (하면 안될것 같아서 일단 주석)
 	// serv.deleteClnt(target->getSockFd());
 	//todo [Step4] Client 멤버 변수 _connected를 false로 변경
 	target->setConnected(false);

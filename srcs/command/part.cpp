@@ -18,7 +18,7 @@ void Command::part(Client& send_clnt, Server& serv)
 	}
 	std::map< std::string, Channel* >::iterator chan_it;
 	std::map< std::string, Channel* > chan_list = serv.getChannels();
-	std::vector<std::string> channels = _parsebyComma(_args);
+	std::vector<std::string> channels = _parsebyComma();
 	_args.pop();
 	const std::string leaveMessage = _appendRemaining();
 	const int channel_size = channels.size();

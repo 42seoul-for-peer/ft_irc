@@ -83,7 +83,7 @@ std::string	Command::execute() {
 	return (std::string("empty"));
 }
 
-std::vector<std::string> Command::_parsebyComma(std::queue< std::string >& _args) {
+std::vector<std::string> Command::_parsebyComma() {
     std::vector<std::string>    token_vec;
 
 	if (_args.empty())
