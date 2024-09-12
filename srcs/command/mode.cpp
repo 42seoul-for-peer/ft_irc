@@ -118,9 +118,9 @@ void Command::_iMode(bool flag, Server& serv, Channel* chan)
 		chan->setMode(flag, MODE_I);
 		pref = serv.genPrefix(_sender, 0);
 		if (flag == true)
-			msg = pref + " MODE " + chan->getTitle() + " :+i" + "\n";;
+			msg = pref + " MODE " + chan->getTitle() + " :+i" + "\n";
 		else
-			msg = pref + " MODE " + chan->getTitle() + " :-i" + "\n";;
+			msg = pref + " MODE " + chan->getTitle() + " :-i" + "\n";
 		setMsgs(chan->getTitle(), msg);
 	}
 }
@@ -243,12 +243,15 @@ void Command::mode(Server& serv)
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix, "MODE"));
 		return ;
 	}
+	if (_args.front()[0] != '#')
+		return ;
 	std::map< std::string, Channel* >::const_iterator chan_it = serv.getChannels().find(_args.front());
 	_args.pop();
 	// channel이 존재하지 않음
 	if (chan_it == serv.getChannels().end())
 	{
 		prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
+		//! chan_it->first 수정되어야 함
 		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_it->first));
 		return ;
 	}
