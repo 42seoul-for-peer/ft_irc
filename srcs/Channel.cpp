@@ -34,7 +34,7 @@ void Channel::setMode(const bool& status, const int& changedMode) {
     // flag가 - 상태
     else
     {
-        _mode &= changedMode;
+        _mode ^= changedMode;
     }
 }
 

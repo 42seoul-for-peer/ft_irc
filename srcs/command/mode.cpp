@@ -82,7 +82,7 @@ void Command::_kMode(bool flag, Server& serv, Channel* chan)
 		chan->setMode(flag, MODE_K);
 		chan->setPasswd(pw_str);
 		pref = serv.genPrefix(_sender, 0);
-		msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
+		msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str + "\n";
 		setMsgs(chan->getTitle(), msg);
 	}
 	// flag가 flase(-)이고, 이미 -k 모드가 아닐 때
@@ -91,9 +91,9 @@ void Command::_kMode(bool flag, Server& serv, Channel* chan)
 		// 인자의 string이 설정된 비밀번호와 같을 때
 		if (chan->getPasswd() == pw_str)
 		{
-			chan->setMode(false, MODE_K);
+			chan->setMode(flag, MODE_K);
 			pref = serv.genPrefix(_sender, 0);
-			msg = pref + "MODE" + chan->getTitle() + " +k :" + pw_str;
+			msg = pref + "MODE" + chan->getTitle() + " -k :" + pw_str + "\n";
 			setMsgs(chan->getTitle(), msg);
 		}
 		// 인자의 string과 설정된 비밀번호가 다를 때
@@ -118,9 +118,9 @@ void Command::_iMode(bool flag, Server& serv, Channel* chan)
 		chan->setMode(flag, MODE_I);
 		pref = serv.genPrefix(_sender, 0);
 		if (flag == true)
-			msg = pref + " MODE " + chan->getTitle() + " :+i";
+			msg = pref + " MODE " + chan->getTitle() + " :+i" + "\n";;
 		else
-			msg = pref + " MODE " + chan->getTitle() + " :-i";
+			msg = pref + " MODE " + chan->getTitle() + " :-i" + "\n";;
 		setMsgs(chan->getTitle(), msg);
 	}
 }
@@ -135,7 +135,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 	{
 		chan->setMode(flag, MODE_L);
 		pref = serv.genPrefix(_sender, 0);
-		msg = pref + " MODE " + chan->getTitle() + " :-l";
+		msg = pref + " MODE " + chan->getTitle() + " :-l" + "\n";;
 		setMsgs(chan->getTitle(), msg);
 	}
 	else if (flag == true)
@@ -153,7 +153,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 		{
 			// 특수한 케이스
 			pref = serv.genPrefix(_sender, 696);
-			msg = pref + " " + chan->getTitle() + " l " + _args.front() + " :Invalid limit mode parameter. Syntax: <limit>.";
+			msg = pref + " " + chan->getTitle() + " l " + _args.front() + " :Invalid limit mode parameter. Syntax: <limit>." + "\n";;
 			setMsgs(_sender, msg);
 		}
 		// flag가 +고, 현재 채널의 최대 유저수와 바꾸려는 값이 다름
@@ -163,7 +163,7 @@ void Command::_lMode(bool flag, Server& serv, Channel* chan)
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
 			pref = serv.genPrefix(_sender, 0);
-			msg = pref + " MODE " + chan->getTitle() + " +l :" + _args.front();
+			msg = pref + " MODE " + chan->getTitle() + " +l :" + _args.front() + "\n";;
 			setMsgs(chan->getTitle(), msg);
 		}
 		_args.pop();
@@ -181,9 +181,9 @@ void Command::_tMode(bool flag, Server& serv, Channel* chan)
 		chan->setMode(flag, MODE_T);
 		pref = serv.genPrefix(_sender, 0);
 		if (flag == true)
-			msg = pref + " MODE " + chan->getTitle() + " :+t";
+			msg = pref + " MODE " + chan->getTitle() + " :+t" + "\n";
 		else
-			msg = pref + " MODE " + chan->getTitle() + " :-t";
+			msg = pref + " MODE " + chan->getTitle() + " :-t" + "\n";
 		setMsgs(chan->getTitle(), msg);
 	}
 }
@@ -220,7 +220,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	{   
 		chan->setOperator(true, _args.front());
 		pref = serv.genPrefix(_sender, 0);
-		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
+		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname() + "\n";
 		setMsgs(chan->getTitle(), msg);
 	}
 	//* (2) flag는 false, target은 true
@@ -228,7 +228,7 @@ void Command::_oMode(bool flag, Server& serv, Channel* chan)
 	{
 		chan->setOperator(false, _args.front());
 		pref = serv.genPrefix(_sender, 0);
-		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname();
+		msg = pref + " MODE " + chan->getTitle() + " +o :" + clnt_list->second->getNickname() + "\n";
 		setMsgs(chan->getTitle(), msg);
 	}
 }
