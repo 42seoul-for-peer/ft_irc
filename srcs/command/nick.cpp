@@ -35,19 +35,19 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	std::string	new_nick;
 
 	if (_args.size() < 1) {
-		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
-		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
+		prefix = serv.genPrefix(_send_nick, ERR_NEEDMOREPARAMS);
+		setMsgs(_send_nick, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
 		return ;
 	}
 	new_nick = _args.front();
 	// 유효성 검증1: 사용 가능한 문자로 구성되어 있는가
 	if (_valid_nick(new_nick) == false) {
-		setMsgs	(_sender, _genMsg(ERR_ERRONEUSNICKNAME));
+		setMsgs	(_send_nick, _genMsg(ERR_ERRONEUSNICKNAME));
 		return ;
 	}
 	// 유효성 검증2: 중복되지 않는가
 	if (serv.getClient(new_nick)) {
-		setMsgs	(_sender, _genMsg(ERR_NICKNAMEINUSE, new_nick));
+		setMsgs	(_send_nick, _genMsg(ERR_NICKNAMEINUSE, new_nick));
 		return ;
 	}
 	// 닉네임 변경하는 경우
@@ -59,13 +59,14 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 			if (send_clnt.getPassValidity() == true) { // 비밀번호가 맞음
 				send_clnt.setNickname(new_nick);
 				send_clnt.setRegistered();
+				_send_nick = new_nick;
 				msg = _genMsg(RPL_WELCOME, new_nick);
 			}
 			else { // 비밀번호가 틀려서 종료
 				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
 				send_clnt.setConnected(false);
 			}
-			setMsgs(_sender, msg);
+			setMsgs(_send_nick, msg);
 		}
 		else { // user name이 아직 없어서 등록 확인을 하지 않음
 			send_clnt.setNickname(new_nick);
