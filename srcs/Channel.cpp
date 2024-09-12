@@ -116,7 +116,7 @@ void Channel::deleteClient(const Client& client) {
 }
 
 void Channel::addInvitedClient(std::string& name) {
-    if (std::find(_invited_clients.begin(), _invited_clients.end(), name) != _invited_clients.end())
+    if (std::find(_invited_clients.begin(), _invited_clients.end(), name) == _invited_clients.end())
         _invited_clients.push_back(name);
 }
 
