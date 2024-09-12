@@ -19,78 +19,55 @@
 
 void Command::topic(Server& serv)
 {
-	std::string prefix;
-	std::string msg;
-
-	//! 인자의 개수가 부족 (ERR_NEEDMOREPARAMS)
+	//! 인자의 개수가 부족
 	if (_args.size() < 1)
 	{
-		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
-		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
+		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
-	std::string chan_name = _args.front();
+
+	std::string chan_title = _args.front();
 	_args.pop();
-	std::map< std::string, Channel* > chan_list = serv.getChannels();
-	std::map< std::string, Channel* >::iterator chan_target = chan_list.find(chan_name);
+	std::map< std::string, Channel* > 			serv_channels = serv.getChannels();
+	std::map< std::string, Channel* >::iterator target = serv_channels.find(chan_title);
+
 	//! 존재하지 않는 채널
-	if (chan_target == chan_list.end())
+	if (target == serv_channels.end())
 	{
-		prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
-		setMsgs(_sender, _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, chan_name));
+		setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, chan_title));
 		return ;
 	}
-	//todo 현재 channel의 topic 출력 (Case; _args.size() == 0)
+	//todo Case; 인자 없음 -> 현재 channel의 topic 출력
 	if (_args.size() == 0)
 	{
-		std::string chan_topic = chan_target->second->getTopic();
+		std::string chan_topic = target->second->getTopic();
 		//? 지정된 topic이 존재
-		if (chan_topic.empty())
-		{
-			prefix = serv.genPrefix(_sender, RPL_NOTOPIC);
-			msg = prefix + chan_name + ":" + chan_target->second->getTopic() + "\n";
-		}
+		if (!chan_topic.empty())
+			setMsgs(_send_nick, _genMsg(RPL_TOPIC, chan_title, ":" + chan_topic));
 		//? 지정된 topic이 없음
 		else
-		{
-			prefix = serv.genPrefix(_sender, RPL_TOPIC);
-			msg = prefix + chan_name + ":No topic is set.\n";
-		}
-		setMsgs(_sender, msg);
+			setMsgs(_send_nick, _genMsg(RPL_NOTOPIC, chan_title));
 	}
-	//todo 현재 channel의 topic 설정 (Case; _args.size() > 0)
+	//todo Case; 인자 있음 -> 현재 channel의 topic 설정
 	else
 	{
-		std::vector< std::pair< bool, Client* > > client_list = chan_target->second->getClients();
-		const int number_of_clients = client_list.size();
-		int client_idx = 0;
-		//todo client_list에서 _sender의 idx 탐색
+		std::vector< std::pair< bool, Client* > >	chan_clnts = target->second->getClients();
+		const int 									num_of_clnts = chan_clnts.size();
+		int idx = 0;
+		while (idx < num_of_clnts && chan_clnts[idx].second->getNickname() != _send_nick)
+			idx++;
 		//! 채널에 속해있지 않음
-		while (client_list[client_idx].second->getNickname() != _sender)
-		{
-			client_idx++;
-			if (client_idx == number_of_clients)
-			{
-				prefix = serv.genPrefix(_sender, ERR_NOTONCHANNEL);
-				setMsgs(_sender, _genProtoMsg(ERR_NOTONCHANNEL, prefix));
-				return ;
-			}
-		}
+		if (idx == num_of_clnts)
+			setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_title));
 		//! 채널에 속해있지만, +t이며 이 방의 op 권한을 가지고 있지 않음
-		if ((chan_target->second->getMode() & MODE_T) && client_list[client_idx].first != true)
-		{
-			prefix = serv.genPrefix(_sender, ERR_CHANOPRIVSNEEDED);
-			setMsgs(_sender, _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix));
-		}
+		else if ((target->second->getMode() & MODE_T) && chan_clnts[idx].first == false)
+			setMsgs(_sender, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
 		//todo TOPIC 명령 동작
 		else
 		{
 			std::string topic_str = _appendRemaining();
-			chan_target->second->setTopic(topic_str);
-			prefix = serv.genPrefix(_sender, 0);
-			// :kkk!a@127.0.0.1 TOPIC #room10 :hi
-			msg = prefix + " TOPIC " + chan_target->first + " :" + topic_str + "\n";
-			setMsgs(chan_target->first, msg);
+			target->second->setTopic(topic_str);
+			setMsgs(_send_nick, _genMsg(0, _cmd + " " + chan_title + " :" + topic_str));
 		}
 	}
 }
