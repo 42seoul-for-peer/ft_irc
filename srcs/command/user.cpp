@@ -51,8 +51,8 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	if (send_clnt.getNickname() != "*") {
 		if (send_clnt.getPassValidity() == true) {
 			send_clnt.setUsername(new_user);
-			msg = _genMsg(RPL_WELCOME);
 			send_clnt.setRegistered();
+			msg = _genMsg(RPL_WELCOME);
 		}
 		else {
 			msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
