@@ -33,13 +33,13 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	if (_args.size() < 4){
 		(void) serv;
 		msg = _genMsg(ERR_NEEDMOREPARAMS, _cmd);
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, msg);
 		return ;
 	}
 	// 중복 등록 방지
 	if (send_clnt.getUsername() != "*") {
 		msg = _genMsg(ERR_ALREADYREGISTRED);
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, msg);
 		return ;
 	}
 	new_user = _args.front();
@@ -52,13 +52,14 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		if (send_clnt.getPassValidity() == true) {
 			send_clnt.setUsername(new_user);
 			send_clnt.setRegistered();
+			_send_user = new_user;
 			msg = _genMsg(RPL_WELCOME);
 		}
 		else {
 			msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
 			send_clnt.setConnected(false);
 		}
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, msg);
 	}
 	else {
 		send_clnt.setUsername(new_user);
