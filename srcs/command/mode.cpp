@@ -243,6 +243,7 @@ void Command::mode(Server& serv)
 		setMsgs(_sender, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix, "MODE"));
 		return ;
 	}
+	//! 첫 번째 인자가 채널이 아님
 	if (_args.front()[0] != '#')
 		return ;
 	std::map< std::string, Channel* >::const_iterator chan_it = serv.getChannels().find(_args.front());
