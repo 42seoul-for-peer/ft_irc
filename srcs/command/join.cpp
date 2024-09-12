@@ -24,8 +24,14 @@ void Command::join(Client& send_clnt, Server& serv)
 			setMsgs(_send_nick, _genMsg(ERR_TOOMANYCHANNELS, titles[i]));
 			continue ;
 		}
-		//! title의 첫 글자가 #가 아니거나, title이 200자를 초과
-		if (titles[i][0] != '#' || titles[i].size() > 200)
+		//! title의 첫 글자가 #가 아님
+		if (titles[i][0] != '#')
+		{
+			setMsgs(_send_nick, _genMsg(ERR_BADCHANMASK, titles[i]));
+			continue ;
+		}
+		//! title이 200자를 초과
+		if (titles[i].size() > 200)
 		{
 			setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, titles[i]));
 			continue ;
