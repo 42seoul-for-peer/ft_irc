@@ -1,5 +1,5 @@
 #include "Command.hpp"
-
+#include <iostream>
 void Command::join(Client& send_clnt, Server& serv)
 {
 	if (_args.size() < 1)
@@ -78,8 +78,7 @@ void Command::join(Client& send_clnt, Server& serv)
 				continue ;
 			}
 			//todo 접속 가능
-			if (chan_mode & MODE_I)
-				invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()));
+			chan_it->second->rmInvitedClients(_send_nick);
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + _cmd + " :" + titles[i] + "\n");
 			if (!chan_it->second->getTopic().empty())
