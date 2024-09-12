@@ -59,7 +59,7 @@ void Command::join(Client& send_clnt, Server& serv)
 			}
 			//! Case 'i'; invited_list에 send_clnt의 username이 존재하지 않음
 			if (chan_mode & MODE_I && \
-					std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()) == invited_list.end())
+					std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) == invited_list.end())
 			{
 				setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
 				continue ;
@@ -73,7 +73,7 @@ void Command::join(Client& send_clnt, Server& serv)
 			}
 			//todo 접속 가능
 			if (chan_mode & MODE_I)
-				invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()));
+				invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()));
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + _cmd + " :" + titles[i] + "\n");
 			if (!chan_it->second->getTopic().empty())
