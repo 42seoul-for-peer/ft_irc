@@ -63,6 +63,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 			}
 			else { // 비밀번호가 틀려서 종료
 				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
+				send_clnt.setConnected(false);
 			}
 			setMsgs(_sender, msg);
 		}

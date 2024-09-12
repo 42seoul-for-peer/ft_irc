@@ -56,6 +56,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		}
 		else {
 			msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
+			send_clnt.setConnected(false);
 		}
 		setMsgs(_sender, msg);
 	}
