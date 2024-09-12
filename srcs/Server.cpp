@@ -246,7 +246,7 @@ void	Server::disconnectClnt(int clnt_fd) {
 	if (clnt_fd > 0) {
 		std::cout << "client disconnected: " << clnt_fd << std::endl;
 		close(clnt_fd);
-		delete _clients.find(clnt_fd)->second;
+		// delete _clients.find(clnt_fd)->second;
 		_clients.erase(clnt_fd);
 		_readString.erase(clnt_fd);
 	}
