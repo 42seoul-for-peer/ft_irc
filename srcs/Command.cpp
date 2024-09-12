@@ -73,6 +73,8 @@ void	Command::parse(int clnt_fd, Server& serv) {
 		kick(serv);
 	else if (_cmd == "INVITE")
 		invite(serv);
+	else if (_cmd == "TOPIC")
+		topic(serv);
 	else if (_cmd == "QUIT")
 		quit(serv);
 	else if (_cmd != "")

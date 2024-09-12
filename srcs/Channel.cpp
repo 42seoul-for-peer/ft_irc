@@ -10,6 +10,7 @@ Channel::~Channel() {
 Channel::Channel(std::string title, Client* client)
 : _title(title), _max_clients(-1), _mode(0) {
     _clients.push_back(std::pair< bool, Client* >(true, client));
+    client->joinChannel(*this);
 }
 
 void Channel::setTopic(std::string& str) {
@@ -97,6 +98,7 @@ const int& Channel::getMode(void) const {
 }
 
 void Channel::addClient(std::pair< bool, Client* > new_client) {
+    new_client.second->joinChannel(*this);
     _clients.push_back(new_client);
 }
 
