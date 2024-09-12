@@ -98,8 +98,8 @@ void Command::join(Client& send_clnt, Server& serv)
 				invited_list.erase(std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()));
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + "JOIN :" + titles[i] + "\n");
-			if (!chan_it->second->getTitle().empty())
-				setMsgs(_sender, _genMsg(RPL_TOPIC, titles[i], ":" + chan_it->second->getTitle()));
+			if (!chan_it->second->getTopic().empty())
+				setMsgs(_sender, _genMsg(RPL_TOPIC, titles[i], ":" + chan_it->second->getTopic()));
 			setMsgs(_sender, _genMsg(RPL_NAMREPLY, "= " + titles[i], ":@" + chan_it->second->printClientsList()));
 			setMsgs(_sender, _genMsg(RPL_ENDOFNAMES, titles[i]));
 		}
