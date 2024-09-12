@@ -19,6 +19,8 @@ Command::Command(std::stringstream& input_cmd) {
 		}
 	}
 	while (std::getline(input_cmd, token, ' ')){
+		if (token == "")
+			continue ;
 		_args.push(token);
 	}
 }
