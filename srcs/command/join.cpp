@@ -61,7 +61,7 @@ void Command::join(Client& send_clnt, Server& serv)
 			if (chan_mode & MODE_I && \
 					std::find(invited_list.begin(), invited_list.end(), send_clnt.getUsername()) == invited_list.end())
 			{
-				setMsgs(_send_nick, _genMsg(ERR_BADCHANNELKEY, titles[i]));
+				setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
 				continue ;
 			}
 			//! Case 'l'; 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼('i'가 활성화 됐을 때, 'l'은 무시됨)
