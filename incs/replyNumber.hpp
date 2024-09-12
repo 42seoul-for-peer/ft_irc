@@ -27,6 +27,7 @@
 # define ERR_UNKNOWNMODE 472
 # define ERR_INVITEONLYCHAN 473
 # define ERR_BADCHANNELKEY 475
+# define ERR_BADCHANMASK 476 // non-general reply number(reserved)
 # define ERR_NOPRIVILEGES 481
 # define ERR_CHANOPRIVSNEEDED 482
 

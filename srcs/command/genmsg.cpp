@@ -110,6 +110,8 @@ const std::string	Command::_genErrMsg(int rpl_no) const {
 			return (":Cannot join channel (+i)\n");
 		case ERR_BADCHANNELKEY:
 			return (":Cannot join channel (+k)\n");
+		case ERR_BADCHANMASK:
+			return (":Invalid channel name\n");
 		case ERR_NOPRIVILEGES:
 			return (":Permission Denied- You're not an IRC operator\n");
 		case ERR_CHANOPRIVSNEEDED:
