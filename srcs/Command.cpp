@@ -80,7 +80,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "QUIT")
 		quit(serv);
 	else if (_cmd != "")
-		unknownCommand(serv);
+		unknownCommand();
 }
 
 std::string	Command::execute() {

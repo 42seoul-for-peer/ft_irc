@@ -73,7 +73,7 @@ class Command {
 	void	invite(Server& serv);
 	void	quit(Server& serv);
 	// void	ping();
-	void	unknownCommand(Server& serv);
+	void	unknownCommand();
 
  private:
 	void	_kMode(bool flag, Server& serv, Channel* chan);
