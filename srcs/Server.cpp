@@ -43,7 +43,6 @@ void Server::serverProcess()
 {
 	int newEvent;
 	while (1) {
-		system("leaks -q ircserv");
 		// // std::cout << "while start" << std::endl;
 		newEvent = checkNewEvents();
 		// // std::cout << "event count: " << newEvent << std::endl;
