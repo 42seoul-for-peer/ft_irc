@@ -58,7 +58,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 				send_clnt.setNickname(new_nick);
 				send_clnt.setRegistered();
 				_send_nick = new_nick;
-				msg = _genMsg(RPL_WELCOME, new_nick);
+				msg = _genMsg(RPL_WELCOME);
 			}
 			else { // 비밀번호가 틀려서 종료
 				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
