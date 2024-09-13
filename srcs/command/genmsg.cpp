@@ -41,14 +41,14 @@ const std::string	Command::_genPrefix(int rpl_no) const {
 	if (rpl_no)
 		prefix += "irc.local " + ss.str() + " " + _send_nick + " ";
 	else
-		prefix += _send_nick + "!" + _send_user + "@127.0.0.1 ";
+		prefix += _send_nick + "!" + _send_user + "@" + _send_addr + " ";
 	return (prefix);
 }
 
 const std::string	Command::_genRplMsg(int rpl_no) const {
 	switch(rpl_no) {
 		case RPL_WELCOME:
-			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@127.0.0.1\n");
+			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@" + _send_addr + "\n");
 		case RPL_NOTOPIC:
 			return (":No topic is set\n");
 		case RPL_ENDOFNAMES:

@@ -32,6 +32,7 @@ class Command {
 
 	std::string					_send_nick;
 	std::string					_send_user;
+	std::string					_send_addr;
 	std::map< std::string, std::string > _msgs;
 	// <clnt or chan name, msg>
 	// std::string					_msg;
