@@ -8,6 +8,10 @@ CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -MMD -MP -I incs/
 ifdef DEBUG
 	CXXFLAGS += -O0 -g3 -fsanitize=address
 endif
+
+ifdef LEAKS
+	CSSFLAGS += -O0 -g3
+endif
 # **************************************************************************** #
 RESET = \033[0m
 
