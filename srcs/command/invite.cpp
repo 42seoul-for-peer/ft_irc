@@ -61,7 +61,7 @@ void Command::invite(Server& serv)
 	const int 									num_of_clients = chan_clients.size();
 	int idx_sender = 0;
 	//! sender가 채널에 속해있지 않음
-	while (chan_clients[idx_sender].second->getNickname() != _sender)
+	while (chan_clients[idx_sender].second->getNickname() != _send_nick)
 	{
 		idx_sender++;
 		if (idx_sender == num_of_clients)

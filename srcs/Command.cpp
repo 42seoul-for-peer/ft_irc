@@ -31,10 +31,6 @@ const std::string&	Command::getCmd() const {
 	return (_cmd);
 }
 
-const std::string&	Command::getSender() const {
-	return (_sender);
-}
-
 const std::map< std::string, std::string >& Command::getMsgs() const {
 	return (_msgs);
 }
@@ -51,9 +47,7 @@ void	Command::setMsgs(const std::string& name, const std::string& msg) {
 }
 // usable function
 void	Command::parse(int clnt_fd, Server& serv) {
-	// _sender = serv.clnt_list.find(clnt_fd); << pass 때문에 각 명령어에서 처리해야됨
 	Client&	send_clnt = *(serv.getClients().find(clnt_fd)->second);
-	_sender = send_clnt.getNickname();
 	_send_nick = send_clnt.getNickname();
 	_send_user = send_clnt.getUsername();
 

@@ -61,7 +61,7 @@ void Command::topic(Server& serv)
 			setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_title));
 		//! 채널에 속해있지만, +t이며 이 방의 op 권한을 가지고 있지 않음
 		else if ((target->second->getMode() & MODE_T) && chan_clnts[idx].first == false)
-			setMsgs(_sender, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
+			setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
 		//todo TOPIC 명령 동작
 		else
 		{

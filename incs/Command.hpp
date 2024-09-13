@@ -30,7 +30,6 @@ class Command {
 	std::string					_cmd;
 	std::queue< std::string >	_args;
 
-	std::string					_sender;
 	std::string					_send_nick;
 	std::string					_send_user;
 	std::map< std::string, std::string > _msgs;
@@ -41,7 +40,6 @@ class Command {
  public:
 // getter
 	const std::string&								getCmd() const;
-	const std::string&								getSender() const;
 	// int												getReceiverCnt() const;
 	const std::map< std::string, int >&	getReceiver() const;
 	const std::map< std::string, std::string>& getMsgs() const;

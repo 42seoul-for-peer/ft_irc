@@ -11,7 +11,7 @@ void Command::quit(Server& serv)
 	std::map< int, Client* >::iterator	clnt_target = serv_clients.begin();
 	while (clnt_target != serv_clients.end())
 	{
-		if (clnt_target->second->getNickname() == _sender)
+		if (clnt_target->second->getNickname() == _send_nick)
 			break ;
 		clnt_target++;
 	}
@@ -51,7 +51,7 @@ void Command::quit(Server& serv)
 	std::string quit_msg = _appendRemaining();
 	if (quit_msg.empty())
 		quit_msg = "leaving";
-	setMsgs(_sender, "ERROR :Closing link: (" + clnt->getUsername() + "@localhost) [Quit: " + quit_msg + "]\n");
+	setMsgs(_send_nick, "ERROR :Closing link: (" + clnt->getUsername() + "@localhost) [Quit: " + quit_msg + "]\n");
 	for (std::set< std::string >::iterator it = related_clients.begin(); it != related_clients.end(); it++)
 	{
 		std::cout << "to send: " << *it << std::endl;
