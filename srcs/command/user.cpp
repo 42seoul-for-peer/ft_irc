@@ -53,7 +53,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 			send_clnt.setUsername(new_user);
 			send_clnt.setRegistered();
 			_send_user = new_user;
-			msg = _genMsg(RPL_WELCOME);
+			msg = _genMsg(RPL_WELCOME, _send_nick);
 		}
 		else {
 			msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
