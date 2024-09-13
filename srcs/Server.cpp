@@ -43,6 +43,7 @@ void Server::serverProcess()
 {
 	int newEvent;
 	while (1) {
+		system("leaks -q ircserv");
 		// // std::cout << "while start" << std::endl;
 		newEvent = checkNewEvents();
 		// // std::cout << "event count: " << newEvent << std::endl;
@@ -244,10 +245,10 @@ void	Server::changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint3
 
 void	Server::disconnectClnt(int clnt_fd) {
 	std::cout << "call disconnection" << std::endl;
-	if (clnt_fd > 0 || fcntl(clnt_fd, F_GETFD) || errno != EBADF) {
+	if (clnt_fd > 0) {
 		std::cout << "client disconnected: " << clnt_fd << std::endl;
 		close(clnt_fd);
-		delete _clients.find(clnt_fd)->second;
+		// delete _clients.find(clnt_fd)->second;
 		_clients.erase(clnt_fd);
 		_readString.erase(clnt_fd);
 	}
