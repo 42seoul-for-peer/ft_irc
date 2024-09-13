@@ -76,11 +76,11 @@ class Command {
 	void	unknownCommand();
 
  private:
-	void	_kMode(bool flag, Server& serv, Channel* chan);
-	void	_iMode(bool flag, Server& serv, Channel* chan);
-	void	_lMode(bool flag, Server& serv, Channel* chan);
-	void	_tMode(bool flag, Server& serv, Channel* chan);
-	void	_oMode(bool flag, Server& serv, Channel* chan);
+	void	_iMode(bool flag, Channel* chan);
+	void	_kMode(bool flag, Channel* chan);
+	void	_lMode(bool flag, Channel* chan);
+	void	_tMode(bool flag, Channel* chan);
+	void	_oMode(bool flag, Channel* chan);
 
 	bool	_valid_nick(std::string& new_nick) const;
 
