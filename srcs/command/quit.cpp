@@ -39,7 +39,6 @@ void Command::quit(Server& serv)
 			//? 본인인 경우에는 추가하지 않음
 			if (tmp != _send_nick)
 				related_clients.insert(tmp);
-
 		}
 		chan_target->second->deleteClient(*clnt);
 		//? client가 나가고 더이상 channel에 유저가 없음 -> channel 제거
