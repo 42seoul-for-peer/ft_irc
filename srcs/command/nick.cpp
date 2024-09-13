@@ -30,13 +30,11 @@ bool	Command::_valid_nick(std::string& new_nick) const {
 }
 
 void	Command::nick(Client& send_clnt, Server& serv) {
-	std::string	prefix;
 	std::string msg;
 	std::string	new_nick;
 
 	if (_args.size() < 1) {
-		prefix = serv.genPrefix(_send_nick, ERR_NEEDMOREPARAMS);
-		setMsgs(_send_nick, _genProtoMsg(ERR_NEEDMOREPARAMS, prefix));
+		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
 	new_nick = _args.front();
