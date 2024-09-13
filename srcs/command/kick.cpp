@@ -105,13 +105,16 @@ void Command::kick(Server& serv) {
 		}
 
 		//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
-		msg = _genMsg(0, _cmd, channel + " " + target);
 		if (comment.size() != 0)
-			msg += " :" + comment + "\n";
+			msg = _genMsg(0, _cmd, channel + " " + target + " :" + comment);
 		else
-			msg += "\n";
-		setMsgs(target, msg);
-		setMsgs(channel, msg);
+			msg = _genMsg(0, _cmd, channel + " " + target + " :" + _send_nick);
+		
+		std::vector< std::pair< bool, Client* > >::const_iterator channel_member_it = channel_addr->getClients().begin();
+		while (channel_member_it != channel_addr->getClients().end()) {
+			setMsgs(channel_member_it->second->getNickname(), msg);
+			channel_member_it++;
+		}
 
 		kicked_client->leaveChannel(*channel_addr);
 		channel_addr->deleteClient(*kicked_client);

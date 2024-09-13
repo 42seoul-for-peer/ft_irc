@@ -180,18 +180,21 @@ void Server::sendMsgToClnt(Command& cmd)
 
 		if (msgs_it->first[0] == '#') {  //채널일경우
 			std::map< std::string, Channel* >::iterator it = _channels.find(msgs_it->first);
-			// if (it != _channels.end())
-			channel_member_it = it->second->getClients().begin();
-			while (channel_member_it != it->second->getClients().end()) {
-				std::string nickname = channel_member_it->second->getNickname();
-				channel_receiver.push_back(nickname);
-				channel_member_it++;
-			}
+			if (it != _channels.end()) {
+				channel_member_it = it->second->getClients().begin();
+				while (channel_member_it != it->second->getClients().end()) {
+					std::string nickname = channel_member_it->second->getNickname();
+					channel_receiver.push_back(nickname);
+					channel_member_it++;
+				}
 
-			channel_receiver_it = channel_receiver.begin();
-			while (channel_receiver_it != channel_receiver.end()) {
-				sendMsgModule(*channel_receiver_it, msgs_it->second);
-				channel_receiver_it++;
+				channel_receiver_it = channel_receiver.begin();
+				while (channel_receiver_it != channel_receiver.end()) {
+					sendMsgModule(*channel_receiver_it, msgs_it->second);
+					channel_receiver_it++;
+				}
+			} else {
+				std::cout << "send target channel not found" << std::endl;
 			}
 		} else { //일반 유저일 경우
 			sendMsgModule(msgs_it->first, msgs_it->second);
@@ -215,11 +218,11 @@ void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 		} else {
 			std::cout << ">> Send msg to " << recv << ":\n\t" << msg << "\n\n";
 		}
-	}
 
 	Client* clnt = getClient(dest_fd);
 	if (!clnt->getConnected())
 		disconnectClnt(dest_fd);
+	}
 }
 
 int		Server::checkNewEvents() {
