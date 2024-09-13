@@ -208,19 +208,6 @@ void	Server::sendMsgModule(const std::string& recv, const std::string& msg) {
 		disconnectClnt(dest_fd);
 }
 
-std::string Server::genPrefix(const std::string& sender, int rpl) {
-	std::string outBuf = ":";
-	std::stringstream ss;
-	ss << std::setw(3) << std::setfill('0') << rpl;
-
-	if (rpl != 0) {
-		outBuf += _serv_name + " " + ss.str() + " " + sender + " ";
-		return outBuf;
-	} else
-		outBuf += sender + "!" + getClient(getClient(sender))->getUsername() + "@localhost"+ " ";
-	return outBuf;
-}
-
 int		Server::checkNewEvents() {
 	int newEvent = 0;
 	// std::cout << "newEvent while start" << std::endl;
