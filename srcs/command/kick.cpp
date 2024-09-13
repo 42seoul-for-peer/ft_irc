@@ -23,9 +23,7 @@ void Command::kick(Server& serv) {
 	Client* kicked_client;
 	
 	if (_args.size() < 2) {
-		prefix = serv.genPrefix(_sender, ERR_NEEDMOREPARAMS);
-		msg = _genProtoMsg(ERR_NEEDMOREPARAMS, prefix);
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS));
 		return ;
 	}
 
@@ -49,9 +47,7 @@ void Command::kick(Server& serv) {
 		channel_it ++;
 	}
 	if (channel_it == serv.getChannels().end()) {
-		prefix = serv.genPrefix(_sender, ERR_NOSUCHCHANNEL);
-		msg = _genProtoMsg(ERR_NOSUCHCHANNEL, prefix, channel);
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, channel));
 		return ;
 	}
 
@@ -67,11 +63,9 @@ void Command::kick(Server& serv) {
 
 	channel_member_it = channel_addr->getClients().begin();
 	while (channel_member_it != channel_addr->getClients().end()) {
-		if (_sender == channel_member_it->second->getNickname()) {
+		if (_send_nick == channel_member_it->second->getNickname()) {
 			if (channel_member_it->first == 0) {
-				prefix = serv.genPrefix(_sender, ERR_CHANOPRIVSNEEDED);
-				msg = _genProtoMsg(ERR_CHANOPRIVSNEEDED, prefix, channel);
-				setMsgs(_sender, msg);
+				setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, channel));
 				return ;
 			}
 			break ;
@@ -79,9 +73,7 @@ void Command::kick(Server& serv) {
 		channel_member_it++;
 	}
 	if (channel_member_it == channel_addr->getClients().end()) {
-		prefix = serv.genPrefix(_sender, ERR_NOTONCHANNEL);
-		msg = _genProtoMsg(ERR_NOTONCHANNEL, prefix, channel);
-		setMsgs(_sender, msg);
+		setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, channel));
 		return ;
 	}
 
@@ -100,9 +92,7 @@ void Command::kick(Server& serv) {
 			serv_clnt_it++;
 		}
 		if (serv_clnt_it == serv.getClients().end()) {
-			prefix = serv.genPrefix(_sender, ERR_NOSUCHNICK);
-			msg = _genProtoMsg(ERR_NOSUCHNICK, prefix, target);
-			setMsgs(_sender, msg);
+			setMsgs(_send_nick, _genMsg(ERR_NOSUCHNICK, target));
 			continue ;
 		}
 
@@ -110,15 +100,12 @@ void Command::kick(Server& serv) {
 		std::vector< std::string > curr_channel = serv_clnt_it->second->getCurrChannel();
 		std::vector< std::string >::iterator it = find(curr_channel.begin(), curr_channel.end(), channel);
 		if (it == curr_channel.end()) {
-			prefix = serv.genPrefix(_sender, ERR_USERNOTINCHANNEL);
-			msg = _genProtoMsg(ERR_USERNOTINCHANNEL, prefix, target, channel);
-			setMsgs(_sender, msg);
+			setMsgs(_send_nick, _genMsg(ERR_USERNOTINCHANNEL, target, channel));
 			continue ;
 		}
 
 		//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
-		prefix = serv.genPrefix(_sender, 0);
-		msg = prefix + " " + _cmd + " " + channel + " " + target;
+		msg = _genMsg(0, _cmd, channel + " " + target);
 		if (comment.size() != 0)
 			msg += " :" + comment + "\n";
 		else
