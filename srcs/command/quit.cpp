@@ -42,6 +42,9 @@ void Command::quit(Server& serv)
 
 		}
 		chan_target->second->deleteClient(*clnt);
+		//? client가 나가고 더이상 channel에 유저가 없음 -> channel 제거
+		if (chan_target->second->getClients().size() == 0)
+			serv.deleteChnl(chan_target->second);
 	}
 	//todo [Step3] Client 멤버 변수 _connected를 false로 변경
 	clnt->setConnected(false);
@@ -51,5 +54,8 @@ void Command::quit(Server& serv)
 		quit_msg = "leaving";
 	setMsgs(_sender, "ERROR :Closing link: (" + clnt->getUsername() + "@localhost) [Quit: " + quit_msg + "]\n");
 	for (std::set< std::string >::iterator it = related_clients.begin(); it != related_clients.end(); it++)
+	{
+		std::cout << "to send: " << *it << std::endl;
 		setMsgs(*it, _genMsg(0, "QUIT :Quit", quit_msg));
+	}
 }
