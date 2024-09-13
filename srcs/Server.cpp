@@ -37,6 +37,16 @@ void Server::serverInit()
 
 	changeEvents(_sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	std::cout << "server activated with port " << ntohs(_addr.sin_port) << std::endl;
+
+	// char hostname[256];
+	
+	// if (gethostname(hostname, sizeof(hostname)) == 0) {
+	// 	_serv_name = std::string(hostname);
+	// 	std::cout << "Server hostname: " << hostname << std::endl;
+	// } else {
+	// 	throw std::runtime_error("host name error: " + std::string(std::strerror(errno)) + '.');
+	// }
+
 }
 
 void Server::serverProcess()
@@ -82,15 +92,18 @@ void Server::serverProcess()
 
 void Server::acceptClnt()
 {
-	int clientSock;
+	int					clientSock;
+	struct sockaddr_in	clnt_addr;
+	socklen_t			clnt_addr_len = sizeof(clnt_addr);
 
-	clientSock = accept(_sock_fd, NULL, NULL);
+	clientSock = accept(_sock_fd, (struct sockaddr*)&clnt_addr, &clnt_addr_len);
 	if (clientSock == -1)
 		throw std::runtime_error("accept function error: " + std::string(std::strerror(errno)) + '.'); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
 	changeEvents(clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
-	std::cout << "Accepted Client: " << clientSock << std::endl;
+	_clients[clientSock]->setAddr(inet_ntoa(clnt_addr.sin_addr));
+	std::cout << "Accepted Client: " << clientSock << ", " << _clients[clientSock]->getAddr() << std::endl;
 }
 
 void Server::recvMsgFromClnt(int clnt_fd)

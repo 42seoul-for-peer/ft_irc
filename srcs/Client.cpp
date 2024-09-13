@@ -12,6 +12,10 @@ Client::Client(int clientSock)
 : _sock_fd(clientSock), _pass_validity(-1), _registered(false), _connected(true),
 _username("*"), _nickname("*") {}
 
+const std::string&	Client::getAddr(void) const {
+	return (_addr);
+}
+
 int	Client::getSockFd(void) const {
 	return (_sock_fd);
 }
@@ -38,6 +42,10 @@ const std::string&	Client::getUsername(void) const {
 
 const std::string&	Client::getNickname(void) const {
 	return (_nickname);
+}
+
+void	Client::setAddr(std::string str) {
+	_addr = str;
 }
 
 void	Client::setPassValidity(int flag) {

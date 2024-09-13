@@ -20,7 +20,9 @@ class Client {
 
 // MEMBER VARIABLE
  private:
+	std::string	_addr;
 	int 		_sock_fd;
+
 	int			_pass_validity; // input 없음: -1, 틀림: 0, 맞음: 1
 	bool		_registered; // 등록 완료 시 true
 	bool		_connected; // 연결 유지: true, 연결 해제해야함: false
@@ -31,6 +33,7 @@ class Client {
 // MEMBER FUNCTION
  public:
 	// GETTER
+	const std::string& 	getAddr(void) const;
 	int 			getSockFd(void) const;
 	int				getPassValidity(void) const;
 	bool			getConnected(void) const;
@@ -40,6 +43,7 @@ class Client {
 	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
+	void	setAddr(std::string str);
 	void	setPassValidity(int flag);
 	void	setConnected(bool flag);
 	void	setRegistered();
