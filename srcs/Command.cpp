@@ -50,6 +50,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	Client&	send_clnt = *(serv.getClients().find(clnt_fd)->second);
 	_send_nick = send_clnt.getNickname();
 	_send_user = send_clnt.getUsername();
+	_send_addr = send_clnt.getAddr();
 
 	if (_cmd == "PASS")
 		pass(send_clnt, serv);
