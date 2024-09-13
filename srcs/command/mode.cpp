@@ -208,8 +208,8 @@ void Command::mode(Server& serv)
 	}
 	std::string chan_title = _args.front();
 	_args.pop();
-	//! 첫 번째 인자가 채널이 아님
-	if (chan_title[0] != '#')
+	//! 첫 번째 인자가 채널이 아님, 인자가 없음(하지만 이부분은 수정되어야 함)
+	if (chan_title[0] != '#' || _args.empty())
 		return ;
 	
 	std::map< std::string, Channel* > 			serv_channels = serv.getChannels();
