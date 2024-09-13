@@ -56,7 +56,7 @@ std::queue< std::pair< bool, char > > getFlag(const std::string& string)
 		else if (flag == 'o' || flag == 'i' || flag == 'l' || flag == 'k' || flag == 't')
 			flag_queue.push(std::make_pair(enable_flag, flag));
 		else
-			flag_queue.push(std::make_pair(false, 'X'));
+			flag_queue.push(std::make_pair(false, flag));
 	}
 	return (flag_queue);
 }
