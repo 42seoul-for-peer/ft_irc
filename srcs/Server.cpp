@@ -49,6 +49,7 @@ void Server::serverProcess()
 		// // std::cout << "event count: " << newEvent << std::endl;
 		for (int i = 0; i < newEvent; i++) {
 			if (_event[i].flags & EV_EOF) {
+				std::cout << "disconnect bc eof" << std::endl;
 				_disconnectClnt(_event[i].ident);
 			} else if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
@@ -236,14 +237,41 @@ void	Server::_changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint
     _kq_events.push_back(tmpEvent);
 }
 
+//끊겼든 끊었든 호출됨.
 void	Server::_disconnectClnt(int clnt_fd) {
-	if (clnt_fd > 0) {
-		std::cout << "client disconnected: " << clnt_fd << std::endl;
-		if (close(clnt_fd) >= 0)
-			delete _clients.find(clnt_fd)->second;
-		_clients.erase(clnt_fd);
-		_readString.erase(clnt_fd);
+	if (clnt_fd <= 0)
+		return ;
+
+	if (_clients.find(clnt_fd) != _clients.end()) {
+		Client* disconnected_clnt = _clients.find(clnt_fd)->second;
+
+		//quit 같은걸로 이미 잘 삭제된 경우가 아니라면
+		//channel도 정리해줘야함
+		if (!(disconnected_clnt->getCurrChannel().empty())) {
+			std::vector<std::string>::const_iterator it = disconnected_clnt->getCurrChannel().begin();
+			std::map<std::string, Channel*>::iterator chan;
+
+			while (it != disconnected_clnt->getCurrChannel().end()) {
+				if (!(it->empty())) {
+					std::cout << __func__ << ": curr channel list = " << *it << std::endl;
+					chan = _channels.find(*it);
+					if (chan != _channels.end()) {
+						Channel* channel = chan->second;
+						channel->deleteClient(*disconnected_clnt);
+						disconnected_clnt->leaveChannel(*channel);
+					}
+				}
+				++it;
+			}
+		}
 	}
+
+	if (close(clnt_fd) >= 0) {
+		std::cout << "client disconnected: " << clnt_fd << std::endl;
+		delete _clients.find(clnt_fd)->second;
+	}
+	_clients.erase(clnt_fd);
+	_readString.erase(clnt_fd);
 }
 
 void	Server::addNewClnt(int clnt_fd, Client* clnt) {
