@@ -23,8 +23,10 @@ bool	Command::_valid_nick(std::string& new_nick) const {
 	if (len < 1) // int max 길이 초과해서 overflow 발생했거나 0글자 문자열인 경우
 		return (false);
 	for (int i = 0; i < len; i++){
-		if (!isalnum(new_nick[i]) && special.find(new_nick[i]) != std::string::npos)
+		if (special.find(new_nick[i]) == std::string::npos && !isalpha(new_nick[i])) {
+			std::cout << new_nick[i] << "\n";
 			return (false);
+		}
 	}
 	return (true);
 }
@@ -51,6 +53,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	// 닉네임 변경하는 경우
 	if (send_clnt.getRegistered() == true) {
 		send_clnt.setNickname(new_nick);
+		std::cout << send_clnt.getNickname() << "<< curr nick\n";
 		setMsgs (new_nick, _genMsg(0, _cmd, ":" + new_nick));
 		return ;
 	}
