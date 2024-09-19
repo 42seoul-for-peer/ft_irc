@@ -8,7 +8,7 @@ Channel::~Channel() {
 
 // MEMBER FUNCTION
 Channel::Channel(std::string title, Client* client)
-: _title(title), _max_clients(-1), _mode(0) {
+: _mode(0), _max_clients(-1), _title(title) {
     _clients.push_back(std::pair< bool, Client* >(true, client));
     client->joinChannel(*this);
 }
