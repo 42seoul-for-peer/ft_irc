@@ -51,6 +51,8 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	// 닉네임 변경하는 경우
 	if (send_clnt.getRegistered() == true) {
 		send_clnt.setNickname(new_nick);
+		setMsgs (new_nick, _genMsg(0, _cmd, ":" + new_nick));
+		return ;
 	}
 	else {	// 새로 등록하는 경우
 		if (send_clnt.getUsername() != "*") { // user name 있는 경우
