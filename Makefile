@@ -45,18 +45,16 @@ cmd_srcs = genmsg.cpp\
 			part.cpp\
 			pass.cpp\
 			privmsg.cpp\
-			protocolMsg.cpp\
 			topic.cpp\
 			invite.cpp\
 			unknownCommand.cpp\
 			user.cpp\
 			quit.cpp\
 
-# INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-DEPS_M = $(SRCS:.cpp=.d)
--include $(DEPS_M)
+DEPS = $(SRCS:.cpp=.d)
+-include $(addprefix $(OBJ_DIR)/,$(DEPS))
 # **************************************************************************** #
 .PHONY : all clean fclean re
 # **************************************************************************** #
