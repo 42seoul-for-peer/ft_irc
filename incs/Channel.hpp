@@ -26,13 +26,13 @@ class Channel {
 
 // MEMBER VARIABLE
  private:
-	std::vector< std::pair< bool, Client* > > _clients;
-    std::vector< std::string >              _invited_clients;
+	int			_mode;
+    int			_max_clients;
 	std::string	_title;
 	std::string	_topic;
 	std::string	_passwd;
-    int			_max_clients;
-	int			_mode;
+	std::vector< std::pair< bool, Client* > >	_clients;
+    std::vector< std::string >					_invited_clients;
 
 // MEMBER FUNCITON
  public:
@@ -44,15 +44,15 @@ class Channel {
 	void setOperator(const bool& status, const std::string& clnt_name);
 
 	// GETTER
-	const std::string& getTitle(void) const;
-	const std::string& getTopic(void) const;
-	const std::string& getPasswd(void) const;
-	const std::vector< std::string >& getInvitedClients(void) const;
-	const std::vector< std::pair< bool, Client* > >& getClients() const;
-	const int& getMaxClients(void) const;
-	const int& getMode(void) const;
-	
-	// HANDLING CLIENT
+	const std::string&	getTitle(void) const;
+	const std::string&	getTopic(void) const;
+	const std::string&	getPasswd(void) const;
+	const int& 			getMode(void) const;
+	const int& 			getMaxClients(void) const;
+	const std::vector< std::string >& 					getInvitedClients(void) const;
+	const std::vector< std::pair< bool, Client* > >&	getClients() const;
+
+	// CLIENT HANDLER
 	const std::string printClientsList(void) const;
 	void addClient(std::pair< bool, Client* > new_client);
 	void deleteClient(const Client& client);
