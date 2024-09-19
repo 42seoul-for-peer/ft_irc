@@ -30,6 +30,7 @@
 # define RPL_NOTOPIC 331
 # define RPL_TOPIC 332
 # define RPL_INVITING 341
+# define RPL_NAMREPLY 353
 # define RPL_ENDOFNAMES 366 // 353 종료 메세지라서 바로 같이 넣어줘야함
 // v.2812
 # define RPL_WELCOME 1
