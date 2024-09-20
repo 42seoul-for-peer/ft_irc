@@ -138,7 +138,7 @@ void Command::_lMode(bool flag, Channel* chan)
 		{
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
-			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l: " + _args.front()));
+			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l :" + _args.front()));
 		}
 		_args.pop();
 	}
@@ -208,8 +208,8 @@ void Command::mode(Server& serv)
 	}
 	std::string chan_title = _args.front();
 	_args.pop();
-	//! 첫 번째 인자가 채널이 아님, 인자가 없음(하지만 이부분은 수정되어야 함)
-	if (chan_title[0] != '#' || _args.empty())
+	//! 첫 번째 인자가 채널이 아님
+	if (chan_title[0] != '#')
 		return ;
 	
 	std::map< std::string, Channel* > 			serv_channels = serv.getChannels();
@@ -238,6 +238,53 @@ void Command::mode(Server& serv)
 	if (clnts_it->first == false)
 	{
 		setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
+		return ;
+	}
+	//? 인자가 없을 경우 현재 채널에 대한 mode 상태 출력
+// MODE #room1
+// :irc.local 324 seungjun #room1 :+nt
+// :irc.local 329 seungjun #room1 :1726793817
+// 324     RPL_CHANNELMODEIS
+                        // "<channel> <mode> <mode params>"
+	if (_args.empty())
+	{
+		int chan_mode = chans_it->second->getMode();
+		if (chan_mode == 0)
+			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, ":+"));
+		// +iklt hello 123
+		else
+		{
+			std::string tmp;
+			if (!(chan_mode & MODE_K) && !(chan_mode & MODE_L))
+				tmp += ":";
+			tmp += "+";
+			if (chan_mode & MODE_I)
+				tmp += "i";
+			if (chan_mode & MODE_K)
+				tmp += "k";
+			if (chan_mode & MODE_L)
+				tmp += "l";
+			if (chan_mode & MODE_T)
+				tmp += "t";
+			if (chan_mode & MODE_K && chan_mode & MODE_L)
+			{
+				tmp += " " + chans_it->second->getPasswd();
+				tmp += " :";
+				std::stringstream stream;
+				stream << chans_it->second->getMaxClients();
+				tmp += stream.str();
+			}
+			else if (chan_mode & MODE_K)
+				tmp += " :" + chans_it->second->getPasswd();
+			else if (chan_mode & MODE_L)
+			{
+				tmp += " :";
+				std::stringstream stream;
+				stream << chans_it->second->getMaxClients();
+				tmp += stream.str();
+			}
+			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, tmp));
+		}
 		return ;
 	}
 	std::queue< std::pair< bool, char > > flag_queue = getFlag(_args.front());
