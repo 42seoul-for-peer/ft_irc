@@ -36,7 +36,7 @@ void Command::part(Client& send_clnt, Server& serv)
 		target->second->deleteClient(send_clnt);
 		std::string msg;
 		if (leaveMessage.empty())
-			msg = _genMsg(0, _cmd, ":" + target->first);
+			msg = _genMsg(0, _cmd, target->first);
 		else 
 			msg = _genMsg(0, _cmd + " " + target->first, ":" + leaveMessage);
 		setMsgs(_send_nick, msg);
