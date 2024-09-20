@@ -45,7 +45,7 @@ void Channel::setOperator(const bool& status, const std::string& clnt_name)
         if (_clients[idx].second->getNickname() == clnt_name)
             break ;
     }
-    if (idx == 0 || idx == clnt_size)
+    if (idx == clnt_size)
         return ;
     else
         _clients[idx].first = status;
