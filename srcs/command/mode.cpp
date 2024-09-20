@@ -234,24 +234,12 @@ void Command::mode(Server& serv)
 		setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_title));
 		return ;
 	}
-	//! 채널에 존재하지만 operator가 아님
-	if (clnts_it->first == false)
-	{
-		setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
-		return ;
-	}
 	//? 인자가 없을 경우 현재 채널에 대한 mode 상태 출력
-// MODE #room1
-// :irc.local 324 seungjun #room1 :+nt
-// :irc.local 329 seungjun #room1 :1726793817
-// 324     RPL_CHANNELMODEIS
-                        // "<channel> <mode> <mode params>"
 	if (_args.empty())
 	{
 		int chan_mode = chans_it->second->getMode();
 		if (chan_mode == 0)
-			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, ":+"));
-		// +iklt hello 123
+			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chans_it->first, ":+"));
 		else
 		{
 			std::string tmp;
@@ -283,8 +271,14 @@ void Command::mode(Server& serv)
 				stream << chans_it->second->getMaxClients();
 				tmp += stream.str();
 			}
-			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, tmp));
+			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chans_it->first, tmp));
 		}
+		return ;
+	}
+	//! 채널에 존재하지만 operator가 아님
+	if (clnts_it->first == false)
+	{
+		setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
 		return ;
 	}
 	std::queue< std::pair< bool, char > > flag_queue = getFlag(_args.front());
