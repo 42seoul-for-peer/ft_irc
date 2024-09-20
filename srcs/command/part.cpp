@@ -1,9 +1,7 @@
 #include "Command.hpp"
 
-void Command::part(Client& send_clnt, Server& serv)
-{
-	if (_args.size() < 1)
-	{
+void Command::part(Client& send_clnt, Server& serv) {
+	if (_args.size() < 1) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
@@ -17,18 +15,15 @@ void Command::part(Client& send_clnt, Server& serv)
 	_args.pop();
 	const std::string			leaveMessage = _appendRemaining();
 
-	for (int i = 0; i < chan_size; i++)
-	{
+	for (int i = 0; i < chan_size; i++) {
 		target = serv_channels.find(chan_args[i]);
 		//! 존재하지 않는 채널명
-		if (target == serv_channels.end())
-		{
+		if (target == serv_channels.end()) {
 			setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, chan_args[i]));
 			continue ;
 		}
 		//! 채널은 존재하지만 클라이언트가 속해있지 않음
-		if (std::find(clnt_channels.begin(), clnt_channels.end(), target->first) == clnt_channels.end())
-		{
+		if (std::find(clnt_channels.begin(), clnt_channels.end(), target->first) == clnt_channels.end()) {
 			setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_args[i]));
 			continue ;
 		}

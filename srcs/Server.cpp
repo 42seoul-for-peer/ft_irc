@@ -14,8 +14,7 @@ Server::Server(const std::string& port, const std::string& password)
 }
 
 // MEMBER FUNCTION
-void Server::serverInit()
-{
+void Server::serverInit() {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_sock_fd == -1)
 		throw std::runtime_error("socket error: " + std::string(std::strerror(errno)));
@@ -39,8 +38,7 @@ void Server::serverInit()
 	std::cout << "server activated with port " << ntohs(_addr.sin_port) << std::endl;
 }
 
-void Server::serverProcess()
-{
+void Server::serverProcess() {
 	int newEvent;
 	while (1) {
 		// system("leaks -q ircserv");
@@ -51,23 +49,28 @@ void Server::serverProcess()
 			if (_event[i].flags & EV_EOF) {
 				std::cout << "EOF detected" << std::endl;
 				_disconnectClnt(_event[i].ident);
-			} else if (_event[i].flags & EV_ERROR) {
+			}
+			else if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
 					throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 				else
 					_disconnectClnt(_event[i].ident);
-			} else if (_event[i].filter == EVFILT_READ) {
+			}
+			else if (_event[i].filter == EVFILT_READ) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd)) {
 					try {
 						_acceptClnt();
-					} catch (std::exception& e) {
+					}
+					catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
 					}
-				} else if (_clients.find(_event[i].ident) != _clients.end()) {
+				}
+				else if (_clients.find(_event[i].ident) != _clients.end()) {
 					// // std::cout << "read event check" << std::endl;
 					try {
 						_recvMsgFromClnt(_event[i].ident);
-					} catch (std::exception& e) {
+					}
+					catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
 						_disconnectClnt(_event[i].ident);
 					}
@@ -81,8 +84,7 @@ void Server::serverProcess()
 	// std::cout << "out of while" << std::endl;
 }
 
-void Server::_acceptClnt()
-{
+void Server::_acceptClnt() {
 	int					clientSock;
 	struct sockaddr_in	clnt_addr;
 	socklen_t			clnt_addr_len = sizeof(clnt_addr);
@@ -97,8 +99,7 @@ void Server::_acceptClnt()
 	std::cout << "Accepted Client: " << clientSock << ", " << _clients[clientSock]->getAddr() << std::endl;
 }
 
-void Server::_recvMsgFromClnt(int clnt_fd)
-{
+void Server::_recvMsgFromClnt(int clnt_fd) {
 	std::vector<char> rBuf(1024);
 	std::string cmdToken;
 
@@ -114,9 +115,11 @@ void Server::_recvMsgFromClnt(int clnt_fd)
 		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
 		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
 			return ;
-	} else if (n < 0) {
+	}
+	else if (n < 0) {
 		throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
-	} else {
+	}
+	else {
 		if (it->second == "") {
 			std::cout << "\tRead nothing from client." << std::endl;
 			_disconnectClnt(clnt_fd);
@@ -183,12 +186,12 @@ void Server::_sendMsgToClnt(Command& cmd)
 					_sendMsgModule(*channel_receiver_it, msgs_it->second);
 					channel_receiver_it++;
 				}
-			} else {
-				std::cout << "send target channel not found" << std::endl;
 			}
-		} else { //일반 유저일 경우
-			_sendMsgModule(msgs_it->first, msgs_it->second);
+			else
+				std::cout << "send target channel not found" << std::endl;
 		}
+		else //일반 유저일 경우
+			_sendMsgModule(msgs_it->first, msgs_it->second);
 		msgs_it++;
 	}
 	delete _commandQueue.front();
@@ -205,7 +208,8 @@ void	Server::_sendMsgModule(const std::string& recv, const std::string& msg) {
 		if (result < 0) {
 			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
 			_disconnectClnt(dest_fd);
-		} else {
+		}
+		else {
 			std::cout << ">> Send msg to " << recv << ":\n\t" << msg << "\n\n";
 		}
 
@@ -297,12 +301,10 @@ void	Server::deleteChnl(Channel* chnl) {
 void	Server::updateInvitedList(std::string& old_nick, std::string& new_nick) {
 	std::map< std::string, Channel* > channels = getChannels();
 	std::map< std::string, Channel* >::iterator chans_it = channels.begin();
-	while (chans_it != channels.end())
-	{
+	while (chans_it != channels.end()) {
 		std::vector< std::string > invited_list = chans_it->second->getInvitedClients();
 		std::vector< std::string >::iterator target = std::find(invited_list.begin(), invited_list.end(), old_nick);
-		if (target != invited_list.end())
-		{
+		if (target != invited_list.end()) {
 			chans_it->second->rmInvitedClients(old_nick);
 			chans_it->second->addInvitedClient(new_nick);
 		}

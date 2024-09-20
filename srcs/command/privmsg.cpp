@@ -10,7 +10,8 @@ void Command::privmsg(Server& serv) {
 	if (_args.empty()) {
 		setMsgs(_send_nick, _genMsg(ERR_NORECIPIENT));
 		return ;
-	} else if (_args.size() < 2) {
+	}
+	else if (_args.size() < 2) {
 		setMsgs(_send_nick, _genMsg(ERR_NOTEXTTOSEND));
 		return ;
 	}
@@ -29,10 +30,7 @@ void Command::privmsg(Server& serv) {
 		return ;
 	}
 
-
-
 	while(std::getline(recv_list, target, ',')) {
-
 		if (target[0] == '#') {
 			chnl = serv.getChannels().find(target);
 			if (chnl != serv.getChannels().end()) {
@@ -46,14 +44,15 @@ void Command::privmsg(Server& serv) {
 								setMsgs(clnt_in_chnl->second->getNickname(), msg);
 							clnt_in_chnl++;
 						}
-					} else {
-						setMsgs(_send_nick, _genMsg(ERR_CANNOTSENDTOCHAN, target));
 					}
+					else
+						setMsgs(_send_nick, _genMsg(ERR_CANNOTSENDTOCHAN, target));
 				}
-			} else {
-				setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, target));
 			}
-		} else {
+			else
+				setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, target));
+		}
+		else {
 			clnt = serv.getClients().begin();
 			while (clnt != serv.getClients().end()) {
 				if (clnt->second->getNickname() == target) {

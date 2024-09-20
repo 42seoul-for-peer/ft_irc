@@ -17,11 +17,9 @@
 	*-> ERR_CHANOPRIVSNEEDED<482>
 */
 
-void Command::topic(Server& serv)
-{
+void Command::topic(Server& serv) {
 	//! 인자의 개수가 부족
-	if (_args.size() < 1)
-	{
+	if (_args.size() < 1) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
@@ -32,14 +30,12 @@ void Command::topic(Server& serv)
 	std::map< std::string, Channel* >::iterator target = serv_channels.find(chan_title);
 
 	//! 존재하지 않는 채널
-	if (target == serv_channels.end())
-	{
+	if (target == serv_channels.end()) {
 		setMsgs(_send_nick, _genMsg(ERR_NOSUCHCHANNEL, chan_title));
 		return ;
 	}
 	//todo Case; 인자 없음 -> 현재 channel의 topic 출력
-	if (_args.size() == 0)
-	{
+	if (_args.size() == 0) {
 		std::string chan_topic = target->second->getTopic();
 		//? 지정된 topic이 존재
 		if (!chan_topic.empty())
@@ -49,8 +45,7 @@ void Command::topic(Server& serv)
 			setMsgs(_send_nick, _genMsg(RPL_NOTOPIC, chan_title));
 	}
 	//todo Case; 인자 있음 -> 현재 channel의 topic 설정
-	else
-	{
+	else {
 		std::vector< std::pair< bool, Client* > >	chan_clnts = target->second->getClients();
 		const int 									num_of_clnts = chan_clnts.size();
 		int idx = 0;
@@ -63,8 +58,7 @@ void Command::topic(Server& serv)
 		else if ((target->second->getMode() & MODE_T) && chan_clnts[idx].first == false)
 			setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
 		//todo TOPIC 명령 동작
-		else
-		{
+		else {
 			std::string topic_str = _appendRemaining();
 			target->second->setTopic(topic_str);
 			setMsgs(_send_nick, _genMsg(0, _cmd + " " + chan_title + " :" + topic_str));
