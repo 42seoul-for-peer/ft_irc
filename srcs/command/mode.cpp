@@ -138,7 +138,9 @@ void Command::_lMode(bool flag, Channel* chan)
 		{
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
-			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l :" + _args.front()));
+			std::stringstream stream;
+			stream << limit_str;
+			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l :" + stream.str()));
 		}
 		_args.pop();
 	}
