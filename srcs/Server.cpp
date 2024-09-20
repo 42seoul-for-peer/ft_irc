@@ -77,9 +77,9 @@ void Server::serverProcess() {
 				}
 			}
 			// // std::cout << "for end" << std::endl;
+			while (!_commandQueue.empty())
+				_sendMsgToClnt(_event[i].ident, *_commandQueue.front());
 		}
-		while (!_commandQueue.empty())
-			_sendMsgToClnt(*_commandQueue.front());
     }
 	// std::cout << "out of while" << std::endl;
 }
@@ -157,7 +157,7 @@ void Server::_recvMsgFromClnt(int clnt_fd) {
 	}
 }
 
-void Server::_sendMsgToClnt(Command& cmd)
+void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 {
 	const std::map< std::string, std::string >	msgs = cmd.getMsgs();
 
@@ -171,6 +171,7 @@ void Server::_sendMsgToClnt(Command& cmd)
 		std::vector< std::string >::iterator	channel_receiver_it;
 		std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
 
+		Client* clnt = getClient(clnt_fd);
 		if (msgs_it->first[0] == '#') {  //채널일경우
 			std::map< std::string, Channel* >::iterator it = _channels.find(msgs_it->first);
 			if (it != _channels.end()) {
@@ -183,26 +184,27 @@ void Server::_sendMsgToClnt(Command& cmd)
 
 				channel_receiver_it = channel_receiver.begin();
 				while (channel_receiver_it != channel_receiver.end()) {
-					_sendMsgModule(*channel_receiver_it, msgs_it->second);
+					_sendMsgModule(getClient(*channel_receiver_it), msgs_it->second);
 					channel_receiver_it++;
 				}
 			}
 			else
 				std::cout << "send target channel not found" << std::endl;
 		}
+		else if ((cmd.getCmd() == "USER" || cmd.getCmd() == "NICK") && !(clnt->getConnected())) {
+			_sendMsgModule(clnt_fd, msgs_it->second);
+		}
 		else //일반 유저일 경우
-			_sendMsgModule(msgs_it->first, msgs_it->second);
+			_sendMsgModule(getClient(msgs_it->first), msgs_it->second);
 		msgs_it++;
 	}
 	delete _commandQueue.front();
 	_commandQueue.pop();
 }
 
-void	Server::_sendMsgModule(const std::string& recv, const std::string& msg) {
-	int			dest_fd;
+void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
 	int			result;
 
-	dest_fd = getClient(recv);
 	if (dest_fd != 0) {
 		result = send(dest_fd, msg.c_str(), msg.size(), 0);
 		if (result < 0) {
@@ -210,7 +212,7 @@ void	Server::_sendMsgModule(const std::string& recv, const std::string& msg) {
 			_disconnectClnt(dest_fd);
 		}
 		else {
-			std::cout << ">> Send msg to " << recv << ":\n\t" << msg << "\n\n";
+			std::cout << ">> Send msg to fd(" << dest_fd << ") :\n\t" << msg << "\n\n";
 		}
 
 	Client* clnt = getClient(dest_fd);

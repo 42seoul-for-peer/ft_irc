@@ -54,11 +54,11 @@ class Server {
 	int		_checkNewEvents();
 	void	_acceptClnt();
 	void	_recvMsgFromClnt(int clnt_fd); //버퍼를 받아와서 cmd객체 생성, cmd parse 함수, 검사해서 괜찮으면 exec
-	void	_sendMsgToClnt(Command& cmd); //writable 한지 보고 전송
-	void	_sendMsgModule(const std::string& recv, const std::string& msg);
+	void	_sendMsgToClnt(int clnt_fd, Command& cmd); //writable 한지 보고 전송
+	void	_sendMsgModule(int clnt_fd, const std::string& msg);
 
 	void	_changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
-	void	_disconnectClnt(int clnt_fd);
+	void	_disconnectClnt(int dest_fd);
 
  public:
 	// clnt controller
