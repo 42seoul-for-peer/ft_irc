@@ -50,61 +50,61 @@ const std::string	Command::_genRplMsg(int rpl_no) const {
 		case RPL_WELCOME:
 			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@" + _send_addr + "\n");
 		case RPL_NOTOPIC:
-			return (":No topic is set\n");
+			return (":No topic is set\r\n");
 		case RPL_ENDOFNAMES:
-			return (":End of /NAMES list\n");
+			return (":End of /NAMES list\r\n");
 		default:
-			return ("\n");
+			return ("\r\n");
 	}
 }
 
 const std::string	Command::_genErrMsg(int rpl_no) const {
 	switch (rpl_no) {
 		case ERR_NOSUCHNICK:
-			return (":No such nick/channel\n");
+			return (":No such nick/channel\r\n");
 		case ERR_NOSUCHCHANNEL:
-			return (":No such channel\n");
+			return (":No such channel\r\n");
 		case ERR_CANNOTSENDTOCHAN:
-			return (":Cannot sent to channel\n");
+			return (":Cannot sent to channel\r\n");
 		case ERR_TOOMANYCHANNELS:
-			return (":You have joined too many channels\n");
+			return (":You have joined too many channels\r\n");
 		case ERR_NORECIPIENT:
-			return (":No recipient given (" + _cmd + ")\n");
+			return (":No recipient given (" + _cmd + ")\r\n");
 		case ERR_NOTEXTTOSEND:
-			return (":No text to send\n");
+			return (":No text to send\r\n");
 		case ERR_UNKNOWNCOMMAND:
-			return (":Unknown command\n");
+			return (":Unknown command\r\n");
 		case ERR_NONICKNAMEGIVEN:
-			return (":No nickname given\n");
+			return (":No nickname given\r\n");
 		case ERR_ERRONEUSNICKNAME:
-			return (":Erroneus nickname\n");
+			return (":Erroneus nickname\r\n");
 		case ERR_NICKNAMEINUSE:
-			return (":Nickname is already in use\n");
+			return (":Nickname is already in use\r\n");
 		case ERR_USERNOTINCHANNEL:
-			return (":They aren't on that channel\n");
+			return (":They aren't on that channel\r\n");
 		case ERR_NOTONCHANNEL:
-			return (":You're not on channel\n");
+			return (":You're not on channel\r\n");
 		case ERR_USERONCHANNEL:
-			return (":is already on channel\n");
+			return (":is already on channel\r\n");
 		case ERR_NEEDMOREPARAMS:
-			return (":Not enough parameters\n");
+			return (":Not enough parameters\r\n");
 		case ERR_ALREADYREGISTRED:
-			return (":You may not reregister\n");
+			return (":You may not reregister\r\n");
 		case ERR_KEYSET:
-			return (":Channel key already set\n");
+			return (":Channel key already set\r\n");
 		case ERR_CHANNELISFULL:
-			return (":Cannot join channel (+l)\n");
+			return (":Cannot join channel (+l)\r\n");
 		case ERR_UNKNOWNMODE:
-			return (":is unknown mode char to me\n");
+			return (":is unknown mode char to me\r\n");
 		case ERR_INVITEONLYCHAN:
-			return (":Cannot join channel (+i)\n");
+			return (":Cannot join channel (+i)\r\n");
 		case ERR_BADCHANNELKEY:
-			return (":Cannot join channel (+k)\n");
+			return (":Cannot join channel (+k)\r\n");
 		case ERR_BADCHANMASK:
-			return (":Invalid channel name\n");
+			return (":Invalid channel name\r\n");
 		case ERR_CHANOPRIVSNEEDED:
-			return (":You're not channel operator\n");
+			return (":You're not channel operator\r\n");
 		default:
-			return (":Unknown error\n");
+			return (":Unknown error\r\n");
 	}
 }
