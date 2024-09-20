@@ -48,7 +48,7 @@ const std::string	Command::_genPrefix(int rpl_no) const {
 const std::string	Command::_genRplMsg(int rpl_no) const {
 	switch(rpl_no) {
 		case RPL_WELCOME:
-			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@" + _send_addr + "\n");
+			return (":Welcome to the Localnet Relay Network " + _send_nick + "!" + _send_user + "@" + _send_addr + "\r\n");
 		case RPL_NOTOPIC:
 			return (":No topic is set\r\n");
 		case RPL_ENDOFNAMES:
