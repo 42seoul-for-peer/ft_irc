@@ -75,7 +75,7 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "QUIT")
 		quit(serv);
 	else if (_cmd == "PING") {
-		setMsgs(_send_nick, ":irc.local PONG irc.local :irc.local");
+		setMsgs(_send_nick, ":irc.local PONG irc.local :irc.local\r\n");
 	}
 	else if (_cmd != "")
 		unknownCommand();
