@@ -67,6 +67,7 @@ class Server {
 	// chnl controller
 	void	addNewChnl(Channel* chnl);
 	void	deleteChnl(Channel* chnl);
+	void	updateInvitedList(std::string& old_nick, std::string& new_nick);
 
 	// getter
 	int											getPort() const;

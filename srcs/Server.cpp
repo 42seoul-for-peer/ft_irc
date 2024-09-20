@@ -293,6 +293,22 @@ void	Server::deleteChnl(Channel* chnl) {
 	_channels.erase(_channels.find(chnl_name));
 }
 
+void	Server::updateInvitedList(std::string& old_nick, std::string& new_nick) {
+	std::map< std::string, Channel* > channels = getChannels();
+	std::map< std::string, Channel* >::iterator chans_it = channels.begin();
+	while (chans_it != channels.end())
+	{
+		std::vector< std::string > invited_list = chans_it->second->getInvitedClients();
+		std::vector< std::string >::iterator target = std::find(invited_list.begin(), invited_list.end(), old_nick);
+		if (target != invited_list.end())
+		{
+			chans_it->second->rmInvitedClients(old_nick);
+			chans_it->second->addInvitedClient(new_nick);
+		}
+		chans_it++;
+	}
+}
+
 // getter
 int	Server::getPort() const {
 	return (_port);

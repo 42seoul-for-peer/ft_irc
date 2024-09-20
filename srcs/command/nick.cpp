@@ -52,6 +52,7 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	}
 	// 닉네임 변경하는 경우
 	if (send_clnt.getRegistered() == true) {
+		serv.updateInvitedList(_send_nick, new_nick);
 		send_clnt.setNickname(new_nick);
 		if (!(send_clnt.getCurrChannel().empty())) {
 			std::vector< std::string >::const_iterator chan_it = send_clnt.getCurrChannel().begin();
@@ -60,7 +61,6 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 				chan_it++;
 			}
 		} else
-			// setMsgs (new_nick, _genMsg(0, _cmd, ":" + new_nick));
 			setMsgs (new_nick, _genMsg(0, _cmd, new_nick));
 		return ;
 	}
