@@ -49,7 +49,7 @@ void Server::serverProcess()
 		// // std::cout << "event count: " << newEvent << std::endl;
 		for (int i = 0; i < newEvent; i++) {
 			if (_event[i].flags & EV_EOF) {
-				std::cout << "disconnect bc eof" << std::endl;
+				std::cout << "EOF detected" << std::endl;
 				_disconnectClnt(_event[i].ident);
 			} else if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
@@ -110,7 +110,6 @@ void Server::_recvMsgFromClnt(int clnt_fd)
 
 	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
-	std::cout << "recv num: " << n << std::endl;
 	if (n > 0) {
 		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
 		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
@@ -248,18 +247,20 @@ void	Server::_disconnectClnt(int clnt_fd) {
 		//quit 같은걸로 이미 잘 삭제된 경우가 아니라면
 		//channel도 정리해줘야함
 		if (!(disconnected_clnt->getCurrChannel().empty())) {
-			std::vector<std::string>::const_iterator it = disconnected_clnt->getCurrChannel().begin();
+			std::vector<std::string> clnt_chans = disconnected_clnt->getCurrChannel();
+			std::vector<std::string>::iterator it = clnt_chans.begin();
 			std::map<std::string, Channel*>::iterator chan;
 
-			while (it != disconnected_clnt->getCurrChannel().end()) {
-				if (!(it->empty())) {
-					std::cout << __func__ << ": curr channel list = " << *it << std::endl;
-					chan = _channels.find(*it);
-					if (chan != _channels.end()) {
-						Channel* channel = chan->second;
-						channel->deleteClient(*disconnected_clnt);
-						disconnected_clnt->leaveChannel(*channel);
-					}
+			while (it != clnt_chans.end()) {
+				chan = _channels.find(*it);
+				if (chan != _channels.end()) {
+					Channel* channel = chan->second;
+					channel->deleteClient(*disconnected_clnt);
+					disconnected_clnt->leaveChannel(*channel);
+					std::string nick = disconnected_clnt->getNickname();
+					channel->rmInvitedClients(nick);
+					if (channel->getClients().size() == 0)
+						deleteChnl(channel);
 				}
 				++it;
 			}
