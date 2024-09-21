@@ -52,9 +52,6 @@ class Client {
 	// HANDLING CHANNEL
 	void	joinChannel(const Channel& channel);
 	void	leaveChannel(const Channel& channel);
-
-// EXCEPTION
-
 };
 
 #endif

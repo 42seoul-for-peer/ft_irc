@@ -42,7 +42,8 @@ void	Command::setMsgs(const std::string& name, const std::string& msg) {
 		_msgs.insert(make_pair(name, msg));
 	}
 	else {
-		it->second += msg;
+		if (it->second.find(msg) == std::string::npos)
+			it->second += msg;
 	}
 }
 // usable function

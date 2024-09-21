@@ -42,26 +42,35 @@ void	Command::nick(Client& send_clnt, Server& serv) {
 	new_nick = _args.front();
 	// 유효성 검증1: 사용 가능한 문자로 구성되어 있는가
 	if (_valid_nick(new_nick) == false) {
-		setMsgs	(_send_nick, _genMsg(ERR_ERRONEUSNICKNAME));
+		setMsgs(_send_nick, _genMsg(ERR_ERRONEUSNICKNAME));
 		return ;
 	}
 	// 유효성 검증2: 중복되지 않는가
 	if (serv.getClient(new_nick)) {
-		setMsgs	(_send_nick, _genMsg(ERR_NICKNAMEINUSE, new_nick));
+		setMsgs(_send_nick, _genMsg(ERR_NICKNAMEINUSE, new_nick));
 		return ;
 	}
 	// 닉네임 변경하는 경우
 	if (send_clnt.getRegistered() == true) {
 		serv.updateInvitedList(_send_nick, new_nick);
 		send_clnt.setNickname(new_nick);
-		if (!(send_clnt.getCurrChannel().empty())) {
-			std::vector< std::string >::const_iterator chan_it = send_clnt.getCurrChannel().begin();
-			while (chan_it != send_clnt.getCurrChannel().end()) {
-				setMsgs (*chan_it, _genMsg(0, _cmd, new_nick));
-				chan_it++;
+		if (send_clnt.getCurrChannel().size()) {
+			const std::vector< std::string >& chnltitles = send_clnt.getCurrChannel();
+			unsigned long idx = 0;
+			msg = _genMsg(0, _cmd, new_nick);
+			while (idx < chnltitles.size()) {
+				Channel* chan = (serv.getChannels().find(chnltitles[idx])->second);
+				const std::vector< std::pair <bool, Client* > >& clnts_in_chnl = chan->getClients();
+				unsigned long i = 0;
+				while (i < clnts_in_chnl.size()){
+					setMsgs(clnts_in_chnl[i].second->getNickname(), msg);
+					i++;
+				}
+				idx++;
 			}
-		} else
-			setMsgs (new_nick, _genMsg(0, _cmd, new_nick));
+		}
+		else
+			setMsgs(new_nick, _genMsg(0, _cmd, new_nick));
 		return ;
 	}
 	else {	// 새로 등록하는 경우
