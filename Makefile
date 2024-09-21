@@ -8,6 +8,10 @@ CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -MMD -MP -I incs/
 ifdef DEBUG
 	CXXFLAGS += -O0 -g3 -fsanitize=address
 endif
+
+ifdef LEAKS
+	CSSFLAGS += -O0 -g3
+endif
 # **************************************************************************** #
 RESET = \033[0m
 
@@ -33,16 +37,24 @@ serv_srcs = main.cpp\
 			Command.cpp\
 			Server.cpp\
 
-cmd_srcs = pass.cpp\
+cmd_srcs = genmsg.cpp\
+			join.cpp\
+			kick.cpp\
+			mode.cpp\
 			nick.cpp\
+			part.cpp\
+			pass.cpp\
+			privmsg.cpp\
+			topic.cpp\
+			invite.cpp\
 			unknownCommand.cpp\
 			user.cpp\
+			quit.cpp\
 
-# INCS = $(addprefix $(INC_DIR)/,$(incs))
 SRCS = $(addprefix $(SRC_DIR)/,$(serv_srcs)) $(addprefix $(SRC_DIR)/$(CMD_DIR)/,$(cmd_srcs))
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-DEPS_M = $(SRCS:.cpp=.d)
--include $(DEPS_M)
+DEPS = $(SRCS:.cpp=.d)
+-include $(addprefix $(OBJ_DIR)/,$(DEPS))
 # **************************************************************************** #
 .PHONY : all clean fclean re
 # **************************************************************************** #

@@ -1,160 +1,320 @@
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <unistd.h>
 #include "Server.hpp"
 
 // OCCF
-Server::~Server() { }
+Server::~Server() {} // 추후 확인 필요
 
 Server::Server(const std::string& port, const std::string& password)
-: _port(std::atoi(port.c_str())), _password(password) {
+: _port(std::atoi(port.c_str())), _password(password), _serv_name("irc.local") {
 	if (_port <= 0 || _port > 65535)
-		throw PortOutOfRangeException();
+		throw std::runtime_error("port number should be between 0 to 65535.");
 }
 
 // MEMBER FUNCTION
-void Server::serverInit()
-{
+void Server::serverInit() {
 	_sock_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_sock_fd == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("socket error: " + std::string(std::strerror(errno)));
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	_addr.sin_addr.s_addr = htons(_port);
+	_addr.sin_port = htons(_port);
 
 	if (bind(_sock_fd, (struct sockaddr*) &_addr, sizeof(_addr)) == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("bind error: " + std::string(std::strerror(errno)) + '.');
 
 	if (listen(_sock_fd, 50) == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("listen error: " + std::string(std::strerror(errno)) + '.');
 
 	_kq = kqueue();
 	if (_kq == -1)
-		throw ServInitFuncException();
+		throw std::runtime_error("kqueue error: " + std::string(std::strerror(errno)) + '.');
 
-	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	_changeEvents(_sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	std::cout << "server activated with port " << ntohs(_addr.sin_port) << std::endl;
 }
 
-void Server::serverProcess()
-{
+void Server::serverProcess() {
 	int newEvent;
 	while (1) {
-		newEvent = checkNewEvents();
+		// system("leaks -q ircserv");
+		// // std::cout << "while start" << std::endl;
+		newEvent = _checkNewEvents();
+		// // std::cout << "event count: " << newEvent << std::endl;
 		for (int i = 0; i < newEvent; i++) {
-			if (_event[i].flags & EV_ERROR) {
+			if (_event[i].flags & EV_EOF) {
+				std::cout << "EOF detected" << std::endl;
+				_disconnectClnt(_event[i].ident);
+			}
+			else if (_event[i].flags & EV_ERROR) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd))
-					throw ServSockCloseException();
+					throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 				else
-					disconnectClnt(_event[i].ident);
-			} else if (_event[i].filter == EVFILT_READ) {
+					_disconnectClnt(_event[i].ident);
+			}
+			else if (_event[i].filter == EVFILT_READ) {
 				if (_event[i].ident == static_cast<uintptr_t>(_sock_fd)) {
 					try {
-						acceptClnt();
-					} catch (ClntAcceptionFailException& e) {
+						_acceptClnt();
+					}
+					catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
 					}
-				} else if (_clients.find(_event[i].ident) != _clients.end()) {
+				}
+				else if (_clients.find(_event[i].ident) != _clients.end()) {
+					// // std::cout << "read event check" << std::endl;
 					try {
-						recvMsgFromClnt(_event[i].ident);
-					} catch (ClntErrException& e) {
+						_recvMsgFromClnt(_event[i].ident);
+					}
+					catch (std::exception& e) {
 						std::cerr << e.what() << std::endl;
-						disconnectClnt(_event[i].ident);
+						_disconnectClnt(_event[i].ident);
 					}
 				}
 			}
+			// // std::cout << "for end" << std::endl;
+			while (!_commandQueue.empty())
+				_sendMsgToClnt(_event[i].ident, *_commandQueue.front());
 		}
-		if (!_commandQueue.empty())
-			sendMsgToClnt(*_commandQueue.front());
     }
+	// std::cout << "out of while" << std::endl;
 }
 
-void Server::acceptClnt()
-{
-	int clientSock;
+void Server::_acceptClnt() {
+	int					clientSock;
+	struct sockaddr_in	clnt_addr;
+	socklen_t			clnt_addr_len = sizeof(clnt_addr);
 
-	clientSock = accept(_sock_fd, NULL, NULL);
+	clientSock = accept(_sock_fd, (struct sockaddr*)&clnt_addr, &clnt_addr_len);
 	if (clientSock == -1)
-		throw ClntAcceptionFailException(); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
+		throw std::runtime_error("accept function error: " + std::string(std::strerror(errno)) + '.'); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
 	fcntl(clientSock, F_SETFL, O_NONBLOCK);
-	changeEvents(EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	_changeEvents(clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 	_clients[clientSock] = new Client(clientSock);
+	_clients[clientSock]->setAddr(inet_ntoa(clnt_addr.sin_addr));
+	std::cout << "Accepted Client: " << clientSock << ", " << _clients[clientSock]->getAddr() << std::endl;
 }
 
-void Server::recvMsgFromClnt(int clnt_fd)
-{
+void Server::_recvMsgFromClnt(int clnt_fd) {
 	std::vector<char> rBuf(1024);
-	std::string readString;
 	std::string cmdToken;
 
+	std::map< int, std::string >::iterator	it = _readString.find(clnt_fd);
+	if (it == _readString.end()) {
+		_readString.insert(std::make_pair(clnt_fd, ""));
+		it = _readString.find(clnt_fd);
+	}
+
+	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	if (n > 0) {
-		rBuf.erase(rBuf.begin() + n, rBuf.end());
-	} else {
-		if (n < 0)
-			throw ClntErrException();
-		disconnectClnt(clnt_fd);
+		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
+		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
+			return ;
 	}
-	readString = std::string(rBuf.begin(), rBuf.end());
-	std::stringstream stream(readString);
+	else if (n < 0) {
+		throw std::runtime_error("client error: " + std::string(std::strerror(errno)) + '.');
+	}
+	else {
+		if (it->second == "") {
+			std::cout << "\tRead nothing from client." << std::endl;
+			_disconnectClnt(clnt_fd);
+		}
+		return ;
+	}
 
-	Command cmd(stream);
-	cmd.parse(clnt_fd, *this);
-	cmd.execute();
+	std::cout << "Received msg: \n\t" << it->second << std::endl;
+	std::size_t carriage = it->second.find('\r');
+	while (carriage != std::string::npos) {
+		it->second.erase(carriage, 1);
+		carriage = it->second.find('\r');
+	}
 
-	_commandQueue.push(&cmd);
+	std::stringstream stream(it->second);
+	it->second = "";
+	_changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+
+	std::vector<std::string> tokens;
+    std::string token;
+    while (std::getline(stream, token, '\n')) {
+        tokens.push_back(token);
+    }
+
+	std::vector<std::string>::iterator token_it = tokens.begin();
+	while (token_it != tokens.end()) {
+		std::stringstream tmpstream(*token_it);
+
+		Command* cmd = new Command(tmpstream);
+		cmd->parse(clnt_fd, *this);
+		cmd->execute();
+
+		_commandQueue.push(cmd);
+		token_it++;
+	}
 }
 
-void Server::sendMsgToClnt(Command& cmd)
+void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 {
-	std::string							sender = cmd.getSender();
-	std::vector<std::string>			receiver = cmd.getReceiver();
-	std::string							outBuf = cmd.getProtoMsg();
-	std::vector<std::string>::iterator	receiver_it;
-	std::map< int, Client* >::iterator	clnt_it;
-	int									result;
+	const std::map< std::string, std::string >	msgs = cmd.getMsgs();
 
-	receiver_it = receiver.begin();
-	while (receiver_it != receiver.end()) {
-		clnt_it = _clients.begin();
-		while (clnt_it != _clients.end()) {
-			if (*receiver_it == clnt_it->second->getUsername())
-				break;
-			clnt_it++;
+	std::map< std::string, std::string >::const_iterator	msgs_it;
+	std::map< int, Client* >::iterator				clnt_it;
+
+	msgs_it = msgs.begin();
+	while (msgs_it != msgs.end()) { //전체 리시버 돌면서 하나씩 보내기
+
+		std::vector< std::string >	channel_receiver;
+		std::vector< std::string >::iterator	channel_receiver_it;
+		std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
+
+		Client* clnt = getClient(clnt_fd);
+		if (msgs_it->first[0] == '#') {  //채널일경우
+			std::map< std::string, Channel* >::iterator it = _channels.find(msgs_it->first);
+			if (it != _channels.end()) {
+				channel_member_it = it->second->getClients().begin();
+				while (channel_member_it != it->second->getClients().end()) {
+					std::string nickname = channel_member_it->second->getNickname();
+					channel_receiver.push_back(nickname);
+					channel_member_it++;
+				}
+
+				channel_receiver_it = channel_receiver.begin();
+				while (channel_receiver_it != channel_receiver.end()) {
+					_sendMsgModule(getClient(*channel_receiver_it), msgs_it->second);
+					channel_receiver_it++;
+				}
+			}
+			else
+				std::cout << "send target channel not found" << std::endl;
 		}
-		result = send(clnt_it->first, outBuf.c_str(), outBuf.size(), 0);
-		if (result < 0)
-			disconnectClnt(clnt_it->first);
-		receiver_it++;
+		else if ((cmd.getCmd() == "USER" || cmd.getCmd() == "NICK") && !(clnt->getConnected())) {
+			_sendMsgModule(clnt_fd, msgs_it->second);
+		}
+		else //일반 유저일 경우
+			_sendMsgModule(getClient(msgs_it->first), msgs_it->second);
+		msgs_it++;
 	}
+	delete _commandQueue.front();
 	_commandQueue.pop();
 }
 
-int		Server::checkNewEvents() {
-	int	newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
-	while (newEvent <= 0) {
-		if (newEvent < 0)
-			throw ServSockCloseException();
+void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
+	int			result;
+
+	if (dest_fd != 0) {
+		result = send(dest_fd, msg.c_str(), msg.size(), 0);
+		if (result < 0) {
+			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+			_disconnectClnt(dest_fd);
+		}
+		else {
+			std::cout << ">> Send msg to fd(" << dest_fd << ") :\n\t" << msg << "\n\n";
+		}
+
+	Client* clnt = getClient(dest_fd);
+	if (!clnt->getConnected())
+		_disconnectClnt(dest_fd);
 	}
+}
+
+int		Server::_checkNewEvents() {
+	int newEvent = 0;
+	// std::cout << "newEvent while start" << std::endl;
+	while (newEvent <= 0) {
+		newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
+		if (newEvent < 0)
+			throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
+	}
+	// std::cout << "newEvent while end" << std::endl;
+	// 수정 필요 (kqevent가 event보다 크면 이벤트가 씹힐 우려)
 	_kq_events.clear();
 	return (newEvent);
 }
 
-void	Server::changeEvents(int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
+void	Server::_changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
 	struct kevent tmpEvent;
 
-    EV_SET(&tmpEvent, _sock_fd, filter, flags, fflags, data, udata);
+    EV_SET(&tmpEvent, ident, filter, flags, fflags, data, udata);
     _kq_events.push_back(tmpEvent);
 }
 
-void	Server::disconnectClnt(int clnt_fd) {
-	std::cout << "client disconnected: " << clnt_fd << std::endl;
-	close(clnt_fd);
-	delete _clients.find(clnt_fd)->second;
+//끊겼든 끊었든 호출됨.
+void	Server::_disconnectClnt(int clnt_fd) {
+	if (clnt_fd <= 0)
+		return ;
+
+	if (_clients.find(clnt_fd) != _clients.end()) {
+		Client* disconnected_clnt = _clients.find(clnt_fd)->second;
+
+		//quit 같은걸로 이미 잘 삭제된 경우가 아니라면
+		//channel도 정리해줘야함
+		if (!(disconnected_clnt->getCurrChannel().empty())) {
+			std::vector<std::string> clnt_chans = disconnected_clnt->getCurrChannel();
+			std::vector<std::string>::iterator it = clnt_chans.begin();
+			std::map<std::string, Channel*>::iterator chan;
+
+			while (it != clnt_chans.end()) {
+				chan = _channels.find(*it);
+				if (chan != _channels.end()) {
+					Channel* channel = chan->second;
+					channel->deleteClient(*disconnected_clnt);
+					disconnected_clnt->leaveChannel(*channel);
+					std::string nick = disconnected_clnt->getNickname();
+					channel->rmInvitedClients(nick);
+					if (channel->getClients().size() == 0)
+						deleteChnl(channel);
+				}
+				++it;
+			}
+		}
+	}
+
+	if (close(clnt_fd) >= 0) {
+		std::cout << "client disconnected: " << clnt_fd << std::endl;
+		delete _clients.find(clnt_fd)->second;
+	}
+	_clients.erase(clnt_fd);
+	_readString.erase(clnt_fd);
+}
+
+void	Server::addNewClnt(int clnt_fd, Client* clnt) {
+	_clients.insert(std::make_pair(clnt_fd, clnt));
+}
+
+void	Server::deleteClnt(int clnt_fd) {
+	delete _clients[clnt_fd];
 	_clients.erase(clnt_fd);
 }
 
+void	Server::addNewChnl(Channel* chnl) {
+	_channels.insert(std::make_pair(chnl->getTitle(), chnl));
+}
+
+void	Server::deleteChnl(Channel* chnl) {
+	std::string chnl_name = chnl->getTitle();
+	delete chnl;
+	_channels.erase(_channels.find(chnl_name));
+}
+
+void	Server::updateInvitedList(std::string& old_nick, std::string& new_nick) {
+	std::map< std::string, Channel* > channels = getChannels();
+	std::map< std::string, Channel* >::iterator chans_it = channels.begin();
+	while (chans_it != channels.end()) {
+		std::vector< std::string > invited_list = chans_it->second->getInvitedClients();
+		std::vector< std::string >::iterator target = std::find(invited_list.begin(), invited_list.end(), old_nick);
+		if (target != invited_list.end()) {
+			chans_it->second->rmInvitedClients(old_nick);
+			chans_it->second->addInvitedClient(new_nick);
+		}
+		chans_it++;
+	}
+}
+
+// getter
 int	Server::getPort() const {
 	return (_port);
 }
@@ -167,48 +327,29 @@ const std::map< int, Client* >&	Server::getClients() const {
 	return (_clients);
 }
 
+Client* Server::getClient(int clnt_fd) const {
+	std::map< int, Client* >::const_iterator it = _clients.find(clnt_fd);
+	if (it == _clients.end())
+		return (NULL);
+	return (it->second);
+}
+
+int Server::getClient(std::string nickname) const {
+	std::map< int, Client* >::const_iterator it = _clients.begin();
+	while (it != _clients.end()) {
+		if (it->second->getNickname() == nickname)
+			break;
+		it++;
+	}
+	if (it == _clients.end())
+		return (0);
+	return (it->first);
+}
+
 const std::map< std::string, Channel* >&	Server::getChannels() const {
 	return (_channels);
 }
 
-// EXCEPTION
-const char*	Server::PortOutOfRangeException::what() const throw() {
-	const char	*reason = "port number should be between 0 to 65535.";
-	return (reason);
-}
-
-const char*	Server::ServInitFuncException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "server init error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ClntAcceptionFailException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "accept() error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ClntErrException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "client error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
-}
-
-const char*	Server::ServSockCloseException::what() const throw() {
-	std::stringstream	stream;
-	char				*reason = nullptr;
-
-	stream << "close() error: " << std::strerror(errno) << '.';
-	stream >> reason;
-	return (reason);
+const std::string& Server::getServName() const {
+	return (_serv_name);
 }

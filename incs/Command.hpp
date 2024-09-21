@@ -3,11 +3,13 @@
 
 # include <string>
 # include <sstream>
-# include <vector>
+# include <queue>
+# include <map>
 
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "replyNumber.hpp"
 
 class Server;
 class Client;
@@ -20,53 +22,70 @@ class Command {
 // parameterized constructor
 	Command(std::stringstream& input_cmd);
  private:
+	Command();
 	Command(const Command& copy);
 	Command& operator = (const Command& copy);
-	Command();
 // MEMBER VARIABLE
  protected:
 	std::string					_cmd;
-
 	std::queue< std::string >	_args;
-	std::queue< std::string >	_confirmed_args; // 검사된 인자들
 
-	std::string					_sender;
-	int							_receiver_cnt;
-	std::vector< std::string >	_receiver;
-	std::string					_proto_msg;
-
-	int							_rpl_no;
+	std::string					_send_nick;
+	std::string					_send_user;
+	std::string					_send_addr;
+	std::map< std::string, std::string > _msgs; // key: clnt/chan name, value: msg
 
 // MEMBER FUNCITON
  public:
 // getter
-	const std::string&					getCmd() const;
-	const std::string&					getSender() const;
-	int									getReceiverCnt() const;
-	const std::vector< std::string >&	getReceiver() const;
-	// protocol message 내부에 receiver가 변경되는 경우가 있어 getProtoMsg() const가 적절한 형태인지 모르겠음
-	// 변수로 저장하기 보단 매번 생성해서 보내는 형태가 비교적 적절할 것 같음
-	const std::string&					getProtoMsg() const;
+	const std::string&		getCmd() const;
+	const std::map< std::string, std::string>& getMsgs() const;
 
-	int									getReplyNumber() const;
 // setter
+	void	setMsgs(const std::string& name, const std::string& msg); // msgs 변수에 새 메세지 연장/추가 하는 함수
+
 // usable function
-	void	parse(int clnt_fd, Server& serv);
-	void	execute();
-// irc message
-	void	pass(int clnt_fd, Server& serv);
-	void	nick(int clnt_fd, Server& serv);
-	void	user(int clnt_fd, Server& serv);
-	// void	join();
-	// void	privmsg();
-	// void	kick();
-	// void	invite();
-	// void	topic();
-	// void	mode();
-	// void	part();
-	// void	quit();
-	// void	ping();
-	void	unknownCommand(int clnt_fd, Server& serv);
+	void		parse(int clnt_fd, Server& serv);
+	std::string	execute();
+
+// irc commands
+	void	pass(Client& send_clnt, Server& serv);
+	void	nick(Client& send_clnt, Server& serv);
+	void	user(Client& send_clnt, Server& serv);
+	void	join(Client& send_clnt, Server& serv);
+	void	privmsg(Server& serv);
+	void	mode(Server& serv);
+	void	kick(Server& serv);
+	void	part(Client& send_clnt, Server& serv);
+	void	topic(Server& serv);
+	void	invite(Server& serv);
+	void	quit(Server& serv);
+	void	unknownCommand();
+
+ private:
+	void	_iMode(bool flag, Channel* chan);
+	void	_kMode(bool flag, Channel* chan);
+	void	_lMode(bool flag, Channel* chan);
+	void	_tMode(bool flag, Channel* chan);
+	void	_oMode(bool flag, Channel* chan);
+
+	bool	_valid_nick(std::string& new_nick) const;
+
+	bool	_valid_user(std::string& new_user) const;
+
+// msg generators
+	const std::string	_genPrefix(int rpl_no) const;
+
+	const std::string	_genRplMsg(int rpl_no) const;
+	const std::string	_genErrMsg(int rpl_no) const;
+
+	const std::string	_genMsg(int rpl_no) const;
+	const std::string	_genMsg(int rpl_no, const std::string& param) const;
+	const std::string	_genMsg(int rpl_no, const std::string& param1, const std::string& param2) const;
+
+	// util
+	std::vector<std::string>	_parsebyComma();
+	const std::string			_appendRemaining();
 };
 
 #endif

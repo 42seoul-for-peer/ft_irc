@@ -1,50 +1,94 @@
 #include "Command.hpp"
+#include <iostream>
 
 // NICK <nickname> [ <hopcount> ]
 // hopcount는 server에서만 의미 있는 인자라서 ft_irc에서는 처리 안 함
 
-// ERR_NOTREGISTERED: PASS 없이 온 경우
+// ERR_NONICKNAMEGIVEN: 431
+// ERR_ERRONEUSNICKNAME: 432비허용 문자 포함된 겨우
+// ERR_NICNAMEINUSE 433
 
-// ERR_NONICKNAMEGIVEN:
-// ERR_ERRONEUSNICKNAME: 비허용 문자 포함된 겨우
-// ERR_NICNAMEINUSE
-
-// 우린 멀티 서버 아니라 괜찮을듯?
+// 우린 멀티 서버 아니라 불필요
 // ERR_NICKCOLLISION: 서버를 타고 갔을 때 다른 client와 겹치는 경우
 
-void	Command::nick(int clnt_fd, Server& serv) {
-	(void) clnt_fd;
-	// 비밀번호 있는지 확인해야함
-	if (_confirmed_args.empty()) {
-		_rpl_no = 451;
-		_proto_msg = ":You have not registerd";
-		return ;
+// username이 있는 경우
+	// pass correct-> 연결을 허용하면서 001을 보니거나
+	// pass incorrect-> 연결을 허용하지 않는다
+// username이 없는 경우
+	// -> update만 함 (validity 확인하고)
+
+bool	Command::_valid_nick(std::string& new_nick) const {
+	const std::string	special = "-[]\\`^{}";
+	int len = new_nick.length();
+	if (len < 1) // int max 길이 초과해서 overflow 발생했거나 0글자 문자열인 경우
+		return (false);
+	for (int i = 0; i < len; i++){
+		if (special.find(new_nick[i]) == std::string::npos && !isalpha(new_nick[i])) {
+			std::cout << new_nick[i] << "\n";
+			return (false);
+		}
 	}
+	return (true);
+}
+
+void	Command::nick(Client& send_clnt, Server& serv) {
+	std::string msg;
+	std::string	new_nick;
+
 	if (_args.size() < 1) {
-		_rpl_no = 431; // no nickname given
-		_proto_msg = ":No nickname given";
+		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
-	// 인자가 한 개보다 많은 경우는 무시되나? (프로토콜 뜯어보기)
-	std::string	newNick =_args.front();
-	_args.pop();
-	int	new_nick_len = newNick.length();
-	for (int i = 0; i < new_nick_len; i++) {
-		if (newNick[i] == '#') {
-			_rpl_no = 432;
-			_proto_msg = newNick + ":Erroneus nickname";
-			return ;
+	new_nick = _args.front();
+	// 유효성 검증1: 사용 가능한 문자로 구성되어 있는가
+	if (_valid_nick(new_nick) == false) {
+		setMsgs(_send_nick, _genMsg(ERR_ERRONEUSNICKNAME));
+		return ;
+	}
+	// 유효성 검증2: 중복되지 않는가
+	if (serv.getClient(new_nick)) {
+		setMsgs(_send_nick, _genMsg(ERR_NICKNAMEINUSE, new_nick));
+		return ;
+	}
+	// 닉네임 변경하는 경우
+	if (send_clnt.getRegistered() == true) {
+		serv.updateInvitedList(_send_nick, new_nick);
+		send_clnt.setNickname(new_nick);
+		if (send_clnt.getCurrChannel().size()) {
+			const std::vector< std::string >& chnltitles = send_clnt.getCurrChannel();
+			unsigned long idx = 0;
+			msg = _genMsg(0, _cmd, new_nick);
+			while (idx < chnltitles.size()) {
+				Channel* chan = (serv.getChannels().find(chnltitles[idx])->second);
+				const std::vector< std::pair <bool, Client* > >& clnts_in_chnl = chan->getClients();
+				unsigned long i = 0;
+				while (i < clnts_in_chnl.size()){
+					setMsgs(clnts_in_chnl[i].second->getNickname(), msg);
+					i++;
+				}
+				idx++;
+			}
+		}
+		else
+			setMsgs(new_nick, _genMsg(0, _cmd, new_nick));
+		return ;
+	}
+	else {	// 새로 등록하는 경우
+		if (send_clnt.getUsername() != "*") { // user name 있는 경우
+			if (send_clnt.getPassValidity() == true) { // 비밀번호가 맞음
+				send_clnt.setNickname(new_nick);
+				send_clnt.setRegistered();
+				_send_nick = new_nick;
+				msg = _genMsg(RPL_WELCOME);
+			}
+			else { // 비밀번호가 틀려서 종료
+				msg = "ERROR :Closing Link: [Access Denied by Configuration]\n";
+				send_clnt.setConnected(false);
+			}
+			setMsgs(_send_nick, msg);
+		}
+		else { // user name이 아직 없어서 등록 확인을 하지 않음
+			send_clnt.setNickname(new_nick);
 		}
 	}
-	// 중복되지 않는지 확인하는 상황
-	std::map< int, Client* >::const_iterator it = serv.getClients().begin();
-	while (it != serv.getClients().end()) {
-		if (it->second->getNickname() == newNick) {
-			_rpl_no = 433;
-			_proto_msg = newNick + ":Nickname is already in use";
-			return ;
-		}
-		it++;
-	}
-	_confirmed_args.push(newNick);
 }

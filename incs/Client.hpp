@@ -20,7 +20,11 @@ class Client {
 
 // MEMBER VARIABLE
  private:
-	int _sock_fd;
+	int 		_sock_fd;
+	int			_pass_validity; // input 없음: -1, 틀림: 0, 맞음: 1
+	bool		_registered; // 등록 완료 시 true
+	bool		_connected; // 연결 유지: true, 연결 해제해야함: false
+	std::string	_addr;
 	std::string _username;
 	std::string _nickname;
 	std::vector< std::string > _curr_channel;
@@ -28,20 +32,26 @@ class Client {
 // MEMBER FUNCTION
  public:
 	// GETTER
-	const int& 			getSockFd(void) const;
+	int 				getSockFd(void) const;
+	int					getPassValidity(void) const;
+	bool				getConnected(void) const;
+	bool				getRegistered(void) const;
+	const std::string& 	getAddr(void) const;
 	const std::string& 	getUsername(void) const;
 	const std::string& 	getNickname(void) const;
+	const std::vector< std::string >& getCurrChannel(void) const;
 
 	// SETTER
-	void setUsername(std::string& str);
-	void setNickname(std::string& str);
+	void	setAddr(std::string str);
+	void	setPassValidity(int flag);
+	void	setConnected(bool flag);
+	void	setRegistered();
+	void	setUsername(std::string& str);
+	void	setNickname(std::string& str);
 
 	// HANDLING CHANNEL
-	void joinChannel(const Channel& channel);
-	void leaveChannel(const Channel& channel);
-
-// EXCEPTION
-
+	void	joinChannel(const Channel& channel);
+	void	leaveChannel(const Channel& channel);
 };
 
 #endif
