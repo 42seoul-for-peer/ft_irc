@@ -53,12 +53,12 @@ class Channel {
 	const std::vector< std::pair< bool, Client* > >&	getClients() const;
 
 	// CLIENT HANDLER
-	const std::string printClientsList(void) const;
-	void addClient(std::pair< bool, Client* > new_client);
-	void deleteClient(const Client& client);
-	void addInvitedClient(std::string& name);
-	void rmInvitedClients(std::string& name);
-	bool isChannelMember(const std::string name) const;
+	const std::string	printClientsList(void) const;
+	void	addClient(std::pair< bool, Client* > new_client);
+	void	deleteClient(const Client& client);
+	void	addInvitedClient(std::string& name);
+	void	rmInvitedClients(std::string& name);
+	bool	isChannelMember(const std::string name) const;
 };
 
 #endif
