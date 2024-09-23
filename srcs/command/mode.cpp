@@ -119,13 +119,13 @@ void Command::_lMode(bool flag, Channel* chan) {
 			return ;
 		}
 		int limit_str = std::atoi(_args.front().c_str());
+		std::stringstream stream;
+		stream << limit_str;
 		if (limit_str < 0)
 			setMsgs(_send_nick, _genMsg(696, chan->getTitle() + " l", _args.front() + " :Invalid limit mode parameter. Syntax: <limit>."));
-		else if (chan->getMaxClients() != limit_str) {
+		else if (chan->getMaxClients() != limit_str || stream.str() != _args.front()) {
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
-			std::stringstream stream;
-			stream << limit_str;
 			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l :" + stream.str()));
 		}
 		_args.pop();
