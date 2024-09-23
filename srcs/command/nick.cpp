@@ -20,11 +20,12 @@
 bool	Command::_valid_nick(std::string& new_nick) const {
 	const std::string	special = "-[]\\`^{}";
 	int len = new_nick.length();
-	if (len < 1) // int max 길이 초과해서 overflow 발생했거나 0글자 문자열인 경우
+	if (len < 1 || len > 10) // int max 길이 초과해서 overflow 발생했거나 0글자 문자열인 경우
 		return (false);
-	for (int i = 0; i < len; i++){
-		if (special.find(new_nick[i]) == std::string::npos && !isalpha(new_nick[i])) {
-			std::cout << new_nick[i] << "\n";
+	if (!isalpha(new_nick[0]))
+		return (false);
+	for (int i = 1; i < len; i++){
+		if (special.find(new_nick[i]) == std::string::npos && !isalnum(new_nick[i])) {
 			return (false);
 		}
 	}
