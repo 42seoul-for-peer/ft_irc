@@ -61,7 +61,7 @@ void Command::topic(Server& serv) {
 		else {
 			std::string topic_str = _appendRemaining();
 			target->second->setTopic(topic_str);
-			setMsgs(_send_nick, _genMsg(0, _cmd + " " + chan_title + " :" + topic_str));
+			setMsgs(target->first, _genMsg(0, _cmd + " " + chan_title + " :" + topic_str));
 		}
 	}
 }
