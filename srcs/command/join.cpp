@@ -47,25 +47,29 @@ void Command::join(Client& send_clnt, Server& serv) {
 				continue ;
 			const int chan_mode = chan_it->second->getMode();
 			std::vector< std::string > invited_list = chan_it->second->getInvitedClients();
-			//! Case 'k'; 인자로 입력받은 key 값이 없거나 비밀번호가 다름
-			if (chan_mode & MODE_K && \
-					(i > passwd_size - 1 || passwords[i] != chan_it->second->getPasswd())) {
-				setMsgs(_send_nick, _genMsg(ERR_BADCHANNELKEY, titles[i]));
-				continue ;
+			//? 초대된 유저인지 확인
+			if (std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) != invited_list.end())
+				;
+			else {
+				//! Case 'k'; 인자로 입력받은 key 값이 없거나 비밀번호가 다름
+				if (chan_mode & MODE_K && \
+						(i > passwd_size - 1 || passwords[i] != chan_it->second->getPasswd())) {
+					setMsgs(_send_nick, _genMsg(ERR_BADCHANNELKEY, titles[i]));
+					continue ;
+				}
+				//! Case 'i'; invited_list에 send_clnt의 username이 존재하지 않음
+				if (chan_mode & MODE_I && \
+						std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) == invited_list.end()) {
+					setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
+					continue ;
+				}
+				//! Case 'l'; 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼('i'가 활성화 됐을 때, 'l'은 무시됨)
+				if (chan_mode & MODE_L && !(chan_mode & MODE_I) && \
+							static_cast<int>(chan_it->second->getClients().size()) >= chan_it->second->getMaxClients()) {
+					setMsgs(_send_nick, _genMsg(ERR_CHANNELISFULL, titles[i]));
+					continue ;
+				}
 			}
-			//! Case 'i'; invited_list에 send_clnt의 username이 존재하지 않음
-			if (chan_mode & MODE_I && \
-					std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) == invited_list.end()) {
-				setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
-				continue ;
-			}
-			//! Case 'l'; 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼('i'가 활성화 됐을 때, 'l'은 무시됨)
-			if (chan_mode & MODE_L && !(chan_mode & MODE_I) && \
-						static_cast<int>(chan_it->second->getClients().size()) >= chan_it->second->getMaxClients()) {
-				setMsgs(_send_nick, _genMsg(ERR_CHANNELISFULL, titles[i]));
-				continue ;
-			}
-
 			chan_it->second->rmInvitedClients(_send_nick);
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + _cmd + " :" + titles[i] + "\n");
