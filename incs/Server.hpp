@@ -37,12 +37,12 @@ class Server {
 	struct sockaddr_in	_addr;
 
 	std::vector<struct kevent>		_kq_events;
-	std::map< int, std::string >	_readString; // key: fd, value: data from key fd
+	std::map< int, std::string >	_read_string; // key: fd, value: data from key fd
 	struct kevent       			_event[8];
 
 	std::map< int, Client* >			_clients; // key:fd, value: Client
 	std::map< std::string, Channel* >	_channels; // key: channel name, value: Channel
-	std::queue< Command* > 				_commandQueue;
+	std::queue< Command* > 				_command_queue;
 
 // MEMBER FUNCITON
  public:

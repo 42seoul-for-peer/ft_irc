@@ -25,14 +25,14 @@ void Channel::setMaxClients(int& num) {
     _max_clients = num;
 }
 
-void Channel::setMode(const bool& status, const int& changedMode) {
+void Channel::setMode(const bool& status, const int& changed_mode) {
     // flag가 + 상태
     if (status == true) {
-        _mode |= changedMode;
+        _mode |= changed_mode;
     }
     // flag가 - 상태
     else {
-        _mode ^= changedMode;
+        _mode ^= changed_mode;
     }
 }
 

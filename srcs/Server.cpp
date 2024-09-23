@@ -39,13 +39,13 @@ void Server::serverInit() {
 }
 
 void Server::serverProcess() {
-	int newEvent;
+	int new_event;
 	while (1) {
 		// system("leaks -q ircserv");
 		// // std::cout << "while start" << std::endl;
-		newEvent = _checkNewEvents();
-		// // std::cout << "event count: " << newEvent << std::endl;
-		for (int i = 0; i < newEvent; i++) {
+		new_event = _checkNewEvents();
+		// // std::cout << "event count: " << new_event << std::endl;
+		for (int i = 0; i < new_event; i++) {
 			if (_event[i].flags & EV_EOF) {
 				std::cout << "EOF detected" << std::endl;
 				_disconnectClnt(_event[i].ident);
@@ -77,43 +77,42 @@ void Server::serverProcess() {
 				}
 			}
 			// // std::cout << "for end" << std::endl;
-			while (!_commandQueue.empty())
-				_sendMsgToClnt(_event[i].ident, *_commandQueue.front());
+			while (!_command_queue.empty())
+				_sendMsgToClnt(_event[i].ident, *_command_queue.front());
 		}
     }
 	// std::cout << "out of while" << std::endl;
 }
 
 void Server::_acceptClnt() {
-	int					clientSock;
+	int					client_sock;
 	struct sockaddr_in	clnt_addr;
 	socklen_t			clnt_addr_len = sizeof(clnt_addr);
 
-	clientSock = accept(_sock_fd, (struct sockaddr*)&clnt_addr, &clnt_addr_len);
-	if (clientSock == -1)
+	client_sock = accept(_sock_fd, (struct sockaddr*)&clnt_addr, &clnt_addr_len);
+	if (client_sock == -1)
 		throw std::runtime_error("accept function error: " + std::string(std::strerror(errno)) + '.'); // 디버깅할 필요 없을 땐 return으로 처리하는 게 좋을 듯
-	fcntl(clientSock, F_SETFL, O_NONBLOCK);
-	_changeEvents(clientSock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	_clients[clientSock] = new Client(clientSock);
-	_clients[clientSock]->setAddr(inet_ntoa(clnt_addr.sin_addr));
-	std::cout << "Accepted Client: " << clientSock << ", " << _clients[clientSock]->getAddr() << std::endl;
+	fcntl(client_sock, F_SETFL, O_NONBLOCK);
+	_changeEvents(client_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	_clients[client_sock] = new Client(client_sock);
+	_clients[client_sock]->setAddr(inet_ntoa(clnt_addr.sin_addr));
+	std::cout << "Accepted Client: " << client_sock << ", " << _clients[client_sock]->getAddr() << std::endl;
 }
 
 void Server::_recvMsgFromClnt(int clnt_fd) {
 	std::vector<char> rBuf(1024);
-	std::string cmdToken;
 
-	std::map< int, std::string >::iterator	it = _readString.find(clnt_fd);
-	if (it == _readString.end()) {
-		_readString.insert(std::make_pair(clnt_fd, ""));
-		it = _readString.find(clnt_fd);
+	std::map< int, std::string >::iterator	it = _read_string.find(clnt_fd);
+	if (it == _read_string.end()) {
+		_read_string.insert(std::make_pair(clnt_fd, ""));
+		it = _read_string.find(clnt_fd);
 	}
 
 	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	if (n > 0) {
 		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
-		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos )
+		if (it->second.find('\n') == std::string::npos && it->second.find('\r') == std::string::npos)
 			return ;
 	}
 	else if (n < 0) {
@@ -152,7 +151,7 @@ void Server::_recvMsgFromClnt(int clnt_fd) {
 		cmd->parse(clnt_fd, *this);
 		cmd->execute();
 
-		_commandQueue.push(cmd);
+		_command_queue.push(cmd);
 		token_it++;
 	}
 }
@@ -162,7 +161,7 @@ void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 	const std::map< std::string, std::string >	msgs = cmd.getMsgs();
 
 	std::map< std::string, std::string >::const_iterator	msgs_it;
-	std::map< int, Client* >::iterator				clnt_it;
+	std::map< int, Client* >::iterator						clnt_it;
 
 	msgs_it = msgs.begin();
 	while (msgs_it != msgs.end()) { //전체 리시버 돌면서 하나씩 보내기
@@ -198,8 +197,8 @@ void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 			_sendMsgModule(getClient(msgs_it->first), msgs_it->second);
 		msgs_it++;
 	}
-	delete _commandQueue.front();
-	_commandQueue.pop();
+	delete _command_queue.front();
+	_command_queue.pop();
 }
 
 void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
@@ -222,24 +221,24 @@ void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
 }
 
 int		Server::_checkNewEvents() {
-	int newEvent = 0;
-	// std::cout << "newEvent while start" << std::endl;
-	while (newEvent <= 0) {
-		newEvent = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
-		if (newEvent < 0)
+	int new_event = 0;
+	// std::cout << "new_event while start" << std::endl;
+	while (new_event <= 0) {
+		new_event = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
+		if (new_event < 0)
 			throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 	}
-	// std::cout << "newEvent while end" << std::endl;
+	// std::cout << "new_event while end" << std::endl;
 	// 수정 필요 (kqevent가 event보다 크면 이벤트가 씹힐 우려)
 	_kq_events.clear();
-	return (newEvent);
+	return (new_event);
 }
 
 void	Server::_changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint32_t fflags, intptr_t data, void *udata) {
-	struct kevent tmpEvent;
+	struct kevent tmp_event;
 
-    EV_SET(&tmpEvent, ident, filter, flags, fflags, data, udata);
-    _kq_events.push_back(tmpEvent);
+    EV_SET(&tmp_event, ident, filter, flags, fflags, data, udata);
+    _kq_events.push_back(tmp_event);
 }
 
 //끊겼든 끊었든 호출됨.
@@ -278,7 +277,7 @@ void	Server::_disconnectClnt(int clnt_fd) {
 		delete _clients.find(clnt_fd)->second;
 	}
 	_clients.erase(clnt_fd);
-	_readString.erase(clnt_fd);
+	_read_string.erase(clnt_fd);
 }
 
 void	Server::addNewClnt(int clnt_fd, Client* clnt) {
