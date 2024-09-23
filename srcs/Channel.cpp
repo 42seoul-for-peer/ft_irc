@@ -2,9 +2,7 @@
 #include "Channel.hpp"
 
 // OCCF
-Channel::~Channel() {
-	// std::cout << "Default destructor called for Channel.\n";
-}
+Channel::~Channel() {}
 
 // MEMBER FUNCTION
 Channel::Channel(std::string title, Client* client)

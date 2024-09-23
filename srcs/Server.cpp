@@ -5,7 +5,7 @@
 #include "Server.hpp"
 
 // OCCF
-Server::~Server() {} // 추후 확인 필요
+Server::~Server() {}
 
 Server::Server(const std::string& port, const std::string& password)
 : _port(std::atoi(port.c_str())), _password(password), _serv_name("irc.local") {
@@ -41,10 +41,7 @@ void Server::serverInit() {
 void Server::serverProcess() {
 	int new_event;
 	while (1) {
-		// system("leaks -q ircserv");
-		// // std::cout << "while start" << std::endl;
 		new_event = _checkNewEvents();
-		// // std::cout << "event count: " << new_event << std::endl;
 		for (int i = 0; i < new_event; i++) {
 			if (_event[i].flags & EV_EOF) {
 				std::cout << "EOF detected" << std::endl;
@@ -66,7 +63,6 @@ void Server::serverProcess() {
 					}
 				}
 				else if (_clients.find(_event[i].ident) != _clients.end()) {
-					// // std::cout << "read event check" << std::endl;
 					try {
 						_recvMsgFromClnt(_event[i].ident);
 					}
@@ -76,12 +72,10 @@ void Server::serverProcess() {
 					}
 				}
 			}
-			// // std::cout << "for end" << std::endl;
 			while (!_command_queue.empty())
 				_sendMsgToClnt(_event[i].ident, *_command_queue.front());
 		}
     }
-	// std::cout << "out of while" << std::endl;
 }
 
 void Server::_acceptClnt() {
@@ -108,7 +102,6 @@ void Server::_recvMsgFromClnt(int clnt_fd) {
 		it = _read_string.find(clnt_fd);
 	}
 
-	// std::cout << "recv activated" << std::endl;
 	int n = recv(clnt_fd, &rBuf[0], rBuf.capacity(), 0);
 	if (n > 0) {
 		it->second += std::string(rBuf.begin(), rBuf.begin() + n);
@@ -164,14 +157,14 @@ void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 	std::map< int, Client* >::iterator						clnt_it;
 
 	msgs_it = msgs.begin();
-	while (msgs_it != msgs.end()) { //전체 리시버 돌면서 하나씩 보내기
+	while (msgs_it != msgs.end()) {
 
 		std::vector< std::string >	channel_receiver;
 		std::vector< std::string >::iterator	channel_receiver_it;
 		std::vector< std::pair< bool, Client* > >::const_iterator	channel_member_it;
 
 		Client* clnt = getClient(clnt_fd);
-		if (msgs_it->first[0] == '#') {  //채널일경우
+		if (msgs_it->first[0] == '#') {
 			std::map< std::string, Channel* >::iterator it = _channels.find(msgs_it->first);
 			if (it != _channels.end()) {
 				channel_member_it = it->second->getClients().begin();
@@ -193,7 +186,7 @@ void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 		else if ((cmd.getCmd() == "USER" || cmd.getCmd() == "NICK") && !(clnt->getConnected())) {
 			_sendMsgModule(clnt_fd, msgs_it->second);
 		}
-		else //일반 유저일 경우
+		else
 			_sendMsgModule(getClient(msgs_it->first), msgs_it->second);
 		msgs_it++;
 	}
@@ -222,14 +215,11 @@ void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
 
 int		Server::_checkNewEvents() {
 	int new_event = 0;
-	// std::cout << "new_event while start" << std::endl;
 	while (new_event <= 0) {
 		new_event = kevent(_kq, &_kq_events[0], _kq_events.size(), _event, 8, NULL);
 		if (new_event < 0)
 			throw std::runtime_error("server socket close error: " + std::string(std::strerror(errno)) + '.');
 	}
-	// std::cout << "new_event while end" << std::endl;
-	// 수정 필요 (kqevent가 event보다 크면 이벤트가 씹힐 우려)
 	_kq_events.clear();
 	return (new_event);
 }
@@ -241,7 +231,6 @@ void	Server::_changeEvents(uintptr_t ident, int16_t filter, uint16_t flags, uint
     _kq_events.push_back(tmp_event);
 }
 
-//끊겼든 끊었든 호출됨.
 void	Server::_disconnectClnt(int clnt_fd) {
 	if (clnt_fd <= 0)
 		return ;
@@ -249,8 +238,6 @@ void	Server::_disconnectClnt(int clnt_fd) {
 	if (_clients.find(clnt_fd) != _clients.end()) {
 		Client* disconnected_clnt = _clients.find(clnt_fd)->second;
 
-		//quit 같은걸로 이미 잘 삭제된 경우가 아니라면
-		//channel도 정리해줘야함
 		if (!(disconnected_clnt->getCurrChannel().empty())) {
 			std::vector<std::string> clnt_chans = disconnected_clnt->getCurrChannel();
 			std::vector<std::string>::iterator it = clnt_chans.begin();

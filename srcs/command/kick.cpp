@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include <algorithm>
 
-std::vector<std::string> parsebyComma(std::string& line) { // 이거 Command 멤버변수랑 구조가 달라서 일단 임시로 여기 둠
+std::vector<std::string> parsebyComma(std::string& line) {
     std::vector<std::string>    token_vec;
     std::stringstream           stream(line);
     std::string                 token;
@@ -33,9 +33,7 @@ void Command::kick(Server& serv) {
 	_args.pop();
 	comment = _appendRemaining();
 
-	//첫 인자 채널 검색해보고 없으면 ERR_nosuchchan
-	// KICK #hihi nick
-	// :irc.local 403 cat #hihi :No such channel
+	// 없는 채널
 	std::map< std::string, Channel* >::const_iterator channel_it = serv.getChannels().begin();
 	Channel* channel_addr;
 
@@ -51,14 +49,7 @@ void Command::kick(Server& serv) {
 		return ;
 	}
 
-	// 센더가 그 채널에 있는지 보고 아니면 ERR_NOTONCHANNEL
-	// KICK #channelll nick
-	// :irc.local 442 cat #channelll :You're not on that channel!
-
-	// 센더가 그 채널의 op인지 보고 아니면 ERR_CHANOPRIVSNEEDED
-	// 	KICK #channelll nick
-	// :irc.local 482 cat #channelll :You must be a channel op or higher to kick a more privileged user.
-
+	// 센더가 그 채널에 있는지, 센더가 그 채널의 op인지 확인
 	std::vector< std::pair< bool, Client* > >::const_iterator channel_member_it;
 
 	channel_member_it = channel_addr->getClients().begin();
@@ -77,7 +68,7 @@ void Command::kick(Server& serv) {
 		return ;
 	}
 
-	//두번째 인자 유저 서버에서 검색해보고 없으면 nosuch nick
+	// 서버에 존재하는 유저인지
 	std::vector< std::string >::iterator targets_it = targets.begin();
 	while (targets_it != targets.end()) {
 		target = *targets_it;
@@ -96,7 +87,7 @@ void Command::kick(Server& serv) {
 			continue ;
 		}
 
-		//두번째 인자 유저를 위 채널에서 검색해보고 없으면 ERR_USERNOTINCHANNEL
+		// 채널 내 존재하는 유저인지
 		std::vector< std::string > curr_channel = serv_clnt_it->second->getCurrChannel();
 		std::vector< std::string >::iterator it = find(curr_channel.begin(), curr_channel.end(), channel);
 		if (it == curr_channel.end()) {
@@ -104,7 +95,7 @@ void Command::kick(Server& serv) {
 			continue ;
 		}
 
-		//채널이 있고, 센더가 그 채널에 있고, 오퍼레이터이면서, 타겟 유저가 서버에 있고 채널에도 있다면...
+		//kick 정상적으로 수행
 		if (comment.size() != 0)
 			msg = _genMsg(0, _cmd, channel + " " + target + " :" + comment);
 		else

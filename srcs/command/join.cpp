@@ -32,7 +32,7 @@ void Command::join(Client& send_clnt, Server& serv) {
 		}
 		//? title이 존재하는 채널인지 탐색
 		chan_it = channels.find(titles[i]);
-		//todo 채널이 존재하지 않음(신규 생성)
+
 		if (chan_it == channels.end()) {
 			Channel* new_channel = new Channel(titles[i], &send_clnt);
 			serv.addNewChnl(new_channel);
@@ -40,7 +40,6 @@ void Command::join(Client& send_clnt, Server& serv) {
 			setMsgs(_send_nick, _genMsg(RPL_NAMREPLY, "= " + titles[i], ":@" + new_channel->printClientsList()));
 			setMsgs(_send_nick, _genMsg(RPL_ENDOFNAMES, titles[i]));
 		}
-		//todo 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
 		else {
 			//! 이미 접속중인 채널(출력 없음)
 			std::vector< std::string > curr_chan = send_clnt.getCurrChannel();
@@ -66,7 +65,7 @@ void Command::join(Client& send_clnt, Server& serv) {
 				setMsgs(_send_nick, _genMsg(ERR_CHANNELISFULL, titles[i]));
 				continue ;
 			}
-			//todo 접속 가능
+
 			chan_it->second->rmInvitedClients(_send_nick);
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + _cmd + " :" + titles[i] + "\n");

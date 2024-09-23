@@ -3,9 +3,7 @@
 #include "../incs/Client.hpp"
 
 // OCCF
-Client::~Client()	{
-	// std::cout << "Default destructor called for Client.\n";
-}
+Client::~Client()	{}
 
 // MEMBER FUNCTION
 Client::Client(int client_sock)
