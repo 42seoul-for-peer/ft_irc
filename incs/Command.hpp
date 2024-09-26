@@ -63,12 +63,13 @@ class Command {
 	void	unknownCommand();
 
  private:
-	void	_promptMode(bool is_joined, Channel* chan);
-	bool	_iMode(bool flag, Channel* chan);
-	bool	_kMode(bool flag, Channel* chan);
-	bool	_lMode(bool flag, Channel* chan);
-	bool	_tMode(bool flag, Channel* chan);
-	bool	_oMode(bool flag, Channel* chan);
+	std::string	_makeModeMsg(std::queue< std::pair< int, std::string > > token_queue);
+	void		_promptMode(bool is_joined, Channel* chan);
+	bool		_iMode(bool flag, Channel* chan);
+	bool		_kMode(bool flag, Channel* chan);
+	bool		_lMode(bool flag, Channel* chan);
+	bool		_tMode(bool flag, Channel* chan);
+	bool		_oMode(bool flag, Channel* chan);
 
 	bool	_valid_nick(std::string& new_nick) const;
 
