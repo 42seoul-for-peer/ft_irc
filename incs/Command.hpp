@@ -64,11 +64,11 @@ class Command {
 
  private:
 	void	_promptMode(bool is_joined, Channel* chan);
-	void	_iMode(bool flag, Channel* chan);
-	void	_kMode(bool flag, Channel* chan);
-	void	_lMode(bool flag, Channel* chan);
-	void	_tMode(bool flag, Channel* chan);
-	void	_oMode(bool flag, Channel* chan);
+	bool	_iMode(bool flag, Channel* chan);
+	bool	_kMode(bool flag, Channel* chan);
+	bool	_lMode(bool flag, Channel* chan);
+	bool	_tMode(bool flag, Channel* chan);
+	bool	_oMode(bool flag, Channel* chan);
 
 	bool	_valid_nick(std::string& new_nick) const;
 

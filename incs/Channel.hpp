@@ -5,7 +5,7 @@
 # define MODE_L 0b00010
 # define MODE_I 0b00100
 # define MODE_T 0b01000
-# define MODE_P 0b10000
+# define MODE_O 0b10000
 
 # include <string>
 # include <vector>
