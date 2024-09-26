@@ -136,6 +136,51 @@ void Command::_oMode(bool flag, Channel* chan) {
 	}
 }
 
+void Command::_promptMode(bool is_joined, Channel* chan)
+{
+	int chan_mode = chan->getMode();
+	if (chan_mode == 0)
+	{
+		setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chan->getTitle(), ":+"));
+		return ;
+	}
+
+	std::string chan_passwd;
+	if (is_joined == false)
+		chan_passwd = "<key>";
+	else
+		chan_passwd = chan->getPasswd();
+
+	std::string token;
+	if (!(chan_mode & MODE_K) && !(chan_mode & MODE_L))
+		token += ":";
+	token += "+";
+	if (chan_mode & MODE_I)
+		token += "i";
+	if (chan_mode & MODE_K)
+		token += "k";
+	if (chan_mode & MODE_L)
+		token += "l";
+	if (chan_mode & MODE_T)
+		token += "t";
+	if (chan_mode & MODE_K && chan_mode & MODE_L) {
+		token += " " + chan_passwd;
+		token += " :";
+		std::stringstream stream;
+		stream << chan->getMaxClients();
+		token += stream.str();
+	}
+	else if (chan_mode & MODE_K)
+		token += " :" + chan_passwd;
+	else if (chan_mode & MODE_L) {
+		token += " :";
+		std::stringstream stream;
+		stream << chan->getMaxClients();
+		token += stream.str();
+	}
+	setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chan->getTitle(), token));
+}
+
 void Command::mode(Server& serv) {
 	std::string prefix;
 	//! 인자 부족
@@ -163,46 +208,20 @@ void Command::mode(Server& serv) {
 			break ;
 		clnts_it++;
 	}
+
+	//? 채널 접속 여부 확인
+	bool is_joined = true;
+	if (clnts_it == chan_clnts.end())
+		is_joined = false;
+
+	if (_args.empty()) {
+		_promptMode(is_joined, chans_it->second);
+		return ;
+	}
+
 	//! 채널에 클라이언트가 속해있지 않음
 	if (clnts_it == chan_clnts.end()) {
 		setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_title));
-		return ;
-	}
-	//? 인자가 없을 경우 현재 채널에 대한 mode 상태 출력
-	if (_args.empty()) {
-		int chan_mode = chans_it->second->getMode();
-		if (chan_mode == 0)
-			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chans_it->first, ":+"));
-		else {
-			std::string tmp;
-			if (!(chan_mode & MODE_K) && !(chan_mode & MODE_L))
-				tmp += ":";
-			tmp += "+";
-			if (chan_mode & MODE_I)
-				tmp += "i";
-			if (chan_mode & MODE_K)
-				tmp += "k";
-			if (chan_mode & MODE_L)
-				tmp += "l";
-			if (chan_mode & MODE_T)
-				tmp += "t";
-			if (chan_mode & MODE_K && chan_mode & MODE_L) {
-				tmp += " " + chans_it->second->getPasswd();
-				tmp += " :";
-				std::stringstream stream;
-				stream << chans_it->second->getMaxClients();
-				tmp += stream.str();
-			}
-			else if (chan_mode & MODE_K)
-				tmp += " :" + chans_it->second->getPasswd();
-			else if (chan_mode & MODE_L) {
-				tmp += " :";
-				std::stringstream stream;
-				stream << chans_it->second->getMaxClients();
-				tmp += stream.str();
-			}
-			setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chans_it->first, tmp));
-		}
 		return ;
 	}
 	//! 채널에 존재하지만 operator가 아님
