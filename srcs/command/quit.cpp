@@ -44,7 +44,7 @@ void Command::quit(Server& serv) {
 	std::string quit_msg = _appendRemaining();
 	if (quit_msg.empty())
 		quit_msg = "leaving";
-	setMsgs(_send_nick, "ERROR :Closing link: (" + clnt->getUsername() + "@localhost) [Quit: " + quit_msg + "]\n");
+	setMsgs(_send_nick, "ERROR :Closing link: (" + clnt->getUsername() + "@" + _send_addr + ") [Quit: " + quit_msg + "]\n");
 	for (std::set< std::string >::iterator it = related_clients.begin(); it != related_clients.end(); it++) {
 		setMsgs(*it, _genMsg(0, "QUIT :Quit", quit_msg));
 	}
