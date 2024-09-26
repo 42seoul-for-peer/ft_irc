@@ -35,7 +35,7 @@ void Server::serverInit() {
 		throw std::runtime_error("kqueue error: " + std::string(std::strerror(errno)) + '.');
 
 	_changeEvents(_sock_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	std::cout << "server activated with port " << ntohs(_addr.sin_port) << std::endl;
+	std::cout << "Server activated with port " << ntohs(_addr.sin_port) << std::endl;
 }
 
 void Server::serverProcess() {
@@ -113,13 +113,12 @@ void Server::_recvMsgFromClnt(int clnt_fd) {
 	}
 	else {
 		if (it->second == "") {
-			std::cout << "\tRead nothing from client." << std::endl;
+			std::cout << "Read nothing from client." << std::endl;
 			_disconnectClnt(clnt_fd);
 		}
 		return ;
 	}
 
-	std::cout << "Received msg: \n\t" << it->second << std::endl;
 	std::size_t carriage = it->second.find('\r');
 	while (carriage != std::string::npos) {
 		it->second.erase(carriage, 1);
@@ -181,7 +180,7 @@ void Server::_sendMsgToClnt(int clnt_fd, Command& cmd)
 				}
 			}
 			else
-				std::cout << "send target channel not found" << std::endl;
+				std::cout << "Send target channel not found" << std::endl;
 		}
 		else if ((cmd.getCmd() == "USER" || cmd.getCmd() == "NICK") && !(clnt->getConnected())) {
 			_sendMsgModule(clnt_fd, msgs_it->second);
@@ -200,11 +199,11 @@ void	Server::_sendMsgModule(int dest_fd, const std::string& msg) {
 	if (dest_fd != 0) {
 		result = send(dest_fd, msg.c_str(), msg.size(), 0);
 		if (result < 0) {
-			std::cout << __func__ << ": SEND err. disconnect." << std::endl;
+			std::cout << "SEND err. disconnect." << std::endl;
 			_disconnectClnt(dest_fd);
 		}
 		else {
-			std::cout << ">> Send msg to fd(" << dest_fd << ") :\n\t" << msg << "\n\n";
+			std::cout << msg;
 		}
 
 	Client* clnt = getClient(dest_fd);
@@ -260,7 +259,7 @@ void	Server::_disconnectClnt(int clnt_fd) {
 	}
 
 	if (close(clnt_fd) >= 0) {
-		std::cout << "client disconnected: " << clnt_fd << std::endl;
+		std::cout << "Client disconnected: " << clnt_fd << std::endl;
 		delete _clients.find(clnt_fd)->second;
 	}
 	_clients.erase(clnt_fd);
