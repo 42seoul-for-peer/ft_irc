@@ -124,11 +124,15 @@ void Server::_recvMsgFromClnt(int clnt_fd) {
 		it->second.erase(carriage, 1);
 		carriage = it->second.find('\r');
 	}
-
+		
 	std::stringstream stream(it->second);
-	it->second = "";
 	_changeEvents(clnt_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	if (it->second[0] == '\n') {
+		it->second = "";
+		return ;
+	}
 
+	it->second = "";
 	std::vector<std::string> tokens;
     std::string token;
     while (std::getline(stream, token, '\n')) {
