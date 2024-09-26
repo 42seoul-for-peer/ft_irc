@@ -29,6 +29,10 @@ void Command::privmsg(Server& serv) {
 		setMsgs(_send_nick, _genMsg(ERR_NOTEXTTOSEND));
 		return ;
 	}
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
+		return ;
+	}
 
 	while(std::getline(recv_list, target, ',')) {
 		if (target[0] == '#') {
