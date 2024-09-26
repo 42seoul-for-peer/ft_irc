@@ -12,7 +12,10 @@ Command::Command(std::stringstream& input_cmd) {
 	std::string token;
 
 	std::getline(input_cmd, token, ' ');
+	while (token == "")
+		std::getline(input_cmd, token, ' ');
 	_cmd = token;
+	std::cout << "[" << _cmd << "]" << std::endl;
 	for (size_t i = 0; i < _cmd.length(); i++) {
 		if (std::islower(_cmd[i])) {
 			_cmd[i] = toupper(_cmd[i]);
