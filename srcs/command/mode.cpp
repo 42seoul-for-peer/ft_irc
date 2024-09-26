@@ -97,8 +97,8 @@ bool Command::_lMode(bool flag, Channel* chan) {
 			chan->setMaxClients(limit_str);
 			return (true);
 		}
+		_args.pop();
 	}
-	_args.pop();
 	return (false);
 }
 
