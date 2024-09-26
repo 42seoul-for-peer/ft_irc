@@ -12,10 +12,7 @@ void	Command::user(Client& send_clnt, Server& serv) {
 	std::string new_user;
 	std::string	msg;
 
-
-	new_user = _args.front();
-	_args.pop();
-	if (_args.size() < 3) {
+	if (_args.size() < 4) {
 		(void) serv;
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
@@ -26,10 +23,12 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		setMsgs(_send_nick, msg);
 		return ;
 	}
+	new_user = _args.front();
+	_args.pop();
 	if (_valid_user(new_user) == false) {
 		return ; // inspircd의 경우 자체 error num을 가지고 있긴 함
 	}
-	// nick name이 있는 경우
+	// nickname이 이미 존재하는 경우
 	if (send_clnt.getNickname() != "*") {
 		if (send_clnt.getPassValidity() == true) {
 			send_clnt.setUsername(new_user);

@@ -214,6 +214,7 @@ void Command::mode(Server& serv) {
 	if (clnts_it == chan_clnts.end())
 		is_joined = false;
 
+	//? 들어온 안자가 채널밖에 없음 -> 채널의 모드 출력
 	if (_args.empty()) {
 		_promptMode(is_joined, chans_it->second);
 		return ;
