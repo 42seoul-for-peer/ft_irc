@@ -11,7 +11,7 @@ std::vector<std::string> parsebyComma(std::string& line) {
     return (token_vec);
 }
 
-void Command::kick(Server& serv) {
+void Command::kick(Client& send_clnt, Server& serv) {
 
 	std::string prefix;
 	std::string msg;
@@ -26,7 +26,11 @@ void Command::kick(Server& serv) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS));
 		return ;
 	}
-
+	//! 클라이언트가 등록되지 않음
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
+		return ;
+	}
 	channel = _args.front();
 	_args.pop();
 	targets = parsebyComma(_args.front());

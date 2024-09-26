@@ -249,11 +249,16 @@ std::string Command::_makeModeMsg(std::queue< std::pair< int, std::string > > to
 	return (mode_msg);
 }
 
-void Command::mode(Server& serv) {
+void Command::mode(Client& send_clnt, Server& serv) {
 	std::string prefix;
 	//! 인자 부족
 	if (_args.size() == 0) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
+		return ;
+	}
+	//! 클라이언트가 등록되지 않음
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
 		return ;
 	}
 	std::string chan_title = _args.front();
