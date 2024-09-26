@@ -27,13 +27,11 @@ bool	Command::_valid_user(std::string& new_user) const {
 
 void	Command::user(Client& send_clnt, Server& serv) {
 	std::string new_user;
-	// int	cnt = 0;
 	std::string	msg;
 
 
-	new_user = _args.front();
-	_args.pop();
-	if (_args.size() < 3) {
+	// 인자 개수 확인
+	if (_args.size() < 4) {
 		(void) serv;
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
@@ -44,6 +42,8 @@ void	Command::user(Client& send_clnt, Server& serv) {
 		setMsgs(_send_nick, msg);
 		return ;
 	}
+	new_user = _args.front();
+	_args.pop();
 	if (_valid_user(new_user) == false) {
 		return ; // inspircd의 경우 자체 error num을 가지고 있긴 함
 	}
