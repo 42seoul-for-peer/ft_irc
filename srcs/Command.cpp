@@ -62,17 +62,17 @@ void	Command::parse(int clnt_fd, Server& serv) {
 	else if (_cmd == "JOIN")
 		join(send_clnt, serv);
 	else if (_cmd == "PRIVMSG")
-		privmsg(serv);
+		privmsg(send_clnt, serv);
 	else if (_cmd == "MODE")
-		mode(serv);
+		mode(send_clnt, serv);
 	else if (_cmd == "PART")
 		part(send_clnt, serv);
 	else if (_cmd == "KICK")
-		kick(serv);
+		kick(send_clnt, serv);
 	else if (_cmd == "INVITE")
-		invite(serv);
+		invite(send_clnt, serv);
 	else if (_cmd == "TOPIC")
-		topic(serv);
+		topic(send_clnt, serv);
 	else if (_cmd == "QUIT")
 		quit(serv);
 	else if (_cmd == "PING") {

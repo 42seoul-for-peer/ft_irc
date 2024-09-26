@@ -59,7 +59,7 @@ class Command {
 	void	part(Client& send_clnt, Server& serv);
 	void	topic(Client& send_clnt, Server& serv);
 	void	invite(Client& send_clnt, Server& serv);
-	void	quit(Client& send_clnt, Server& serv);
+	void	quit(Server& serv);
 	void	unknownCommand();
 
  private:

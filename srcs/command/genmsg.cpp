@@ -86,6 +86,8 @@ const std::string	Command::_genErrMsg(int rpl_no) const {
 			return (":You're not on channel\r\n");
 		case ERR_USERONCHANNEL:
 			return (":is already on channel\r\n");
+		case ERR_NOTREGISTERED:
+			return (":You have not registered\r\n");
 		case ERR_NEEDMOREPARAMS:
 			return (":Not enough parameters\r\n");
 		case ERR_ALREADYREGISTRED:

@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include <string>
 
-void Command::privmsg(Server& serv) {
+void Command::privmsg(Client& send_clnt, Server& serv) {
 
 	std::string prefix;
 	std::string msg;
