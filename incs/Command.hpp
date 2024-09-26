@@ -53,12 +53,12 @@ class Command {
 	void	nick(Client& send_clnt, Server& serv);
 	void	user(Client& send_clnt, Server& serv);
 	void	join(Client& send_clnt, Server& serv);
-	void	privmsg(Server& serv);
-	void	mode(Server& serv);
-	void	kick(Server& serv);
+	void	privmsg(Client& send_clnt, Server& serv);
+	void	mode(Client& send_clnt, Server& serv);
+	void	kick(Client& send_clnt, Server& serv);
 	void	part(Client& send_clnt, Server& serv);
-	void	topic(Server& serv);
-	void	invite(Server& serv);
+	void	topic(Client& send_clnt, Server& serv);
+	void	invite(Client& send_clnt, Server& serv);
 	void	quit(Server& serv);
 	void	unknownCommand();
 

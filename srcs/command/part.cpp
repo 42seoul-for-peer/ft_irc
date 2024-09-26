@@ -5,6 +5,10 @@ void Command::part(Client& send_clnt, Server& serv) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
+		return ;
+	}
 
 	std::map< std::string, Channel* > 			serv_channels = serv.getChannels();
 	std::vector< std::string >					clnt_channels = send_clnt.getCurrChannel();

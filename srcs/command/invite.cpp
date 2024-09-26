@@ -14,7 +14,7 @@ bool isExistedClient(Server& serv, const std::string& nickname) {
 	return (true);
 }
 
-void Command::invite(Server& serv) {
+void Command::invite(Client& send_clnt, Server& serv) {
 	std::string prefix;
 	std::string msg;
 
@@ -24,7 +24,11 @@ void Command::invite(Server& serv) {
 	//! 인자의 개수가 2개를 초과 (ex; INVITE a b c ...)
 	else if (_args.size() > 2)
 		return ;
-	
+	//! 클라이언트가 등록되지 않음
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
+		return ;
+	}
 	std::string nickname = _args.front();
 	_args.pop();
 	std::string channel = _args.front();

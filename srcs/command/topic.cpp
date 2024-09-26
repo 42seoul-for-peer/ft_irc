@@ -1,9 +1,13 @@
 #include "Command.hpp"
 
-void Command::topic(Server& serv) {
+void Command::topic(Client& send_clnt, Server& serv) {
 	//! 인자의 개수가 부족
 	if (_args.size() < 1) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
+		return ;
+	}
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
 		return ;
 	}
 

@@ -8,6 +8,7 @@ void Command::quit(Server& serv) {
 
 	std::map< int, Client* > 			serv_clients = serv.getClients();
 	std::map< int, Client* >::iterator	clnt_target = serv_clients.begin();
+	
 	while (clnt_target != serv_clients.end()) {
 		if (clnt_target->second->getNickname() == _send_nick)
 			break ;

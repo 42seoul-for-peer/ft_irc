@@ -5,7 +5,11 @@ void Command::join(Client& send_clnt, Server& serv) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, _cmd));
 		return ;
 	}
-
+	//! 클라이언트가 등록되지 않음
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
+		return ;
+	}
 	std::vector<std::string>	titles = _parsebyComma();
 	const int					title_size = titles.size();
 	_args.pop();

@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include <string>
 
-void Command::privmsg(Server& serv) {
+void Command::privmsg(Client& send_clnt, Server& serv) {
 
 	std::string prefix;
 	std::string msg;
@@ -27,6 +27,10 @@ void Command::privmsg(Server& serv) {
 	msg_content = _appendRemaining();
 	if (msg_content.size() == 0) {
 		setMsgs(_send_nick, _genMsg(ERR_NOTEXTTOSEND));
+		return ;
+	}
+	if (!send_clnt.getRegistered()) {
+		setMsgs(_send_nick, _genMsg(ERR_NOTREGISTERED, _cmd));
 		return ;
 	}
 
