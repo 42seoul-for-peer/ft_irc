@@ -3,13 +3,11 @@
 #include "../incs/Client.hpp"
 
 // OCCF
-Client::~Client()	{
-	// std::cout << "Default destructor called for Client.\n";
-}
+Client::~Client()	{}
 
 // MEMBER FUNCTION
-Client::Client(int clientSock)
-: _sock_fd(clientSock), _pass_validity(-1), _registered(false), _connected(true),
+Client::Client(int client_sock)
+: _sock_fd(client_sock), _pass_validity(-1), _registered(false), _connected(true),
 _username("*"), _nickname("*") {}
 
 const std::string&	Client::getAddr(void) const {

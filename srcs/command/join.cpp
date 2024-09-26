@@ -32,7 +32,7 @@ void Command::join(Client& send_clnt, Server& serv) {
 		}
 		//? title이 존재하는 채널인지 탐색
 		chan_it = channels.find(titles[i]);
-		//todo 채널이 존재하지 않음(신규 생성)
+
 		if (chan_it == channels.end()) {
 			Channel* new_channel = new Channel(titles[i], &send_clnt);
 			serv.addNewChnl(new_channel);
@@ -40,7 +40,6 @@ void Command::join(Client& send_clnt, Server& serv) {
 			setMsgs(_send_nick, _genMsg(RPL_NAMREPLY, "= " + titles[i], ":@" + new_channel->printClientsList()));
 			setMsgs(_send_nick, _genMsg(RPL_ENDOFNAMES, titles[i]));
 		}
-		//todo 채널이 존재함 (접속 시도, 비밀번호 확인 필요)
 		else {
 			//! 이미 접속중인 채널(출력 없음)
 			std::vector< std::string > curr_chan = send_clnt.getCurrChannel();
@@ -48,25 +47,29 @@ void Command::join(Client& send_clnt, Server& serv) {
 				continue ;
 			const int chan_mode = chan_it->second->getMode();
 			std::vector< std::string > invited_list = chan_it->second->getInvitedClients();
-			//! Case 'k'; 인자로 입력받은 key 값이 없거나 비밀번호가 다름
-			if (chan_mode & MODE_K && \
-					(i > passwd_size - 1 || passwords[i] != chan_it->second->getPasswd())) {
-				setMsgs(_send_nick, _genMsg(ERR_BADCHANNELKEY, titles[i]));
-				continue ;
+			//? 초대된 유저인지 확인
+			if (std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) != invited_list.end())
+				;
+			else {
+				//! Case 'k'; 인자로 입력받은 key 값이 없거나 비밀번호가 다름
+				if (chan_mode & MODE_K && \
+						(i > passwd_size - 1 || passwords[i] != chan_it->second->getPasswd())) {
+					setMsgs(_send_nick, _genMsg(ERR_BADCHANNELKEY, titles[i]));
+					continue ;
+				}
+				//! Case 'i'; invited_list에 send_clnt의 username이 존재하지 않음
+				if (chan_mode & MODE_I && \
+						std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) == invited_list.end()) {
+					setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
+					continue ;
+				}
+				//! Case 'l'; 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼('i'가 활성화 됐을 때, 'l'은 무시됨)
+				if (chan_mode & MODE_L && !(chan_mode & MODE_I) && \
+							static_cast<int>(chan_it->second->getClients().size()) >= chan_it->second->getMaxClients()) {
+					setMsgs(_send_nick, _genMsg(ERR_CHANNELISFULL, titles[i]));
+					continue ;
+				}
 			}
-			//! Case 'i'; invited_list에 send_clnt의 username이 존재하지 않음
-			if (chan_mode & MODE_I && \
-					std::find(invited_list.begin(), invited_list.end(), send_clnt.getNickname()) == invited_list.end()) {
-				setMsgs(_send_nick, _genMsg(ERR_INVITEONLYCHAN, titles[i]));
-				continue ;
-			}
-			//! Case 'l'; 현재 접속 유저 수가 channel의 최대 유저 수와 같거나 큼('i'가 활성화 됐을 때, 'l'은 무시됨)
-			if (chan_mode & MODE_L && !(chan_mode & MODE_I) && \
-						static_cast<int>(chan_it->second->getClients().size()) >= chan_it->second->getMaxClients()) {
-				setMsgs(_send_nick, _genMsg(ERR_CHANNELISFULL, titles[i]));
-				continue ;
-			}
-			//todo 접속 가능
 			chan_it->second->rmInvitedClients(_send_nick);
 			chan_it->second->addClient(std::make_pair(false, &send_clnt));
 			setMsgs(titles[i], _genPrefix(0) + _cmd + " :" + titles[i] + "\n");

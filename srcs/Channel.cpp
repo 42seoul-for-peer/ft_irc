@@ -2,13 +2,11 @@
 #include "Channel.hpp"
 
 // OCCF
-Channel::~Channel() {
-	// std::cout << "Default destructor called for Channel.\n";
-}
+Channel::~Channel() {}
 
 // MEMBER FUNCTION
 Channel::Channel(std::string title, Client* client)
-: _mode(0), _max_clients(-1), _title(title) {
+: _mode(MODE_T), _max_clients(-1), _title(title) {
     _clients.push_back(std::pair< bool, Client* >(true, client));
     client->joinChannel(*this);
 }
@@ -25,14 +23,14 @@ void Channel::setMaxClients(int& num) {
     _max_clients = num;
 }
 
-void Channel::setMode(const bool& status, const int& changedMode) {
+void Channel::setMode(const bool& status, const int& changed_mode) {
     // flag가 + 상태
     if (status == true) {
-        _mode |= changedMode;
+        _mode |= changed_mode;
     }
     // flag가 - 상태
     else {
-        _mode ^= changedMode;
+        _mode ^= changed_mode;
     }
 }
 

@@ -9,10 +9,8 @@ int main(int argc, char *argv[])
 		Server serv(argv[1], argv[2]);
 		serv.serverInit();
 		serv.serverProcess();
-		// serv.serverClose();
 	}
 	catch (const std::exception& e) {
-		// if (Server::PortOutOfRangeException || Server)
 		std::cout << e.what() << std::endl;
 		return (1);
 	}

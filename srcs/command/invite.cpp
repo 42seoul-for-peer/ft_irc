@@ -1,13 +1,5 @@
 #include "Command.hpp"
-/*
-? 특수한 에러 코드
-invite #room1
-:irc.local 337 user3 :End of INVITE list
-invite user1
-:irc.local 337 user3 :End of INVITE list
-invite user1 user2 #room1
-:irc.local NOTICE user3 :*** Invalid duration for invite
-*/
+
 bool isExistedClient(Server& serv, const std::string& nickname) {
 	std::map< int, Client* > user_list = serv.getClients();
 	std::map< int, Client* >::iterator user_target = user_list.begin();
@@ -27,14 +19,12 @@ void Command::invite(Server& serv) {
 	std::string msg;
 
 	//! 인자의 개수가 없거나 1개(nickname or channel)
-	//! inspircd -> ":irc.local 337 nickname :End of INVITE list"
 	if (_args.size() <= 1)
 		return ;
 	//! 인자의 개수가 2개를 초과 (ex; INVITE a b c ...)
-	//! inspircd -> ":irc.local NOTICE user3 :*** Invalid duration for invite"
 	else if (_args.size() > 2)
 		return ;
-	// todo channel->invite_list에 nickname 추가
+	
 	std::string nickname = _args.front();
 	_args.pop();
 	std::string channel = _args.front();

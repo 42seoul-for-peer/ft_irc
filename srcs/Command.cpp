@@ -3,15 +3,15 @@
 
 // OCCF
 Command::~Command() {
-	// std::cout << "Default destructor called for Command.\n";
 }
 
 // parameterized constructor
 Command::Command(std::stringstream& input_cmd) {
-	// std::cout << "Parameterized constructor called for Command.\n";
 	std::string token;
 
 	std::getline(input_cmd, token, ' ');
+	while (token == "")
+		std::getline(input_cmd, token, ' ');
 	_cmd = token;
 	for (size_t i = 0; i < _cmd.length(); i++) {
 		if (std::islower(_cmd[i])) {

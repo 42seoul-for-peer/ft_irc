@@ -40,7 +40,7 @@ class Channel {
 	void setTopic(std::string& str);
 	void setPasswd(std::string& str);
 	void setMaxClients(int& num);
-	void setMode(const bool& status, const int& changedMode);
+	void setMode(const bool& status, const int& changed_mode);
 	void setOperator(const bool& status, const std::string& clnt_name);
 
 	// GETTER

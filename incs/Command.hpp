@@ -63,6 +63,7 @@ class Command {
 	void	unknownCommand();
 
  private:
+	void	_promptMode(bool is_joined, Channel* chan);
 	void	_iMode(bool flag, Channel* chan);
 	void	_kMode(bool flag, Channel* chan);
 	void	_lMode(bool flag, Channel* chan);
