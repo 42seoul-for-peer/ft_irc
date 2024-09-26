@@ -19,36 +19,41 @@ std::queue< std::pair< bool, char > > getFlag(const std::string& string) {
 	return (flag_queue);
 }
 
-void Command::_kMode(bool flag, Channel* chan) {
+bool Command::_kMode(bool flag, Channel* chan) {
 	std::string pref;
 	std::string msg;
 
 	if (_args.empty()) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, chan->getTitle(), "k *"));
-		return ;
+		return (false);
 	}
 	std::string pw_str = _args.front();
 	// flag가 true(+)이고, 이미 +k 모드가 아닐 때
 	if (flag == true && !(chan->getMode() & MODE_K)) {
 		chan->setMode(flag, MODE_K);
 		chan->setPasswd(pw_str);
-		setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+k :" + pw_str));
+		return (true);
 	}
 	// flag가 flase(-)이고, 이미 -k 모드가 아닐 때
 	else if (flag == false && (chan->getMode() & MODE_K)) {
 		// 인자의 string이 설정된 비밀번호와 같을 때
 		if (chan->getPasswd() == pw_str) {
 			chan->setMode(flag, MODE_K);
-			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "-k :" + pw_str));
 		}
 		// 인자의 string과 설정된 비밀번호가 다를 때
 		else
+		{
 			setMsgs(_send_nick, _genMsg(ERR_KEYSET, chan->getTitle()));
+			_args.pop();
+			return (false);
+		}
+		return (true);
 	}
 	_args.pop();
+	return (false);
 }
 
-void Command::_iMode(bool flag, Channel* chan) {
+bool Command::_iMode(bool flag, Channel* chan) {
 	std::string msg;
 
 	// flag가 '+', 채널은 '-'인 상태 / 또는 flag가 '-', 채널은 '+'인 상태
@@ -59,39 +64,45 @@ void Command::_iMode(bool flag, Channel* chan) {
 			msg = _genMsg(0, _cmd + " " + chan->getTitle(), ":+i");
 		else
 			msg = _genMsg(0, _cmd + " " + chan->getTitle(), ":-i");
-		setMsgs(chan->getTitle(), msg);
+		return (true);
 	}
+	return (false);
 }
 
-void Command::_lMode(bool flag, Channel* chan) {
+bool Command::_lMode(bool flag, Channel* chan) {
 	std::string msg;
 
 	// flag가 '-'
 	if (flag == false && (chan->getMode() & MODE_L)) {
 		chan->setMode(flag, MODE_L);
-		setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), ":-l"));
+		return (true);
 	}
 	else if (flag == true) {
 		// 인자가 없음
 		if (_args.empty()) {
 			setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, chan->getTitle(), "l *"));
-			return ;
+			return (false);
 		}
 		int limit_str = std::atoi(_args.front().c_str());
 		std::stringstream stream;
 		stream << limit_str;
 		if (limit_str < 0)
+		{
 			setMsgs(_send_nick, _genMsg(696, chan->getTitle() + " l", _args.front() + " :Invalid limit mode parameter. Syntax: <limit>."));
+			_args.pop();
+			return (false);
+		}
 		else if (chan->getMaxClients() != limit_str || stream.str() != _args.front()) {
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
-			setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+l :" + stream.str()));
+			return (true);
 		}
-		_args.pop();
 	}
+	_args.pop();
+	return (false);
 }
 
-void Command::_tMode(bool flag, Channel* chan) {
+bool Command::_tMode(bool flag, Channel* chan) {
 	std::string msg;
 
 	if ((flag == true && !(chan->getMode() & MODE_T)) || \
@@ -101,17 +112,18 @@ void Command::_tMode(bool flag, Channel* chan) {
 			msg = _genMsg(0, _cmd + " " + chan->getTitle(), ":+t");
 		else
 			msg = _genMsg(0, _cmd + " " + chan->getTitle(), ":-t");
-		setMsgs(chan->getTitle(), msg);
+		return (true);
 	}
+	return (false);
 }
 
-void Command::_oMode(bool flag, Channel* chan) {
+bool Command::_oMode(bool flag, Channel* chan) {
 	std::vector< std::pair< bool, Client* > >::const_iterator clnt_list = chan->getClients().begin();
 
 	// 전달받을 인자가 없음
 	if (_args.empty()) {
 		setMsgs(_send_nick, _genMsg(ERR_NEEDMOREPARAMS, chan->getTitle(), "o *"));
-		return ;
+		return (false);
 	}
 	//! chans_it 탐색
 	while (clnt_list != chan->getClients().end()) {
@@ -122,18 +134,21 @@ void Command::_oMode(bool flag, Channel* chan) {
 	//! chans_it이 없음
 	if (clnt_list == chan->getClients().end()) {
 		setMsgs(_send_nick, _genMsg(ERR_NOSUCHNICK, _args.front()));
-		return ;
+		_args.pop();
+		return (false);
 	}
 	//* (1) flag는 true, chans_it는 false
 	if (flag == true && clnt_list->first == false) {   
 		chan->setOperator(true, _args.front());
-		setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "+o :" + clnt_list->second->getNickname()));
+		return (true);
 	}
 	//* (2) flag는 false, chans_it은 true
 	else if (flag == false && clnt_list->first == true) {
 		chan->setOperator(false, _args.front());
-		setMsgs(chan->getTitle(), _genMsg(0, _cmd + " " + chan->getTitle(), "-o :" + clnt_list->second->getNickname()));
+		return (true);
 	}
+	_args.pop();
+	return (false);
 }
 
 void Command::_promptMode(bool is_joined, Channel* chan)
@@ -230,30 +245,108 @@ void Command::mode(Server& serv) {
 		setMsgs(_send_nick, _genMsg(ERR_CHANOPRIVSNEEDED, chan_title));
 		return ;
 	}
-	std::queue< std::pair< bool, char > > flag_queue = getFlag(_args.front());
+	std::queue< std::pair< int, std::string > >	token_queue;
+	std::queue< std::pair< bool, char > >		flag_queue = getFlag(_args.front());
+	int											is_enable = 1;
 	_args.pop();
 	while (!flag_queue.empty()) {
 		std::pair< bool, char > flag = flag_queue.front();
+		if (flag.first == true)
+			is_enable = 1;
+		else
+			is_enable = -1;
 		switch (flag.second) {
 			case 'k':
-				_kMode(flag.first, chans_it->second);
+				if (_kMode(flag.first, chans_it->second))
+				{
+					token_queue.push(std::make_pair(MODE_K * is_enable, _args.front()));
+					_args.pop();
+				}
 				break ;
 			case 'l':
-				_lMode(flag.first, chans_it->second);
+				if (_lMode(flag.first, chans_it->second))
+				{
+					if (is_enable == 1)
+					{
+						int limit_str = std::atoi(_args.front().c_str());
+						std::stringstream stream;
+						stream << limit_str;
+						token_queue.push(std::make_pair(MODE_L * is_enable, stream.str()));
+						_args.pop();
+					}
+					else
+						token_queue.push(std::make_pair(MODE_L * is_enable, ""));
+				}
 				break ;
 			case 'o':
-				_oMode(flag.first, chans_it->second);
+				if (_oMode(flag.first, chans_it->second))
+				{
+					token_queue.push(std::make_pair(MODE_O * is_enable, _args.front()));
+					_args.pop();
+				}
 				break ;
 			case 'i':
-				_iMode(flag.first, chans_it->second);
+				if (_iMode(flag.first, chans_it->second))
+					token_queue.push(std::make_pair(MODE_I * is_enable, ""));
 				break ;
 			case 't':
-				_tMode(flag.first, chans_it->second);
+				if (_tMode(flag.first, chans_it->second))
+					token_queue.push(std::make_pair(MODE_T * is_enable, ""));
 				break ;
 			default:
 				setMsgs(_send_nick, _genMsg(ERR_UNKNOWNMODE, std::string(1, flag.second)));
 				break ;
 		}
 		flag_queue.pop();
+	}
+	std::string set_mode_msg;
+	std::queue< std::string > param_queue;
+	int recent_flag = 0;
+	while (!token_queue.empty())
+	{
+		std::pair< int, std::string > token = token_queue.front();
+		// 처음 token을 계산하는 상황이거나 이전 flag와 +-값이 다른 상황
+		if (set_mode_msg.empty() || recent_flag * token.first < 0)
+			set_mode_msg += token.first > 0 ? "+" : "-";
+		recent_flag = token.first > 0 ? 1 : -1;
+		if (token.first < 0)
+			token.first *= -1;
+		switch (token.first)
+		{
+			case MODE_K:
+				set_mode_msg += "k";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_L:
+				set_mode_msg += "l";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_O:
+				set_mode_msg += "o";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_T:
+				set_mode_msg += "t";
+				break;
+			case MODE_I:
+				set_mode_msg += "i";
+				break;
+		}
+		token_queue.pop();
+	}
+	if (!set_mode_msg.empty())
+	{
+		set_mode_msg += " ";
+		while (!param_queue.empty())
+		{
+			set_mode_msg += param_queue.front();
+			param_queue.pop();
+			if (!param_queue.empty())
+				set_mode_msg += " ";
+		}
+		setMsgs(chans_it->first, _genMsg(0, _cmd + " " + chans_it->first, set_mode_msg));
 	}
 }
