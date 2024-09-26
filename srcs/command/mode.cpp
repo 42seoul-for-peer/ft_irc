@@ -92,7 +92,7 @@ bool Command::_lMode(bool flag, Channel* chan) {
 			_args.pop();
 			return (false);
 		}
-		else if (chan->getMaxClients() != limit_str || stream.str() != _args.front()) {
+		else if (!(chan->getMode() & MODE_L) || chan->getMaxClients() != limit_str || stream.str() != _args.front()) {
 			chan->setMode(flag, MODE_L);
 			chan->setMaxClients(limit_str);
 			return (true);
@@ -196,6 +196,59 @@ void Command::_promptMode(bool is_joined, Channel* chan)
 	setMsgs(_send_nick, _genMsg(RPL_CHANNELMODEIS, chan->getTitle(), token));
 }
 
+std::string Command::_makeModeMsg(std::queue< std::pair< int, std::string > > token_queue) {
+	std::string mode_msg;
+	std::queue< std::string > param_queue;
+	int recent_flag = 0;
+	while (!token_queue.empty())
+	{
+		std::pair< int, std::string > token = token_queue.front();
+		// 처음 token을 계산하는 상황이거나 이전 flag와 +-값이 다른 상황
+		if (mode_msg.empty() || recent_flag * token.first < 0)
+			mode_msg += token.first > 0 ? "+" : "-";
+		recent_flag = token.first > 0 ? 1 : -1;
+		if (token.first < 0)
+			token.first *= -1;
+		switch (token.first)
+		{
+			case MODE_K:
+				mode_msg += "k";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_L:
+				mode_msg += "l";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_O:
+				mode_msg += "o";
+				if (!token.second.empty())
+					param_queue.push(token.second);
+				break;
+			case MODE_T:
+				mode_msg += "t";
+				break;
+			case MODE_I:
+				mode_msg += "i";
+				break;
+		}
+		token_queue.pop();
+	}
+	if (!mode_msg.empty() && !param_queue.empty())
+	{
+		mode_msg += " ";
+		while (!param_queue.empty())
+		{
+			mode_msg += param_queue.front();
+			param_queue.pop();
+			if (!param_queue.empty())
+				mode_msg += " ";
+		}
+	}
+	return (mode_msg);
+}
+
 void Command::mode(Server& serv) {
 	std::string prefix;
 	//! 인자 부족
@@ -223,18 +276,15 @@ void Command::mode(Server& serv) {
 			break ;
 		clnts_it++;
 	}
-
 	//? 채널 접속 여부 확인
 	bool is_joined = true;
 	if (clnts_it == chan_clnts.end())
 		is_joined = false;
-
 	//? 들어온 안자가 채널밖에 없음 -> 채널의 모드 출력
 	if (_args.empty()) {
 		_promptMode(is_joined, chans_it->second);
 		return ;
 	}
-
 	//! 채널에 클라이언트가 속해있지 않음
 	if (clnts_it == chan_clnts.end()) {
 		setMsgs(_send_nick, _genMsg(ERR_NOTONCHANNEL, chan_title));
@@ -299,54 +349,7 @@ void Command::mode(Server& serv) {
 		}
 		flag_queue.pop();
 	}
-	std::string set_mode_msg;
-	std::queue< std::string > param_queue;
-	int recent_flag = 0;
-	while (!token_queue.empty())
-	{
-		std::pair< int, std::string > token = token_queue.front();
-		// 처음 token을 계산하는 상황이거나 이전 flag와 +-값이 다른 상황
-		if (set_mode_msg.empty() || recent_flag * token.first < 0)
-			set_mode_msg += token.first > 0 ? "+" : "-";
-		recent_flag = token.first > 0 ? 1 : -1;
-		if (token.first < 0)
-			token.first *= -1;
-		switch (token.first)
-		{
-			case MODE_K:
-				set_mode_msg += "k";
-				if (!token.second.empty())
-					param_queue.push(token.second);
-				break;
-			case MODE_L:
-				set_mode_msg += "l";
-				if (!token.second.empty())
-					param_queue.push(token.second);
-				break;
-			case MODE_O:
-				set_mode_msg += "o";
-				if (!token.second.empty())
-					param_queue.push(token.second);
-				break;
-			case MODE_T:
-				set_mode_msg += "t";
-				break;
-			case MODE_I:
-				set_mode_msg += "i";
-				break;
-		}
-		token_queue.pop();
-	}
-	if (!set_mode_msg.empty())
-	{
-		set_mode_msg += " ";
-		while (!param_queue.empty())
-		{
-			set_mode_msg += param_queue.front();
-			param_queue.pop();
-			if (!param_queue.empty())
-				set_mode_msg += " ";
-		}
-		setMsgs(chans_it->first, _genMsg(0, _cmd + " " + chans_it->first, set_mode_msg));
-	}
+	std::string mode_msg = _makeModeMsg(token_queue);
+	if (!mode_msg.empty())
+		setMsgs(chans_it->first, _genMsg(0, _cmd + " " + chans_it->first, mode_msg));
 }
